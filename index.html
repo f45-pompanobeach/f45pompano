@@ -1084,6 +1084,104 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   }
 }
 
+
+/* REAL FIXED HEADER — PROMO BAR + NAV ONLY */
+.page-top-wrap{
+  position:fixed !important;
+  top:0 !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  width:100% !important;
+  max-width:1218px !important;
+  z-index:2147483647 !important;
+  background:#fff !important;
+  margin:0 !important;
+}
+
+body{
+  padding-top:146px !important;
+}
+
+.promo-banner-new,
+.screenshot-nav{
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+}
+
+.screenshot-hero{
+  margin-top:0 !important;
+}
+
+/* Bigger, stronger mobile top CTA bar */
+@media(max-width:640px){
+  body{
+    padding-top:158px !important;
+  }
+
+  .page-top-wrap{
+    left:0 !important;
+    transform:none !important;
+    max-width:none !important;
+    width:100vw !important;
+  }
+
+  .promo-banner-new{
+    padding:14px 12px !important;
+    min-height:78px !important;
+    border-radius:0 0 16px 16px !important;
+    box-shadow:0 6px 20px rgba(0,0,0,.34) !important;
+  }
+
+  .promo-banner-inner{
+    display:grid !important;
+    grid-template-columns:1fr auto !important;
+    grid-template-areas:
+      "title button"
+      "code button" !important;
+    align-items:center !important;
+    gap:7px 10px !important;
+  }
+
+  .promo-banner-title{
+    grid-area:title !important;
+    font-size:1.02rem !important;
+    line-height:1.1 !important;
+    max-width:none !important;
+  }
+
+  .promo-code-box{
+    grid-area:code !important;
+    display:inline-flex !important;
+    justify-self:start !important;
+    padding:8px 11px !important;
+    border-radius:9px !important;
+  }
+
+  .promo-code-box span:last-child{
+    display:inline !important;
+    font-size:.88rem !important;
+    font-weight:900 !important;
+    white-space:nowrap !important;
+  }
+
+  .promo-claim-btn{
+    grid-area:button !important;
+    padding:14px 16px !important;
+    min-height:50px !important;
+    font-size:.9rem !important;
+    border-radius:9px !important;
+  }
+
+  .screenshot-nav{
+    height:80px !important;
+    min-height:80px !important;
+    padding:8px 10px !important;
+    background:#fff !important;
+    box-shadow:0 2px 8px rgba(0,0,0,.08) !important;
+  }
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
@@ -1111,7 +1209,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 <div class="page-top-wrap">
   <div class="promo-banner-new">
     <div class="promo-banner-inner">
-      <div class="promo-banner-title">Intro Pass: 3 Classes for $15</div>
+      <div class="promo-banner-title">NEW Intro Pass: 3 Classes for $15</div>
       <div class="promo-code-box">
         
         <span>Promo Code: BREW15</span>
