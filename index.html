@@ -969,6 +969,38 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   }
 }
 
+
+/* FORCE MOBILE HEADER TO STAY VISIBLE */
+@media(max-width:640px){
+  .page-top-wrap{
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    right:0 !important;
+    z-index:99999 !important;
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+  }
+
+  .promo-banner-new{
+    position:relative !important;
+    top:auto !important;
+    z-index:100000 !important;
+    margin:0 !important;
+  }
+
+  .screenshot-nav{
+    position:relative !important;
+    top:auto !important;
+    z-index:100000 !important;
+  }
+
+  .screenshot-hero{
+    margin-top:132px !important;
+  }
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
