@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- v119 -->
+<!-- v157 -->
 <title>F45 Training Pompano Beach | 3 Classes for $15</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -145,7 +145,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--white);color:var(
 .footer-stars-row{display:flex;align-items:center;gap:10px;margin-bottom:26px;}
 .footer-stars{color:var(--yellow);font-size:1.1rem;}
 .footer-google{font-size:1.0rem;font-weight:700;color:rgba(255,255,255,0.9);}
-.footer-info{font-size:1.05rem;color:rgba(255,255,255,0.7);line-height:2.6;margin-bottom:28px;}
+.footer-info{font-size:1.05rem;color:rgba(255,255,255,0.7);line-height:2.6;margin-bottom:48px;}
 .footer-info a{color:rgba(255,255,255,0.7);text-decoration:none;}
 .footer-info a:hover{color:var(--yellow);}
 .footer-legal{font-size:0.8rem;color:rgba(255,255,255,0.3);}
@@ -175,17 +175,18 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 .combined-bar{background:var(--yellow);color:var(--navy);padding:10px 12px;position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .combined-bar-left{display:flex;flex-direction:column;gap:1px;}
 .bar-line{line-height:1.4;}
-.bar-label{font-size:0.7rem;font-weight:600;color:var(--navy);opacity:0.7;letter-spacing:0.5px;text-transform:uppercase;}
-.bar-cta-btn{background:var(--red);color:var(--white);font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:14px 16px;border-radius:4px;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:background 0.18s;text-align:center;line-height:1.3;}
+.bar-label{font-size:1.1rem;font-weight:900;color:var(--navy);letter-spacing:0.5px;}
+.bar-cta-btn{background:var(--white);color:var(--navy);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:900;padding:0;border-radius:10px;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:opacity 0.18s;display:inline-flex;flex-direction:column;align-items:stretch;overflow:hidden;min-width:340px;text-align:center;}
 .bar-cta-btn:hover{background:var(--red-hover);}
-.promo-code{letter-spacing:3px;font-size:1rem;background:var(--navy);color:var(--white);padding:1px 8px;border-radius:3px;font-weight:900;display:inline-block;}
+.bar-cta-sub{display:block;font-size:0.62rem;font-weight:600;letter-spacing:0;text-transform:none;opacity:0.85;margin-top:1px;}
+.promo-code{letter-spacing:3px;font-size:1.1rem;background:var(--navy);color:var(--yellow);padding:3px 12px;border-radius:3px;font-weight:900;display:inline-block;}
 .hero{background:var(--navy);color:var(--white);flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:32px 32px;}
 .hero-location{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:14px;}
-.hero-offer{font-size:clamp(1.5rem,3.5vw,2.4rem);font-weight:900;color:var(--white);line-height:1.15;margin-bottom:10px;}
+.hero-offer{font-size:clamp(1.8rem,5.5vw,5rem);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:16px;}
 .hero-save{color:var(--yellow);}
 
 .hero-subtext{font-size:1rem;font-weight:500;color:rgba(255,255,255,0.65);max-width:480px;margin:0 auto 28px;line-height:1.6;}
-.countdown-timer{font-size:1.3rem;font-weight:900;color:var(--white);letter-spacing:2px;font-variant-numeric:tabular-nums;background:var(--navy);padding:2px 10px;border-radius:3px;display:inline-block;}
+.countdown-timer{font-size:1.3rem;font-weight:900;color:var(--yellow);letter-spacing:2px;font-variant-numeric:tabular-nums;background:var(--navy);padding:3px 12px;border-radius:3px;display:inline-block;}
 
 
 
@@ -231,7 +232,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 /* HERO + VIDEO ROW */
 .hero-video-row{display:flex;align-items:stretch;min-height:320px;}
 .hero{background:var(--navy);color:var(--white);flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:32px 32px;}
-.hero-offer{font-size:clamp(1.5rem,3.5vw,2.4rem);font-weight:900;color:var(--white);line-height:1.15;margin-bottom:10px;}
+.hero-offer{font-size:clamp(1.8rem,5.5vw,5rem);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:16px;}
 
 .hero-save{color:var(--yellow);}
 .hero-code{color:var(--white);letter-spacing:2px;font-weight:900;text-decoration:underline;text-decoration-color:var(--yellow);text-underline-offset:4px;}
@@ -277,18 +278,18 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 @media(max-width:600px){.included-grid{grid-template-columns:1fr;}}
 
 /* 6-REVIEW GRID */
-.review-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
 .review-box{background:var(--white);border:0.5px solid var(--gray-line);border-top:2px solid var(--red);padding:28px 24px;display:flex;flex-direction:column;gap:12px;}
 .review-box-highlight{border-top-color:var(--yellow);background:#fffdf0;}
 .review-box .review-stars{color:var(--yellow);font-size:1rem;}
 .review-box p{font-size:0.85rem;font-style:italic;color:var(--black-text);line-height:1.8;flex:1;}
 .review-box .review-author{font-size:0.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-text);}
 
-@media(max-width:560px){.review-grid{grid-template-columns:1fr;}}
+@media(max-width:700px){.review-grid{grid-template-columns:1fr;}}
 
 
 .hero-includes{margin-top:16px;list-style:none;display:flex;flex-direction:column;gap:8px;border-top:1px solid rgba(255,255,255,0.15);padding-top:16px;}
-.hero-include{display:flex;align-items:flex-start;gap:8px;font-size:0.88rem;color:rgba(255,255,255,0.85);line-height:1.5;font-weight:500;}
+.hero-include{display:flex;align-items:flex-start;gap:8px;font-size:1.1rem;color:rgba(255,255,255,0.85);line-height:1.6;font-weight:500;}
 .hero-check-icon{color:var(--yellow);font-weight:900;font-size:1rem;flex-shrink:0;}
 
 .nav-logo{height:44px;width:auto;object-fit:contain;display:block;flex-shrink:0;}
@@ -296,11 +297,11 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 .nav-logo-link:hover{opacity:0.85;}
 .sticky-wrapper{position:sticky;top:0;z-index:1000;width:100%;}
 
-.hero-scarcity{display:inline-flex;align-items:center;gap:6px;background:rgba(232,39,42,0.15);border:1px solid rgba(232,39,42,0.4);padding:5px 12px;border-radius:100px;font-size:0.78rem;font-weight:700;color:#ff8080;margin-bottom:12px;}
-.hero-blink{width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0;animation:blink 1s ease-in-out infinite;}
+.hero-scarcity{display:inline-flex;align-items:center;gap:10px;background:var(--white);padding:12px 26px;border-radius:100px;font-size:1.3rem;font-weight:800;letter-spacing:0.5px;color:var(--navy);margin-bottom:48px;}
+.hero-blink{width:8px;height:8px;background:var(--red);border-radius:50%;flex-shrink:0;animation:blink 1s ease-in-out infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.1}}
-.hero-eyebrow{font-size:0.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);margin-bottom:8px;}
-.hero-promo-line{font-size:clamp(0.9rem,1.8vw,1.1rem);font-weight:600;color:rgba(255,255,255,0.8);margin-bottom:16px;}
+.hero-eyebrow{font-size:1.1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--yellow);margin-bottom:18px;}
+.hero-promo-line{font-size:clamp(1rem,2.8vw,2rem);font-weight:600;color:rgba(255,255,255,0.8);margin-bottom:24px;}
 
 
 /* WHAT HAPPENS NEXT */
@@ -374,6 +375,61 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 
 .faq-group-label{font-size:0.72rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--navy);background:var(--gray-bg);padding:10px 16px;margin-bottom:2px;margin-top:20px;}
 .faq-group-label:first-of-type{margin-top:0;}
+
+.mid-cta-bar{background:var(--navy);padding:28px 32px;}
+.mid-cta-inner{width:100%;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.mid-cta-title{font-size:clamp(1.5rem,3.5vw,2.4rem);font-weight:900;color:var(--white);margin-bottom:8px;}
+.mid-cta-sub{font-size:clamp(1.2rem,2.5vw,1.8rem);color:rgba(255,255,255,0.85);font-weight:700;}
+.mid-cta-sub strong{color:var(--white);}
+.mid-cta-btn{background:var(--white);color:var(--navy);font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:900;padding:0;border-radius:10px;text-decoration:none;text-align:center;white-space:nowrap;flex-shrink:0;margin-left:auto;transition:opacity 0.2s;display:inline-flex;flex-direction:column;align-items:stretch;overflow:hidden;min-width:340px;}
+.mid-cta-btn:hover{opacity:0.9;}
+.mid-cta-btn-sub{display:block;font-size:0.7rem;color:rgba(28,28,46,0.6);margin-top:2px;font-weight:600;}
+@media(max-width:600px){.mid-cta-inner{flex-direction:column;text-align:center;}.mid-cta-btn{width:100%;flex:none;}}
+
+
+@media(max-width:640px){
+  .hero{padding:28px 20px;}
+  .hero-offer{font-size:clamp(1.6rem,7vw,2.2rem) !important;}
+  .hero-promo-line{font-size:clamp(0.9rem,4vw,1.1rem) !important;}
+  .hero-include,.hero-term{font-size:0.88rem !important;}
+}
+
+.mid-btn-top{font-size:1.2rem;font-weight:900;color:#fff;padding:14px 28px;text-align:center;display:block;line-height:1.2;background:linear-gradient(to right,#E8272A 0%,#E8272A 30%,#ff9999 45%,#ffffff 50%,#ff9999 55%,#E8272A 70%,#E8272A 100%);background-size:800px 100%;animation:shimmer 2s linear infinite;}
+.mid-btn-bottom{font-size:0.9rem;font-weight:700;color:var(--navy);background:var(--white);padding:8px 28px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.mid-btn-code{background:var(--navy);color:var(--yellow);font-size:1rem;font-weight:900;letter-spacing:2px;padding:3px 12px;border-radius:3px;}
+
+
+.bar-btn-top{font-size:1.2rem;font-weight:900;color:#fff;padding:14px 28px;text-align:center;display:block;line-height:1.2;background:linear-gradient(to right,#E8272A 0%,#E8272A 30%,#ff9999 45%,#ffffff 50%,#ff9999 55%,#E8272A 70%,#E8272A 100%);background-size:800px 100%;animation:shimmer 2s linear infinite;}
+.bar-btn-bottom{font-size:0.9rem;font-weight:700;color:var(--navy);background:var(--white);padding:8px 28px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.bar-btn-code{background:var(--navy);color:var(--yellow);font-size:1rem;font-weight:900;letter-spacing:2px;padding:3px 12px;border-radius:3px;}
+
+
+@media(max-width:640px){
+  .bar-cta-btn{min-width:0;width:auto;flex-shrink:1;}
+  .bar-btn-top{font-size:0.75rem;padding:7px 10px;}
+  .bar-btn-bottom{font-size:0.65rem;padding:5px 10px;gap:4px;}
+  .bar-btn-code{font-size:0.65rem;padding:1px 6px;letter-spacing:1px;}
+  .combined-bar{padding:6px 8px;gap:6px;}
+  .combined-bar-left{gap:2px;}
+  .bar-label{font-size:0.75rem;}
+  .countdown-timer{font-size:0.9rem;padding:2px 6px;}
+  .promo-code{font-size:0.75rem;padding:1px 6px;}
+}
+
+.secure-badge{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:100px;padding:4px 12px;font-size:0.72rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:5px;margin-top:6px;white-space:nowrap;}
+.btn-with-secure{display:inline-flex;flex-direction:column;align-items:center;gap:0;}
+
+
+
+  100% { background-position: -100% 0; }
+}
+
+
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
 </style>
 
   <!-- Open Graph / Social Sharing -->
@@ -402,12 +458,18 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 <div class="sticky-wrapper">
 <div class="combined-bar">
   <div class="combined-bar-left">
-    <div class="bar-line"><span class="bar-label">Expires:</span></div>
+    <div class="bar-line"><span class="bar-label">Trial Offer Expires:</span></div>
     <div class="bar-line"><span class="countdown-timer" id="countdown">--:--:--</span></div>
   </div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;">
-    <a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="bar-cta-btn">Secure Your Spot</a>
-    <span style="font-size:0.78rem;font-weight:700;color:var(--navy);letter-spacing:1px;">Use code: <strong style="background:var(--navy);color:#FFB800;padding:2px 8px;border-radius:2px;letter-spacing:3px;font-size:0.85rem;">BREW15</strong></span>
+    <div class="btn-with-secure">
+    <a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="bar-cta-btn">
+      <span class="bar-btn-top">Get 3 Classes for $15</span>
+      <span class="bar-btn-bottom">Use Code <span class="bar-btn-code">BREW15</span></span>
+    </a>
+    <div class="secure-badge" style="background:var(--navy);border-color:var(--navy);color:var(--white);">🔒 Secure checkout via Mindbody</div>
+  </div>
+    
   </div>
 </div>
 <nav class="sticky-nav" id="sticky-nav">
@@ -437,8 +499,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 <div class="hero-video-row" id="offer">
   <!-- LEFT: NAVY HERO -->
   <section class="hero">
-    <div class="hero-scarcity"><div class="hero-blink"></div> Fewer than 15 spots remaining</div>
-    <p class="hero-eyebrow">Limited Time Offer</p>
+    <div class="hero-scarcity"><div class="hero-blink"></div> Exclusive Foxtail Coffee Offer</div>
     <h1 class="hero-offer">Try F45 Pompano Beach —<br><span class="hero-save">3 Classes for $15</span></h1>
     <p class="hero-promo-line">Save 50% with Promo Code <span class="hero-code">BREW15</span></p>
     <ul class="hero-includes">
@@ -546,33 +607,29 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 
     <!-- CARDS -->
     <div class="why-grid">
-      <div class="why-card">
-        <div class="why-icon-box">⚡</div>
-        <div class="why-body"><h4>High-Intensity Workouts</h4><p>Burn calories, build muscle, and boost your metabolism with our proven HIIT workouts.</p></div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon-box">🔄</div>
-        <div class="why-body"><h4>Variety &amp; Challenge</h4><p>With over 5,000 exercises and constantly evolving programs, you'll stay engaged and challenged every step of the way.</p></div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon-box">👥</div>
-        <div class="why-body"><h4>Pompano Beach Community</h4><p>Members say F45 Pompano feels like a family, not just a gym. No egos — just teammates who show up for each other every session.</p></div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon-box">🏆</div>
-        <div class="why-body"><h4>Expert-Led Sessions</h4><p>Our certified coaches lead every class, correcting form and pushing you to the right intensity for your level.</p></div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon-box">⏱️</div>
-        <div class="why-body"><h4>Time-Efficient Fitness</h4><p>45 minutes, 7 days a week from 5:30 AM — mornings and evenings available to fit any schedule in Pompano Beach.</p></div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon-box">🥗</div>
-        <div class="why-body"><h4>Clean, Well-Maintained Studio</h4><p>Members consistently rave about how clean and organized our Pompano Beach studio is. Equipment sanitized between every class.</p></div>
-      </div>
+      <div class="why-card"><div class="why-icon-box">⚡</div><div class="why-body"><h4>High-Intensity Workouts</h4><p>Burn calories, build muscle, and boost your metabolism with our proven HIIT workouts.</p></div></div>
+      <div class="why-card"><div class="why-icon-box">🏆</div><div class="why-body"><h4>Expert-Led Sessions</h4><p>Our certified coaches lead every class, correcting form and pushing you to the right intensity for your level.</p></div></div>
+      <div class="why-card"><div class="why-icon-box">👥</div><div class="why-body"><h4>Pompano Beach Community</h4><p>Members say F45 Pompano feels like a family, not just a gym. No egos — just teammates who show up for each other every session.</p></div></div>
     </div>
   </div>
 </section>
+
+<!-- MID-PAGE CTA -->
+<div class="mid-cta-bar">
+  <div class="mid-cta-inner">
+    <div class="mid-cta-text">
+      <div class="mid-cta-title">Ready to try F45 Pompano Beach?</div>
+      <div class="mid-cta-sub">3 Classes for $15 · Save 50%</div>
+    </div>
+    <div class="btn-with-secure">
+      <a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="mid-cta-btn">
+        <span class="mid-btn-top">Claim My $15 Trial</span>
+        <span class="mid-btn-bottom">Use Code <span class="mid-btn-code">BREW15</span></span>
+      </a>
+      <div class="secure-badge">🔒 Secure checkout via Mindbody</div>
+    </div>
+  </div>
+</div>
 
 <!-- REVIEWS -->
 <section class="reviews-section" id="reviews">
@@ -582,20 +639,14 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 
       <div class="review-box">
         <div class="review-stars">★★★★★</div>
-        <p>"This gym has been an amazing experience for the past year. Every coach has been very supportive and encouraging through each challenge. This past challenge I dropped 11 pounds of fat and gained 1.6 pounds of muscle. With the encouragement of the coaches I kept going even when things got hard. Since starting last March I've dropped 27 pounds of fat. This is a great place with an amazing atmosphere — would recommend to anyone!"</p>
+        <p>"This gym has been an amazing experience for the past year. With the encouragement of the coaches I kept going even when things got hard. Since starting last March I've dropped 27 pounds of fat. This is a great place with an amazing atmosphere — would recommend to anyone!"</p>
         <div class="review-author">— Kailey C., Pompano Beach FL</div>
       </div>
 
       <div class="review-box">
         <div class="review-stars">★★★★★</div>
-        <p>"My husband and I started going here last year. As of this date we both have lost about 45lbs together. The workouts are fun and the environment is friendly. There's a different workout everyday, and you're in and out in just 45 minutes a day! We have so much fun we don't even realize we're working out until we start sweating. As long as you're consistent the weight comes off naturally. I'm so glad we found this place — it has changed our lives for the better!"</p>
+        <p>"My husband and I started going here last year. As of this date we both have lost about 45lbs together. The workouts are fun and the environment is friendly. We have so much fun we don't even realize we're working out until we start sweating. I'm so glad we found this place — it has changed our lives for the better!"</p>
         <div class="review-author">— Bree, Pompano Beach FL</div>
-      </div>
-
-      <div class="review-box">
-        <div class="review-stars">★★★★★</div>
-        <p>"I've been a member for 3 months and love going here more after each class. The F45 concept of videos replaying the workouts is super helpful — especially for beginners. Gym is always neat and clean. Coaches are a great support system. They all push you to be stronger both physically and mentally. Special shout-out to Coach Bryan, Alfredo, Travis, Savannah, and Meghan. I wholeheartedly recommend the Pompano location!"</p>
-        <div class="review-author">— Sabrina M., Pompano Beach FL</div>
       </div>
 
       <div class="review-box review-box-highlight">
@@ -679,6 +730,23 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
     </div>
   </div>
 </section>
+
+<!-- FINAL CTA -->
+<div class="mid-cta-bar">
+  <div class="mid-cta-inner">
+    <div class="mid-cta-text">
+      <div class="mid-cta-title">Don't Miss Out — Your Spot Won't Last Long</div>
+      <div class="mid-cta-sub">3 Classes for $15</div>
+    </div>
+    <div class="btn-with-secure">
+      <a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="mid-cta-btn">
+        <span class="mid-btn-top">Claim My $15 Trial</span>
+        <span class="mid-btn-bottom">Use Code <span class="mid-btn-code">BREW15</span></span>
+      </a>
+      <div class="secure-badge">🔒 Secure checkout via Mindbody</div>
+    </div>
+  </div>
+</div>
 
 <!-- CONTACT -->
 <section class="contact-section" id="contact">
