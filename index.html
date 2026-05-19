@@ -946,6 +946,29 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   box-shadow:0 4px 14px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.08) !important;
 }
 
+
+/* MOBILE STICKY HEADER FIX */
+@media(max-width:640px){
+  .page-top-wrap{
+    position:sticky !important;
+    top:0 !important;
+    z-index:9999 !important;
+    width:100% !important;
+    max-width:none !important;
+  }
+
+  .promo-banner-new,
+  .screenshot-nav{
+    position:relative !important;
+    z-index:9999 !important;
+  }
+
+  .screenshot-hero{
+    position:relative !important;
+    z-index:1 !important;
+  }
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
