@@ -1315,6 +1315,34 @@ body{
   }
 }
 
+
+/* MOBILE STAMP FIX — prevent overlap with CTA text */
+@media(max-width:640px){
+  .screenshot-ticket{
+    position:relative !important;
+    right:auto !important;
+    bottom:auto !important;
+    margin:10px auto 12px !important;
+    transform:scale(.78) rotate(8deg) !important;
+    display:block !important;
+  }
+
+  .screenshot-cta{
+    display:block !important;
+    width:100% !important;
+    max-width:310px !important;
+    margin:0 auto !important;
+    text-align:center !important;
+    padding:14px 16px !important;
+    font-size:16px !important;
+    line-height:1.15 !important;
+  }
+
+  .screenshot-offer-card{
+    padding-bottom:30px !important;
+  }
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
