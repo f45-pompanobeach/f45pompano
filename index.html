@@ -801,6 +801,69 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   }
 }
 
+
+/* UPDATED MOBILE PROMO BAR — stronger and keeps promo code visible */
+@media(max-width:640px){
+  .promo-banner-new{
+    padding:12px 10px !important;
+    border-radius:0 0 14px 14px !important;
+    box-shadow:0 5px 18px rgba(0,0,0,.28) !important;
+  }
+  .promo-banner-inner{
+    display:grid !important;
+    grid-template-columns:1fr auto !important;
+    grid-template-areas:
+      "title button"
+      "code button" !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:7px 10px !important;
+    flex-wrap:unset !important;
+  }
+  .promo-banner-title{
+    grid-area:title !important;
+    font-size:0.95rem !important;
+    line-height:1.12 !important;
+    max-width:none !important;
+    white-space:normal !important;
+    letter-spacing:.2px !important;
+  }
+  .promo-code-box{
+    grid-area:code !important;
+    display:inline-flex !important;
+    justify-self:start !important;
+    align-items:center !important;
+    padding:7px 10px !important;
+    gap:0 !important;
+    border-radius:8px !important;
+    background:rgba(255,255,255,.13) !important;
+    border:1px solid rgba(255,255,255,.25) !important;
+  }
+  .promo-code-box span:first-child{
+    display:none !important;
+  }
+  .promo-code-box span:last-child{
+    display:inline !important;
+    font-size:0.78rem !important;
+    line-height:1 !important;
+    letter-spacing:.2px !important;
+    white-space:nowrap !important;
+    color:#fff !important;
+  }
+  .promo-claim-btn{
+    grid-area:button !important;
+    align-self:center !important;
+    padding:12px 13px !important;
+    font-size:0.78rem !important;
+    border-radius:8px !important;
+    white-space:nowrap !important;
+    min-height:44px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
