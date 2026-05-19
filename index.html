@@ -89,7 +89,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--white);color:var(
 .rated-banner h2{font-size:clamp(1.1rem,2.5vw,1.6rem);font-weight:800;margin-top:6px;}
 
 /* MID DARK */
-.mid-section{background:var(--navy);color:var(--white);text-align:center;padding:60px 20px;}
+.mid-section{background:#262262;color:var(--white);text-align:center;padding:60px 20px;}
 .mid-section .stars{color:var(--yellow);font-size:1.3rem;display:block;margin-bottom:4px;}
 .mid-section .rated-sub{font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:24px;letter-spacing:1px;}
 .mid-section h2{font-size:clamp(1.5rem,4vw,2.5rem);font-weight:900;line-height:1.1;margin-bottom:6px;}
@@ -129,7 +129,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--white);color:var(
 .review-author{font-size:0.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-text);}
 
 /* FINAL DARK CTA */
-.final-dark-cta{background:var(--navy);color:var(--white);text-align:center;padding:60px 20px;}
+.final-dark-cta{background:#262262;color:var(--white);text-align:center;padding:60px 20px;}
 .final-dark-cta h2{font-size:clamp(1.3rem,3vw,2rem);font-weight:900;line-height:1.1;margin-bottom:10px;}
 .final-dark-cta h2 .hl{color:var(--red);}
 .final-dark-cta p{font-size:0.83rem;color:rgba(255,255,255,0.5);margin-bottom:24px;}
@@ -195,7 +195,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 
 
 /* SCROLL OFFSET FOR STICKY NAV */
-#offer, #reviews, #whyf45, #whyf45-content, #included, #findus {scroll-margin-top: 160px;}
+#offer, #reviews, #whyf45, #whyf45-content, #included, #findus, #getting-started, #why-f45, #faq, #contact-us {scroll-margin-top: 190px;}
 
 /* STICKY NAV */
 .sticky-nav{position:relative;background:var(--white);border-bottom:0.5px solid var(--gray-line);display:flex;align-items:center;padding:0 12px;gap:10px;}
@@ -376,7 +376,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 .faq-group-label{font-size:0.72rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--navy);background:var(--gray-bg);padding:10px 16px;margin-bottom:2px;margin-top:20px;}
 .faq-group-label:first-of-type{margin-top:0;}
 
-.mid-cta-bar{background:var(--navy);padding:28px 32px;}
+.mid-cta-bar{background:#262262;padding:28px 32px;}
 .mid-cta-inner{width:100%;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
 .mid-cta-title{font-size:clamp(1.5rem,3.5vw,2.4rem);font-weight:900;color:var(--white);margin-bottom:8px;}
 .mid-cta-sub{font-size:clamp(1.2rem,2.5vw,1.8rem);color:rgba(255,255,255,0.85);font-weight:700;}
@@ -864,6 +864,88 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   }
 }
 
+
+/* MATCHED CTA BAR COLORS + SHIMMER */
+.promo-claim-btn,
+.mid-cta-btn,
+.bar-cta-btn,
+.screenshot-join-btn,
+.btn-cta,
+.screenshot-cta{
+  position:relative;
+  overflow:hidden;
+}
+
+.promo-claim-btn::after,
+.mid-cta-btn::after,
+.bar-cta-btn::after,
+.screenshot-cta::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-140%;
+  width:60%;
+  height:100%;
+  background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.18) 35%, rgba(255,255,255,.55) 50%, rgba(255,255,255,.18) 65%, transparent 100%);
+  transform:skewX(-20deg);
+  animation:f45Shimmer 2.8s infinite;
+  pointer-events:none;
+}
+
+@keyframes f45Shimmer{
+  0%{left:-140%;}
+  45%{left:140%;}
+  100%{left:140%;}
+}
+
+/* Match mid-page CTA bars to top promo bar */
+.mid-cta-bar{
+  background:#262262 !important;
+}
+
+.mid-cta-title{
+  color:#FFFFFF !important;
+}
+
+.mid-cta-sub{
+  color:rgba(255,255,255,.9) !important;
+}
+
+.mid-cta-sub strong{
+  color:#FFFFFF !important;
+}
+
+.mid-cta-btn{
+  background:#E8272A !important;
+  color:#FFFFFF !important;
+  box-shadow:0 4px 14px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
+.mid-btn-top,
+.bar-btn-top{
+  background:#E8272A !important;
+  color:#FFFFFF !important;
+}
+
+.mid-btn-bottom,
+.bar-btn-bottom{
+  background:#FFFFFF !important;
+  color:#262262 !important;
+}
+
+.mid-btn-code,
+.bar-btn-code{
+  background:#262262 !important;
+  color:#FFB800 !important;
+}
+
+/* Keep top bar button matched */
+.promo-claim-btn{
+  background:#E8272A !important;
+  color:#FFFFFF !important;
+  box-shadow:0 4px 14px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
@@ -906,9 +988,10 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
       <div class="screenshot-brand-text">F45 Pompano Beach</div>
     </div>
     <nav class="screenshot-nav-links">
-      <a href="#getstarted">Classes</a>
-      <a href="#whyf45">Pricing</a>
-      <a href="#findus">Locations</a>
+      <a href="#getting-started">Getting Started</a>
+      <a href="#why-f45">Why F45?</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact-us">Contact Us</a>
       
     </nav>
   </header>
@@ -936,6 +1019,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   </section>
 
 <!-- GETTING STARTED -->
+<section id="getting-started"></section>
 <section class="getting-started-section" id="getstarted">
   <div class="inner-wide">
 
@@ -986,7 +1070,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 <!-- WHY JOIN -->
 <section class="why-section" id="whyf45">
   <div class="inner-wide">
-    <p class="section-eyebrow-label" style="font-size:0.9rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:8px;">Why F45 Pompano Beach?</p>
+    <p class="section-eyebrow-label" style="font-size:0.9rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:8px;"><span id="why-f45"></span>Why F45 Pompano Beach?</p>
     <h2 class="why-title">F45 isn't just about fitness — it's about transformation. We'll help you become healthier and happier in just 45 minutes a day.</h2>
 
     <!-- STAT BLOCK -->
@@ -1068,7 +1152,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 <!-- FAQ -->
 <section class="faq-section" id="faq">
   <div class="inner-wide">
-    <h2 class="faq-title">Frequently Asked Questions</h2>
+    <h2 class="faq-title"><span id="faq"></span>Frequently Asked Questions</h2>
     <div class="faq-group-label">Before You Buy</div>
     <div class="faq-grid">
 
@@ -1155,6 +1239,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
 
   <div style="background:var(--white);padding:56px 20px;text-align:center;">
     <div class="inner-wide">
+      <span id="contact-us"></span>
       <p class="social-eyebrow">Follow Us</p>
       <h2 class="social-title">See What's Happening at F45 Pompano Beach</h2>
       <p class="social-sub">Workouts, transformations, community events and more — follow us on Instagram for daily inspiration.</p>
