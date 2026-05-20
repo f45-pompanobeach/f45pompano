@@ -1927,6 +1927,80 @@ body{
 }
 </style>
 
+
+<style>
+/* FIX MOBILE TOP BAR OVERLAP */
+@media(max-width:640px){
+
+  .promo-banner-inner{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    align-items:start !important;
+    gap:8px !important;
+    width:100% !important;
+  }
+
+  .promo-code-box{
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    min-height:48px !important;
+    padding:8px 10px !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    align-items:flex-start !important;
+    overflow:hidden !important;
+  }
+
+  .promo-code-box span{
+    width:100% !important;
+    display:block !important;
+  }
+
+  .promo-code-box span:first-child{
+    font-size:11px !important;
+    line-height:1.05 !important;
+  }
+
+  .promo-code-box span:last-child{
+    font-size:14px !important;
+    line-height:1.05 !important;
+    margin-top:2px !important;
+  }
+
+  .topbar-cta-stack{
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+
+  .topbar-cta-stack .promo-claim-btn{
+    width:100% !important;
+    min-height:48px !important;
+    padding:8px 8px !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    font-size:12px !important;
+    line-height:1.08 !important;
+    white-space:normal !important;
+  }
+
+  .topbar-mindbody-note{
+    width:100% !important;
+    text-align:right !important;
+    font-size:9px !important;
+    line-height:1.05 !important;
+    margin-top:4px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
