@@ -7,7 +7,7 @@ const genericTemplate = fs.readFileSync("template-generic.html", "utf8");
 const dataDir = "data";
 const distDir = "dist";
 
-// NEW
+// Shared values
 const shared = JSON.parse(
   fs.readFileSync(path.join(dataDir, "shared.json"), "utf8")
 );
@@ -15,10 +15,14 @@ const shared = JSON.parse(
 fs.rmSync(distDir, { recursive: true, force: true });
 fs.mkdirSync(distDir, { recursive: true });
 
+// COPY STATIC ASSETS (video/photos)
+if (fs.existsSync("public")) {
+  fs.cpSync("public", distDir, { recursive: true });
+}
+
 // Default homepage
 let genericHtml = genericTemplate;
 
-// NEW
 for (const [key, value] of Object.entries(shared)) {
   genericHtml = genericHtml.replaceAll(`{{${key}}}`, value);
 }
@@ -28,7 +32,6 @@ fs.writeFileSync(path.join(distDir, "index.html"), genericHtml);
 // Partner pages
 for (const file of fs.readdirSync(dataDir)) {
 
-  // NEW
   if (file === "shared.json") continue;
 
   if (!file.endsWith(".json")) continue;
@@ -37,7 +40,6 @@ for (const file of fs.readdirSync(dataDir)) {
     fs.readFileSync(path.join(dataDir, file), "utf8")
   );
 
-  // NEW
   const data = {
     ...shared,
     ...partner
