@@ -2477,6 +2477,396 @@ body{
 }
 </style>
 
+
+<style>
+/* NAV LINK SPACING UPDATE */
+.screenshot-nav-links{
+  gap:42px !important;
+}
+
+@media(max-width:640px){
+  .screenshot-nav-links{
+    gap:14px !important;
+  }
+}
+
+/* EMBEDDED MAP */
+.embedded-map-wrap{
+  width:100%;
+  height:300px;
+  border-radius:6px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.16);
+}
+
+.embedded-map-wrap iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  display:block;
+}
+
+@media(max-width:640px){
+  .embedded-map-wrap{
+    height:260px;
+  }
+}
+</style>
+
+
+<style>
+/* CLEANER HERO OFFER HIERARCHY PREVIEW */
+.hero-small-title{
+  font-size:30px !important;
+  line-height:1 !important;
+  margin-bottom:12px !important;
+  opacity:.92 !important;
+}
+
+.hero-clean-offer{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:3px !important;
+  margin-bottom:14px !important;
+  line-height:1 !important;
+}
+
+.hero-clean-kicker{
+  display:block !important;
+  font-size:24px !important;
+  font-weight:800 !important;
+  color:#FFFFFF !important;
+  text-transform:none !important;
+  letter-spacing:.2px !important;
+}
+
+.hero-clean-main{
+  display:block !important;
+  font-size:56px !important;
+  font-weight:900 !important;
+  color:#ef3b3f !important;
+  text-transform:uppercase !important;
+  letter-spacing:-1px !important;
+  text-shadow:0 3px 4px rgba(0,0,0,.65) !important;
+}
+
+.hero-clean-price{
+  display:block !important;
+  font-size:30px !important;
+  font-weight:900 !important;
+  color:#FFFFFF !important;
+  text-transform:none !important;
+}
+
+.hero-clean-price strong{
+  color:#ef3b3f !important;
+  font-weight:900 !important;
+}
+
+.hero-code-clean{
+  margin:16px auto 10px !important;
+  padding:10px 18px !important;
+  border-radius:10px !important;
+}
+
+.hero-code-clean .hero-code-label{
+  font-size:16px !important;
+}
+
+.hero-code-clean .hero-code-value{
+  font-size:25px !important;
+  letter-spacing:2px !important;
+}
+
+.hero-local-strong{
+  margin:8px auto 14px !important;
+}
+
+.hero-savings-line{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:10px !important;
+  margin:0 auto 18px !important;
+}
+
+.hero-old-price{
+  color:rgba(255,255,255,.72) !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+  text-decoration:line-through !important;
+}
+
+.hero-save-pill{
+  background:rgba(232,39,42,.18) !important;
+  border:1px solid rgba(232,39,42,.55) !important;
+  color:#FFB800 !important;
+  border-radius:999px !important;
+  padding:5px 11px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  text-transform:uppercase !important;
+  letter-spacing:.6px !important;
+}
+
+@media(max-width:640px){
+  .hero-small-title{
+    font-size:22px !important;
+    margin-bottom:8px !important;
+  }
+
+  .hero-clean-kicker{
+    font-size:18px !important;
+  }
+
+  .hero-clean-main{
+    font-size:39px !important;
+  }
+
+  .hero-clean-price{
+    font-size:23px !important;
+  }
+
+  .hero-code-clean{
+    margin:11px auto 8px !important;
+    padding:8px 12px !important;
+  }
+
+  .hero-code-clean .hero-code-label{
+    font-size:13px !important;
+  }
+
+  .hero-code-clean .hero-code-value{
+    font-size:20px !important;
+  }
+
+  .hero-savings-line{
+    margin-bottom:14px !important;
+  }
+
+  .hero-old-price{
+    font-size:12px !important;
+  }
+
+  .hero-save-pill{
+    font-size:11px !important;
+    padding:4px 9px !important;
+  }
+}
+</style>
+
+
+<style>
+/* RESTORE TOP CTA MINDBODY NOTE */
+.topbar-mindbody-note{
+  text-align:right !important;
+  font-size:10px !important;
+  line-height:1.1 !important;
+  margin-top:4px !important;
+  opacity:.82 !important;
+  color:rgba(255,255,255,.92) !important;
+}
+
+@media(max-width:640px){
+  .topbar-mindbody-note{
+    font-size:8px !important;
+    margin-top:3px !important;
+  }
+}
+</style>
+
+
+<style>
+/* TOP BAR MINDBODY NOTE ATTACHED UNDER CTA BUTTON */
+.topbar-cta-stack{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-end !important;
+  justify-content:flex-start !important;
+}
+
+.topbar-mindbody-note{
+  margin-top:4px !important;
+  text-align:right !important;
+  font-size:9px !important;
+  line-height:1.05 !important;
+  color:rgba(255,255,255,.88) !important;
+  white-space:nowrap !important;
+  opacity:.88 !important;
+}
+
+@media(max-width:640px){
+  .topbar-mindbody-note{
+    font-size:7px !important;
+    margin-top:3px !important;
+  }
+}
+</style>
+
+
+<style>
+/* FINAL OVERRIDE: SHOW SECURE TEXT UNDER TOP STICKY CTA BUTTON */
+.fixed-top-header .topbar-cta-stack,
+.promo-banner-new .topbar-cta-stack{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  height:auto !important;
+  min-height:0 !important;
+  width:auto !important;
+  max-width:none !important;
+  overflow:visible !important;
+  flex:0 0 auto !important;
+}
+
+.fixed-top-header .topbar-cta-stack .promo-claim-btn,
+.promo-banner-new .topbar-cta-stack .promo-claim-btn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+.fixed-top-header .topbar-cta-stack .topbar-mindbody-note,
+.promo-banner-new .topbar-cta-stack .topbar-mindbody-note{
+  display:block !important;
+  visibility:visible !important;
+  opacity:.9 !important;
+  margin-top:5px !important;
+  color:rgba(255,255,255,.92) !important;
+  font-size:10px !important;
+  line-height:1.1 !important;
+  font-weight:600 !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+  position:static !important;
+  height:auto !important;
+  width:auto !important;
+  max-width:none !important;
+  overflow:visible !important;
+  z-index:999999 !important;
+}
+
+@media(max-width:640px){
+  .fixed-top-header .topbar-cta-stack .topbar-mindbody-note,
+  .promo-banner-new .topbar-cta-stack .topbar-mindbody-note{
+    display:block !important;
+    font-size:8px !important;
+    margin-top:3px !important;
+    white-space:nowrap !important;
+  }
+}
+</style>
+
+
+<style>
+/* MAKE TOP BAR TALL ENOUGH FOR SECURE TEXT */
+.fixed-top-header .promo-banner-new{
+  min-height:86px !important;
+  height:auto !important;
+  padding-top:12px !important;
+  padding-bottom:12px !important;
+  overflow:visible !important;
+}
+
+.fixed-top-header .promo-banner-inner{
+  min-height:62px !important;
+  height:auto !important;
+  align-items:flex-start !important;
+  overflow:visible !important;
+}
+
+.fixed-top-header .topbar-cta-stack{
+  min-height:62px !important;
+  overflow:visible !important;
+}
+
+.fixed-header-spacer{
+  height:166px !important;
+}
+
+@media(max-width:640px){
+  .fixed-top-header .promo-banner-new{
+    min-height:82px !important;
+    padding-top:10px !important;
+    padding-bottom:10px !important;
+  }
+
+  .fixed-top-header .promo-banner-inner{
+    min-height:60px !important;
+  }
+
+  .fixed-top-header .topbar-cta-stack{
+    min-height:60px !important;
+  }
+
+  .fixed-header-spacer{
+    height:138px !important;
+  }
+}
+</style>
+
+
+<style>
+/* MOBILE COLLAPSIBLE SCHEDULE */
+@media(max-width:640px){
+
+  .mobile-schedule-wrapper{
+    position:relative !important;
+  }
+
+  .mobile-schedule-preview{
+    max-height:420px !important;
+    overflow:hidden !important;
+    position:relative !important;
+    transition:max-height .35s ease !important;
+  }
+
+  .mobile-schedule-wrapper:not(.expanded) .mobile-schedule-preview::after{
+    content:'' !important;
+    position:absolute !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    height:90px !important;
+    background:linear-gradient(to bottom, rgba(10,12,18,0), rgba(10,12,18,.98)) !important;
+    pointer-events:none !important;
+  }
+
+  .mobile-schedule-wrapper.expanded .mobile-schedule-preview{
+    max-height:5000px !important;
+  }
+
+  .mobile-schedule-toggle{
+    width:100% !important;
+    margin-top:14px !important;
+    padding:14px 18px !important;
+    border:none !important;
+    border-radius:12px !important;
+    background:#ef3b3f !important;
+    color:#fff !important;
+    font-size:15px !important;
+    font-weight:900 !important;
+    letter-spacing:.4px !important;
+    cursor:pointer !important;
+    box-shadow:0 10px 24px rgba(239,59,63,.28) !important;
+  }
+}
+
+@media(min-width:641px){
+  .mobile-schedule-toggle{
+    display:none !important;
+  }
+
+  .mobile-schedule-preview{
+    max-height:none !important;
+    overflow:visible !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -2490,8 +2880,14 @@ body{
         <span>Promo Code: BREW15</span>
       </div>
       <div class="topbar-cta-stack">
-<a class="promo-claim-btn" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM 3 CLASSES FOR $15</a>
-<div class="topbar-mindbody-note">Secure checkout powered by Mindbody®</div>
+
+<div class="topbar-cta-stack">
+  <a class="promo-claim-btn" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM 3 CLASSES FOR $15</a>
+  <div class="topbar-mindbody-note">Secure checkout powered by Mindbody®</div>
+</div>
+
+
+
 </div>
 
 
@@ -2522,22 +2918,29 @@ body{
 
     <div class="screenshot-offer-card">
       <div class="screenshot-limited">Limited Time Offer</div>
-      <h1>Start Your Journey Today.</h1>
-      <h2 class="hero-price-headline">
-        <span>Get Your First</span>
-        <span class="hero-price-line"><span class="screenshot-red">3 Classes</span></span>
-        <span class="hero-price-line">for Just <span class="screenshot-red">$15!</span></span>
+      <h1 class="hero-small-title">Start Your Journey Today.</h1>
+
+      <h2 class="hero-clean-offer">
+        <span class="hero-clean-kicker">Get Your First</span>
+        <span class="hero-clean-main">3 Classes</span>
+        <span class="hero-clean-price">for Just <strong>$15!</strong></span>
       </h2>
-      <div class="hero-code-box">
-        <span class="hero-code-label">Use code at checkout:</span>
+
+      <div class="hero-code-box hero-code-clean">
+        <span class="hero-code-label">Use Code:</span>
         <span class="hero-code-value">BREW15</span>
       </div>
+
       <p class="screenshot-local hero-local-strong">
         *Exclusive for <strong>FIRST TIME LOCAL RESIDENTS</strong> Only.*
       </p>
-      <p class="screenshot-save">Save 50%</p>
-      <p class="screenshot-regular">Regular $30</p>
-      <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM 3 CLASSES FOR $15</a>
+
+      <div class="hero-savings-line">
+        <span class="hero-old-price">Regular $30</span>
+        <span class="hero-save-pill">Save 50%</span>
+      </div>
+
+      <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM 3 CLASSES</a>
 <div class="hero-mindbody-note" style="
   margin-top:12px;
   text-align:center;
@@ -2790,13 +3193,14 @@ body{
       <a href="https://www.instagram.com/f45_training_pompanobeach/" target="_blank" class="instagram-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
         @f45_training_pompanobeach
-      </a>
-    </div>
-  </div>
+      
+</a>
+
+</div>
+</div>
 
   <div class="footer" id="findus">
-    <p style="font-size:0.9rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);margin-bottom:10px;">Find Us</p>
-    <div class="footer-stars">★★★★★</div>
+    
     <div class="footer-info">
       5.0 ⭐⭐⭐⭐⭐ Google Reviews<br>
       Address: 824 N Federal Hwy, Pompano Beach, FL 33062<br>
@@ -2804,11 +3208,14 @@ body{
       Phone: <a href="tel:9543023889">(954) 302-3889</a>
     </div>
     <div class="footer-map">
-      <a href="https://maps.google.com/?q=F45+Training+Pompano+Beach+824+N+Federal+Hwy+Pompano+Beach+FL+33062" target="_blank" class="map-placeholder">
-        <div class="map-pin">📍</div>
-        <div class="map-address">824 N Federal Hwy<br>Pompano Beach, FL 33062</div>
-        <div class="map-cta">Open in Google Maps →</div>
-      </a>
+      <div class="embedded-map-wrap">
+  <iframe
+    src="https://www.google.com/maps?q=F45%20Training%20Pompano%20Beach&output=embed"
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    allowfullscreen>
+  </iframe>
+</div>
     </div>
     <div class="footer-legal">
       © 2026 F45 TRAINING &nbsp;|&nbsp;
