@@ -3092,6 +3092,84 @@ body{
 }
 </style>
 
+
+<style>
+/* MOBILE ACCORDION SCHEDULE */
+.mobile-schedule-accordion{
+  display:none;
+}
+
+@media(max-width:640px){
+
+  .schedule-table-wrap{
+    display:none !important;
+  }
+
+  .mobile-schedule-accordion{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:10px !important;
+    margin-top:16px !important;
+  }
+
+  .schedule-day-item{
+    border:1px solid #E5E7EB !important;
+    border-left:5px solid #E8272A !important;
+    border-radius:12px !important;
+    background:#FFFFFF !important;
+    overflow:hidden !important;
+    box-shadow:0 4px 14px rgba(0,0,0,.05) !important;
+  }
+
+  .schedule-day-item summary{
+    list-style:none !important;
+    cursor:pointer !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:10px !important;
+    padding:16px !important;
+  }
+
+  .schedule-day-item summary::-webkit-details-marker{
+    display:none !important;
+  }
+
+  .schedule-day-item summary span{
+    font-size:16px !important;
+    font-weight:900 !important;
+    color:#1C1C2E !important;
+  }
+
+  .schedule-day-item summary em{
+    background:#262262 !important;
+    color:#FFFFFF !important;
+    border-radius:999px !important;
+    padding:4px 10px !important;
+    font-size:10px !important;
+    font-style:normal !important;
+    font-weight:900 !important;
+    text-transform:uppercase !important;
+    letter-spacing:.8px !important;
+    white-space:nowrap !important;
+  }
+
+  .schedule-day-content{
+    padding:0 16px 16px !important;
+    color:#374151 !important;
+    font-size:14px !important;
+    line-height:1.7 !important;
+    font-weight:700 !important;
+  }
+}
+
+@media(min-width:641px){
+  .mobile-schedule-accordion{
+    display:none !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -3233,36 +3311,82 @@ body{
         </table>
       </div>
 
-      <div class="mobile-schedule-cards" aria-label="Mobile class schedule">
-        <div class="mobile-day-card">
-          <div class="mobile-day-head"><span>Monday</span><em>Strength</em></div>
-          <p>5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM</p>
-        </div>
-        <div class="mobile-day-card">
-          <div class="mobile-day-head"><span>Tuesday</span><em>Cardio</em></div>
-          <p>5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM</p>
-        </div>
-        <div class="mobile-day-card">
-          <div class="mobile-day-head"><span>Wednesday</span><em>Strength</em></div>
-          <p>5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM</p>
-        </div>
-        <div class="mobile-day-card">
-          <div class="mobile-day-head"><span>Thursday</span><em>Hyrox</em></div>
-          <p>5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM</p>
-        </div>
-        <div class="mobile-day-card">
-          <div class="mobile-day-head"><span>Friday</span><em>Strength</em></div>
-          <p>5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM</p>
-        </div>
-        <div class="mobile-day-card">
-          <div class="mobile-day-head"><span>Saturday</span><em>Hybrid</em></div>
-          <p>8:15 AM · 9:30 AM</p>
-        </div>
-        <div class="mobile-day-card">
-          <div class="mobile-day-head"><span>Sunday</span><em>Hybrid</em></div>
-          <p>8:30 AM · 9:30 AM</p>
-        </div>
-      </div>
+<div class="mobile-schedule-accordion">
+
+  <details class="schedule-day-item" open>
+    <summary>
+      <span>Monday</span>
+      <em>Strength</em>
+    </summary>
+    <div class="schedule-day-content">
+      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM
+    </div>
+  </details>
+
+  <details class="schedule-day-item">
+    <summary>
+      <span>Tuesday</span>
+      <em>Cardio</em>
+    </summary>
+    <div class="schedule-day-content">
+      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM
+    </div>
+  </details>
+
+  <details class="schedule-day-item">
+    <summary>
+      <span>Wednesday</span>
+      <em>Strength</em>
+    </summary>
+    <div class="schedule-day-content">
+      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM
+    </div>
+  </details>
+
+  <details class="schedule-day-item">
+    <summary>
+      <span>Thursday</span>
+      <em>Hybrid</em>
+    </summary>
+    <div class="schedule-day-content">
+      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM
+    </div>
+  </details>
+
+  <details class="schedule-day-item">
+    <summary>
+      <span>Friday</span>
+      <em>Strength</em>
+    </summary>
+    <div class="schedule-day-content">
+      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM
+    </div>
+  </details>
+
+  <details class="schedule-day-item">
+    <summary>
+      <span>Saturday</span>
+      <em>Hybrid</em>
+    </summary>
+    <div class="schedule-day-content">
+      8:15 AM · 9:30 AM
+    </div>
+  </details>
+
+  <details class="schedule-day-item">
+    <summary>
+      <span>Sunday</span>
+      <em>Hybrid</em>
+    </summary>
+    <div class="schedule-day-content">
+      8:30 AM · 9:30 AM
+    </div>
+  </details>
+
+</div>
+
+
+      
 
       
 
