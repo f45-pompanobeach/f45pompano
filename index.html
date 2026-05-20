@@ -563,15 +563,15 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   inset:0;
   background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.08));
 }
-.screenshot-offer-card{
+.screenshot-offer-card{margin:0 auto !important;left:50% !important;transform:translateX(-50%) !important;
   position:absolute;
   z-index:2;
   left:50%;
   top:38px;
   transform:translateX(-50%);
-  width:min(620px,92vw);
+  width:min(600px,90vw);
   min-height:460px;
-  padding:52px 48px 40px;
+  padding:56px 62px 48px;
   text-align:center;
   color:#fff;
   background:rgba(7,9,15,.82);
@@ -689,7 +689,7 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   .screenshot-brand{width:100%;justify-content:center;}
   .screenshot-nav-links{width:100%;justify-content:center;gap:18px;flex-wrap:wrap;}
   .screenshot-hero{height:560px;}
-  .screenshot-offer-card{top:70px;padding:38px 28px;width:92vw;min-height:430px;}
+  .screenshot-offer-card{top:70px;padding:38px 28px;width:95vw;min-height:430px;}
   .screenshot-offer-card h1,.screenshot-offer-card h2{font-size:27px;}
   .screenshot-cta{font-size:17px;padding:13px 20px;}
   .screenshot-limited{right:-20px;top:-5px;}
@@ -1352,24 +1352,18 @@ body{
 }
 
 .hero-partner-exclusive{
-  display:block !important;
-  margin:22px auto 0 !important;
-  padding:10px 16px !important;
-  max-width:360px !important;
-  border:2px solid rgba(255,184,0,.75) !important;
-  border-radius:999px !important;
-  background:rgba(255,184,0,.12) !important;
-  color:#FFB800 !important;
-  font-size:22px !important;
-  font-weight:900 !important;
-  letter-spacing:1.1px !important;
-  line-height:1.15 !important;
-  text-align:center !important;
-  text-transform:uppercase !important;
-  text-shadow:0 2px 10px rgba(255,184,0,.35) !important;
-  position:relative !important;
-  z-index:5 !important;
-}
+      white-space:nowrap !important;
+      text-align:center !important;
+      display:flex !important;
+      justify-content:center !important;
+      align-items:center !important;
+      gap:14px !important;
+      width:100% !important;
+      margin:18px auto 0 auto !important;
+      padding:0 !important;
+      position:relative !important;
+      font-size:19px !important;
+    }
 
 @media(max-width:640px){
   .hero-partner-exclusive{
@@ -1377,6 +1371,214 @@ body{
     padding:9px 12px !important;
     margin-top:18px !important;
     max-width:285px !important;
+  }
+}
+
+
+/* MATCH ALL MID-PAGE CTA BARS TO HERO OFFER STYLE */
+.mid-cta-bar{
+  background:#262262 !important;
+  border-top:4px solid #E8272A !important;
+  border-bottom:4px solid #E8272A !important;
+}
+
+.mid-cta-title{
+  color:#FFFFFF !important;
+}
+
+.mid-cta-sub{
+  color:rgba(255,255,255,.86) !important;
+}
+
+.mid-cta-btn{
+  position:relative !important;
+  overflow:hidden !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-width:0 !important;
+  width:auto !important;
+  background:#E8272A !important;
+  color:#FFFFFF !important;
+  border-radius:10px !important;
+  padding:18px 34px !important;
+  font-size:1.15rem !important;
+  font-weight:900 !important;
+  letter-spacing:.3px !important;
+  text-transform:uppercase !important;
+  box-shadow:0 4px 0 rgba(80,0,0,.35),0 4px 16px rgba(0,0,0,.35) !important;
+}
+
+.mid-cta-btn::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-140%;
+  width:60%;
+  height:100%;
+  background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.18) 35%, rgba(255,255,255,.55) 50%, rgba(255,255,255,.18) 65%, transparent 100%);
+  transform:skewX(-20deg);
+  animation:f45Shimmer 2.8s infinite;
+  pointer-events:none;
+}
+
+.mid-cta-mindbody-note{
+  margin-top:12px;
+  text-align:center;
+  color:rgba(255,255,255,.78);
+  font-size:13px;
+  line-height:1.35;
+  font-weight:600;
+  letter-spacing:.2px;
+}
+
+@media(max-width:640px){
+  .mid-cta-btn{
+    width:100% !important;
+    font-size:1rem !important;
+    padding:16px 18px !important;
+  }
+}
+
+
+/* HERO OFFER TEXT UPDATES */
+.hero-price-headline{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:2px !important;
+}
+
+.hero-price-headline .hero-price-line{
+  display:block !important;
+  width:100% !important;
+  text-align:center !important;
+}
+
+.hero-code-box{
+  margin:18px auto 12px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:10px !important;
+  background:rgba(255,255,255,.10) !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  border-radius:10px !important;
+  padding:11px 16px !important;
+}
+
+.hero-code-label{
+  color:rgba(255,255,255,.88) !important;
+  font-size:17px !important;
+  font-weight:800 !important;
+}
+
+.hero-code-value{
+  color:#FFB800 !important;
+  font-size:24px !important;
+  font-weight:900 !important;
+  letter-spacing:2px !important;
+  text-shadow:0 2px 8px rgba(0,0,0,.45) !important;
+}
+
+.hero-local-strong{
+  font-size:17px !important;
+  line-height:1.35 !important;
+  font-weight:800 !important;
+  color:#FFFFFF !important;
+  margin:8px auto 18px !important;
+  max-width:620px !important;
+}
+
+.hero-local-strong strong{letter-spacing:1px !important;
+  color:#FFB800 !important;
+  font-weight:900 !important;
+}
+
+.hero-partner-exclusive{
+  border:none !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  margin-top:18px !important;
+  color:#FFB800 !important;
+  font-size:20px !important;
+  font-weight:900 !important;
+  letter-spacing:2px !important;
+  text-transform:uppercase !important;
+  text-shadow:0 2px 10px rgba(255,184,0,.28) !important;
+}
+
+.hero-partner-exclusive::before,.hero-partner-exclusive::after{display:none !important;
+  content:"";
+  display:inline-block;
+  width:38px;
+  height:2px;
+  background:rgba(255,184,0,.75);
+  vertical-align:middle;
+  margin:0 12px;
+}
+
+@media(max-width:640px){
+  .hero-code-box{
+    flex-direction:column !important;
+    gap:3px !important;
+    padding:10px 14px !important;
+  }
+  .hero-code-label{
+    font-size:14px !important;
+  }
+  .hero-code-value{
+    font-size:22px !important;
+  }
+  .hero-local-strong{
+    font-size:15px !important;
+  }
+  .hero-partner-exclusive{
+    font-size:15px !important;
+    letter-spacing:1.2px !important;
+  }
+  .hero-partner-exclusive::before,
+  .hero-partner-exclusive::after{
+    width:22px;
+    margin:0 8px;
+  }
+}
+
+
+/* HERO BOX CONTAINED + CENTERED ON VIDEO */
+.screenshot-hero{
+  min-height:860px !important;
+  height:auto !important;
+  overflow:hidden !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:48px 20px !important;
+}
+
+.screenshot-offer-card{
+  position:relative !important;
+  left:auto !important;
+  top:auto !important;
+  transform:none !important;
+  width:min(600px,90vw) !important;
+  margin:0 auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  box-sizing:border-box !important;
+}
+
+@media(max-width:640px){
+  .screenshot-hero{
+    min-height:900px !important;
+    padding:36px 12px !important;
+  }
+
+  .screenshot-offer-card{
+    width:92vw !important;
+    padding:34px 20px 34px !important;
   }
 }
 
@@ -1401,6 +1603,92 @@ body{
 
   <!-- Additional meta -->
   <meta name="description" content="Try F45 Pompano Beach — Save 50% on your first 3 classes. Science-backed HIIT workouts + Free InBody scan. First time local residents only.">
+
+<style>
+.mid-cta-button-stack{
+  display:inline-flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:auto !important;
+}
+
+.mid-cta-button-stack .attached-mindbody-note{
+  display:block !important;
+  margin-top:8px !important;
+  width:100% !important;
+  max-width:360px !important;
+  text-align:center !important;
+  color:rgba(255,255,255,.82) !important;
+  font-size:12px !important;
+  line-height:1.25 !important;
+  font-weight:600 !important;
+  letter-spacing:.1px !important;
+}
+
+@media(max-width:640px){
+  .mid-cta-button-stack{
+    width:100% !important;
+  }
+  .mid-cta-button-stack .attached-mindbody-note{
+    max-width:100% !important;
+    font-size:11px !important;
+  }
+}
+</style>
+
+
+<style>
+.topbar-cta-stack{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+.topbar-mindbody-note{
+  margin-top:4px !important;
+  font-size:10px !important;
+  line-height:1.1 !important;
+  color:rgba(255,255,255,.82) !important;
+  font-weight:600 !important;
+  letter-spacing:.1px !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+}
+
+@media(max-width:640px){
+  .topbar-mindbody-note{
+    font-size:9px !important;
+    white-space:normal !important;
+  }
+}
+</style>
+
+
+<style>
+.hero-partner-exclusive{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:14px !important;
+  width:100% !important;
+  text-align:center !important;
+}
+
+.hero-partner-exclusive::before,
+.hero-partner-exclusive::after{
+  content:"" !important;
+  display:inline-block !important;
+  width:42px !important;
+  height:2px !important;
+  background:#FFB800 !important;
+  opacity:1 !important;
+  border-radius:999px !important;
+  flex:0 0 auto !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -1413,7 +1701,10 @@ body{
         
         <span>Promo Code: BREW15</span>
       </div>
-      <a class="promo-claim-btn" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM OFFER</a>
+      <div class="topbar-cta-stack">
+<a class="promo-claim-btn" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM OFFER</a>
+<div class="topbar-mindbody-note">Secure checkout powered by Mindbody®</div>
+</div>
 
 
     </div>
@@ -1444,13 +1735,35 @@ body{
     <div class="screenshot-offer-card">
       <div class="screenshot-limited">Limited Time Offer</div>
       <h1>Start Your Journey Today.</h1>
-      <h2>Get Your First <span class="screenshot-red">3 Classes</span><br>for Just <span class="screenshot-red">$15!</span></h2>
-      <p class="screenshot-code">Use code <strong>BREW15</strong> at checkout.</p>
-      <p class="screenshot-local">*Exclusive offer for <strong style="color:#ffb800;">First Time Local Residents</strong> Only.*</p>
+      <h2 class="hero-price-headline">
+        <span>Get Your First</span>
+        <span class="hero-price-line"><span class="screenshot-red">3 Classes</span></span>
+        <span class="hero-price-line">for Just <span class="screenshot-red">$15!</span></span>
+      </h2>
+      <div class="hero-code-box">
+        <span class="hero-code-label">Use code at checkout:</span>
+        <span class="hero-code-value">BREW15</span>
+      </div>
+      <p class="screenshot-local hero-local-strong">
+        *Exclusive for <strong>FIRST TIME LOCAL RESIDENTS</strong> Only.*
+      </p>
       <p class="screenshot-save">Save 50%</p>
       <p class="screenshot-regular">Regular $30</p>
-      <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM YOUR 3 CLASSES FOR $15</a>
-      <div class="hero-partner-exclusive">
+      <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM 3 CLASSES FOR $15</a>
+<div class="hero-mindbody-note" style="
+  margin-top:12px;
+  text-align:center;
+  color:rgba(255,255,255,.82);
+  font-size:13px;
+  line-height:1.35;
+  font-weight:600;
+  letter-spacing:.2px;
+">
+  🔒 Secure checkout &amp; class booking powered by Mindbody®
+</div>
+    
+
+    <div class="hero-partner-exclusive">
         FOXTAIL COFFEE EXCLUSIVE
       </div>
     
@@ -1554,10 +1867,11 @@ body{
       <div class="mid-cta-title">Ready to try F45 Pompano Beach?</div>
       <div class="mid-cta-sub">3 Classes for $15 · Save 50%</div>
     </div>
-    <a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="mid-cta-btn">
-        <span class="mid-btn-top">Claim My $15 Trial</span>
-        <span class="mid-btn-bottom">Use Code <span class="mid-btn-code">BREW15</span></span>
-      </a>
+    <div class="mid-cta-button-stack">
+<a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="mid-cta-btn">CLAIM YOUR 3 CLASSES FOR $15</a>
+<div class="attached-mindbody-note">🔒 Secure checkout &amp; class booking powered by Mindbody®</div>
+</div>
+        
   </div>
 </div>
 
@@ -1668,10 +1982,11 @@ body{
       <div class="mid-cta-title">Don't Miss Out — Your Spot Won't Last Long</div>
       <div class="mid-cta-sub">3 Classes for $15</div>
     </div>
-    <a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="mid-cta-btn">
-        <span class="mid-btn-top">Claim My $15 Trial</span>
-        <span class="mid-btn-bottom">Use Code <span class="mid-btn-code">BREW15</span></span>
-      </a>
+    <div class="mid-cta-button-stack">
+<a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="mid-cta-btn">CLAIM YOUR 3 CLASSES FOR $15</a>
+<div class="attached-mindbody-note">🔒 Secure checkout &amp; class booking powered by Mindbody®</div>
+</div>
+        
   </div>
 </div>
 
