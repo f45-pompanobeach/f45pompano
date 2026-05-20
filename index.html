@@ -2103,6 +2103,158 @@ body{
 }
 </style>
 
+
+<style>
+/* SIMPLE FINAL TOP BAR: ONE ROW ONLY */
+.fixed-top-header .promo-banner-new{
+  height:64px !important;
+  min-height:64px !important;
+  padding:8px 12px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+}
+
+.fixed-top-header .promo-banner-inner{
+  width:100% !important;
+  max-width:1150px !important;
+  height:48px !important;
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+  padding:0 !important;
+  margin:0 auto !important;
+  grid-template-columns:none !important;
+  grid-template-areas:none !important;
+}
+
+.fixed-top-header .promo-code-box{
+  flex:0 0 auto !important;
+  width:auto !important;
+  max-width:none !important;
+  min-width:0 !important;
+  height:48px !important;
+  min-height:48px !important;
+  margin:0 !important;
+  padding:0 18px !important;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:6px !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+  box-sizing:border-box !important;
+}
+
+.fixed-top-header .promo-code-box span{
+  display:inline !important;
+  width:auto !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  white-space:nowrap !important;
+  margin:0 !important;
+}
+
+.fixed-top-header .promo-code-box span:last-child{
+  font-size:16px !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+  letter-spacing:.3px !important;
+}
+
+.fixed-top-header .topbar-cta-stack{
+  flex:0 0 auto !important;
+  width:auto !important;
+  max-width:none !important;
+  min-width:0 !important;
+  height:48px !important;
+  margin:0 !important;
+  padding:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+.fixed-top-header .topbar-cta-stack .promo-claim-btn{
+  width:auto !important;
+  max-width:none !important;
+  min-width:0 !important;
+  height:48px !important;
+  min-height:48px !important;
+  margin:0 !important;
+  padding:0 22px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  white-space:nowrap !important;
+  text-align:center !important;
+  box-sizing:border-box !important;
+  font-size:14px !important;
+  line-height:1 !important;
+}
+
+.fixed-top-header .topbar-mindbody-note{
+  display:none !important;
+}
+
+.fixed-header-spacer{
+  height:134px !important;
+}
+
+/* MOBILE: STILL ONE ROW */
+@media(max-width:640px){
+  .fixed-top-header .promo-banner-new{
+    height:56px !important;
+    min-height:56px !important;
+    padding:6px 8px !important;
+  }
+
+  .fixed-top-header .promo-banner-inner{
+    height:44px !important;
+    gap:8px !important;
+  }
+
+  .fixed-top-header .promo-code-box{
+    height:44px !important;
+    min-height:44px !important;
+    padding:0 9px !important;
+    border-radius:8px !important;
+    flex:1 1 44% !important;
+    justify-content:flex-start !important;
+  }
+
+  .fixed-top-header .promo-code-box span:last-child{
+    font-size:12px !important;
+    letter-spacing:0 !important;
+  }
+
+  .fixed-top-header .topbar-cta-stack{
+    height:44px !important;
+    flex:1 1 56% !important;
+    align-items:stretch !important;
+  }
+
+  .fixed-top-header .topbar-cta-stack .promo-claim-btn{
+    height:44px !important;
+    min-height:44px !important;
+    width:100% !important;
+    padding:0 8px !important;
+    font-size:11px !important;
+    white-space:nowrap !important;
+    border-radius:8px !important;
+  }
+
+  .fixed-header-spacer{
+    height:140px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
