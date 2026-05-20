@@ -1,0 +1,11 @@
+{
+  "slug": "foxtail",
+  "partner": "Foxtail Coffee Exclusive",
+  "promoCode": "FOXTAIL15",
+  "trialType": "3 Classes",
+  "trialCost": "$15",
+  "trialDuration": "7 days",
+  "firstClassBookingText": "Your first class must be booked within 14 days of purchasing the trial.",
+  "regularPrice": "$30",
+  "percentageSavings": "50%"
+}
