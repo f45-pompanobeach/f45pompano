@@ -2296,6 +2296,69 @@ body{
 }
 </style>
 
+
+<style>
+/* CONDENSE NAV BAR ONLY */
+.navbar,
+.navbar-inner,
+.main-nav,
+.site-nav{
+  min-height:auto !important;
+}
+
+.navbar{
+  padding:8px 18px !important;
+}
+
+.navbar-inner{
+  padding:0 !important;
+  min-height:56px !important;
+}
+
+.nav-logo img,
+.navbar-logo img{
+  max-height:38px !important;
+  width:auto !important;
+}
+
+.nav-links,
+.nav-menu{
+  gap:18px !important;
+}
+
+.nav-links a,
+.nav-menu a{
+  font-size:14px !important;
+  line-height:1 !important;
+}
+
+@media(max-width:640px){
+
+  .navbar{
+    padding:6px 12px !important;
+  }
+
+  .navbar-inner{
+    min-height:48px !important;
+  }
+
+  .nav-logo img,
+  .navbar-logo img{
+    max-height:30px !important;
+  }
+
+  .nav-links,
+  .nav-menu{
+    gap:12px !important;
+  }
+
+  .nav-links a,
+  .nav-menu a{
+    font-size:12px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
