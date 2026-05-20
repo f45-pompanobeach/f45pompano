@@ -2001,6 +2001,108 @@ body{
 }
 </style>
 
+
+<style>
+/* FINAL MOBILE TOP BAR: SAME ROW, PROMO LEFT + CTA RIGHT */
+@media(max-width:640px){
+
+  .promo-banner-new{
+    padding:8px 8px !important;
+  }
+
+  .promo-banner-inner{
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+    align-items:flex-start !important;
+    justify-content:space-between !important;
+    gap:8px !important;
+    width:100% !important;
+    min-width:0 !important;
+    grid-template-columns:none !important;
+    grid-template-areas:none !important;
+  }
+
+  .promo-code-box{
+    flex:0 0 calc(45% - 4px) !important;
+    width:calc(45% - 4px) !important;
+    max-width:calc(45% - 4px) !important;
+    min-width:0 !important;
+    min-height:50px !important;
+    height:50px !important;
+    padding:7px 8px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    justify-content:center !important;
+    text-align:left !important;
+    overflow:hidden !important;
+    white-space:normal !important;
+  }
+
+  .promo-code-box span{
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .promo-code-box span:first-child{
+    font-size:10px !important;
+    line-height:1.05 !important;
+  }
+
+  .promo-code-box span:last-child{
+    font-size:13px !important;
+    line-height:1.05 !important;
+    margin-top:2px !important;
+    white-space:nowrap !important;
+  }
+
+  .topbar-cta-stack{
+    flex:0 0 calc(55% - 4px) !important;
+    width:calc(55% - 4px) !important;
+    max-width:calc(55% - 4px) !important;
+    min-width:0 !important;
+    margin:0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+  }
+
+  .topbar-cta-stack .promo-claim-btn{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    min-height:50px !important;
+    height:50px !important;
+    padding:7px 8px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    font-size:11px !important;
+    line-height:1.05 !important;
+    white-space:normal !important;
+  }
+
+  .topbar-mindbody-note{
+    width:100% !important;
+    margin-top:3px !important;
+    font-size:8px !important;
+    line-height:1.05 !important;
+    text-align:right !important;
+    white-space:normal !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
