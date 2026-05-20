@@ -2867,6 +2867,120 @@ body{
 }
 </style>
 
+
+<style>
+/* REAL MOBILE SCHEDULE COLLAPSE — targets actual schedule classes */
+@media(max-width:640px){
+
+  .schedule-section .schedule-table-wrap{
+    max-height:360px !important;
+    overflow:hidden !important;
+    position:relative !important;
+    transition:max-height .35s ease !important;
+  }
+
+  .schedule-section:not(.schedule-expanded) .schedule-table-wrap::after{
+    content:'' !important;
+    position:absolute !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    height:90px !important;
+    background:linear-gradient(to bottom, rgba(237,240,248,0), rgba(237,240,248,1)) !important;
+    pointer-events:none !important;
+  }
+
+  .schedule-section.schedule-expanded .schedule-table-wrap{
+    max-height:2200px !important;
+  }
+
+  .mobile-schedule-toggle-real{
+    display:block !important;
+    width:100% !important;
+    margin:16px auto 0 !important;
+    padding:14px 18px !important;
+    border:none !important;
+    border-radius:10px !important;
+    background:#E8272A !important;
+    color:#FFFFFF !important;
+    font-size:15px !important;
+    font-weight:900 !important;
+    letter-spacing:.4px !important;
+    text-transform:uppercase !important;
+    cursor:pointer !important;
+    box-shadow:0 6px 16px rgba(232,39,42,.28) !important;
+  }
+}
+
+@media(min-width:641px){
+  .mobile-schedule-toggle-real{
+    display:none !important;
+  }
+
+  .schedule-section .schedule-table-wrap{
+    max-height:none !important;
+    overflow:visible !important;
+  }
+}
+</style>
+
+
+<style>
+/* ACTUAL MOBILE SCHEDULE COLLAPSE */
+@media(max-width:640px){
+
+  .mobile-schedule-block .schedule-table-wrap{
+    max-height:310px !important;
+    overflow:hidden !important;
+    position:relative !important;
+    transition:max-height .35s ease !important;
+  }
+
+  .mobile-schedule-block:not(.schedule-expanded) .schedule-table-wrap::after{
+    content:'' !important;
+    position:absolute !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    height:80px !important;
+    background:linear-gradient(to bottom, rgba(237,240,248,0), rgba(237,240,248,1)) !important;
+    pointer-events:none !important;
+  }
+
+  .mobile-schedule-block.schedule-expanded .schedule-table-wrap{
+    max-height:2500px !important;
+  }
+
+  .mobile-schedule-toggle-real{
+    display:block !important;
+    width:100% !important;
+    margin:16px auto 0 !important;
+    padding:14px 18px !important;
+    border:none !important;
+    border-radius:10px !important;
+    background:#E8272A !important;
+    color:#FFFFFF !important;
+    font-size:15px !important;
+    font-weight:900 !important;
+    letter-spacing:.4px !important;
+    text-transform:uppercase !important;
+    cursor:pointer !important;
+    box-shadow:0 6px 16px rgba(232,39,42,.28) !important;
+  }
+}
+
+@media(min-width:641px){
+  .mobile-schedule-toggle-real{
+    display:none !important;
+  }
+
+  .mobile-schedule-block .schedule-table-wrap{
+    max-height:none !important;
+    overflow:visible !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -2980,7 +3094,7 @@ body{
 
     <div style="height:40px;"></div>
 
-    <div class="getting-started-block">
+    <div class="getting-started-block mobile-schedule-block">
       <p class="schedule-eyebrow">Class Schedule</p>
       <h2 class="schedule-title">824 N Federal Hwy, Pompano Beach, FL 33062</h2>
       <div class="schedule-table-wrap">
@@ -3007,6 +3121,12 @@ body{
           </tbody>
         </table>
       </div>
+      <button class="mobile-schedule-toggle-real" type="button" onclick="
+        const block=this.closest('.mobile-schedule-block');
+        block.classList.toggle('schedule-expanded');
+        this.textContent = block.classList.contains('schedule-expanded') ? 'Show Less Schedule' : 'View Full Schedule';
+      ">View Full Schedule</button>
+
     </div>
 
   </div>
