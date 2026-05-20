@@ -3170,6 +3170,370 @@ body{
 }
 </style>
 
+
+<style>
+/* FIRST CLASS RECOMMENDATION + FULL SCHEDULE */
+.first-class-recommendation{
+  background:#FFFFFF;
+  border:1px solid #E5E7EB;
+  border-left:5px solid #E8272A;
+  border-radius:14px;
+  padding:20px;
+  margin:0 0 22px;
+  box-shadow:0 6px 18px rgba(0,0,0,.06);
+}
+
+.first-class-label{
+  color:#E8272A;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.first-class-recommendation h3{
+  color:#1C1C2E;
+  font-size:1.35rem;
+  font-weight:900;
+  line-height:1.15;
+  margin:0 0 8px;
+}
+
+.first-class-recommendation p{
+  color:#4B5563;
+  font-size:0.92rem;
+  line-height:1.65;
+  margin:0;
+}
+
+.strength-days-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:14px 0;
+}
+
+.strength-days-row span{
+  background:#262262;
+  color:#FFFFFF;
+  border-radius:999px;
+  padding:7px 14px;
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+}
+
+.same-day-note{
+  color:#1C1C2E !important;
+  font-weight:800 !important;
+  background:#FFF8E1;
+  border:1px solid #FFD54F;
+  border-radius:10px;
+  padding:12px 14px;
+  margin-top:14px !important;
+}
+
+@media(max-width:640px){
+  .first-class-recommendation{
+    padding:16px;
+    margin-bottom:18px;
+  }
+
+  .first-class-recommendation h3{
+    font-size:1.12rem;
+  }
+
+  .first-class-recommendation p{
+    font-size:0.86rem;
+  }
+
+  .strength-days-row{
+    justify-content:center;
+  }
+
+  .strength-days-row span{
+    flex:1;
+    text-align:center;
+    padding:8px 6px;
+    font-size:11px;
+  }
+
+  .schedule-table-wrap{
+    display:block !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+
+  .mobile-schedule-accordion{
+    display:none !important;
+  }
+}
+</style>
+
+
+<style>
+/* MOBILE SCHEDULE DAY CARDS + RECOMMENDATION ORDER */
+.mobile-schedule-cards{
+  display:none;
+}
+
+@media(max-width:640px){
+  .schedule-table-wrap{
+    display:none !important;
+  }
+
+  .mobile-schedule-accordion{
+    display:none !important;
+  }
+
+  .mobile-schedule-cards{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+    margin-top:16px !important;
+  }
+
+  .mobile-day-card{
+    background:#FFFFFF !important;
+    border:1px solid #E5E7EB !important;
+    border-left:5px solid #E8272A !important;
+    border-radius:12px !important;
+    padding:14px 16px !important;
+    box-shadow:0 4px 14px rgba(0,0,0,.05) !important;
+  }
+
+  .mobile-day-head{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:12px !important;
+    margin-bottom:8px !important;
+  }
+
+  .mobile-day-head span{
+    color:#1C1C2E !important;
+    font-size:16px !important;
+    font-weight:900 !important;
+  }
+
+  .mobile-day-head em{
+    background:#262262 !important;
+    color:#FFFFFF !important;
+    border-radius:999px !important;
+    padding:4px 10px !important;
+    font-size:10px !important;
+    font-style:normal !important;
+    font-weight:900 !important;
+    text-transform:uppercase !important;
+    letter-spacing:.8px !important;
+    white-space:nowrap !important;
+  }
+
+  .mobile-day-card p{
+    color:#374151 !important;
+    font-size:14px !important;
+    line-height:1.65 !important;
+    font-weight:700 !important;
+    margin:0 !important;
+  }
+}
+
+@media(min-width:641px){
+  .mobile-schedule-cards{
+    display:none !important;
+  }
+}
+</style>
+
+
+<style>
+/* MATCH RECOMMENDATION WIDTH TO CONTENT SECTIONS */
+.first-class-recommendation{
+  width:100% !important;
+  max-width:980px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  box-sizing:border-box !important;
+}
+
+@media(max-width:640px){
+  .first-class-recommendation{
+    width:100% !important;
+    max-width:none !important;
+  }
+}
+</style>
+
+
+<style>
+/* TRIAL POLICY NOTE */
+.trial-policy-note{
+  margin-top:14px !important;
+  padding:12px 14px !important;
+  border-radius:10px !important;
+  background:#F8FAFC !important;
+  border:1px solid #E5E7EB !important;
+  color:#1C1C2E !important;
+  font-size:.88rem !important;
+  line-height:1.55 !important;
+  font-weight:700 !important;
+}
+
+@media(max-width:640px){
+  .trial-policy-note{
+    font-size:.82rem !important;
+    padding:11px 12px !important;
+  }
+}
+</style>
+
+
+<style>
+/* TERMS SECTION UNDER SCHEDULE */
+.trial-terms-section{
+  width:100%;
+  max-width:980px;
+  margin:18px auto 0;
+  padding:0;
+}
+
+.trial-terms-label{
+  color:#6B7280;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.trial-policy-note{
+  margin-top:0 !important;
+}
+
+.first-class-recommendation .strength-days-row{
+  margin-top:12px !important;
+  margin-bottom:14px !important;
+}
+
+.first-class-recommendation p{
+  margin-top:0 !important;
+}
+</style>
+
+
+<style>
+/* STEP 2 STRENGTH DAY NOTE */
+.step-two-strength-note{
+  margin-top:12px !important;
+  padding:12px 14px !important;
+  border-radius:10px !important;
+  background:#F8FAFC !important;
+  border:1px solid #E5E7EB !important;
+  color:#1C1C2E !important;
+  font-size:.88rem !important;
+  line-height:1.6 !important;
+  font-weight:700 !important;
+}
+
+.step-two-strength-note strong{
+  color:#E8272A !important;
+}
+
+@media(max-width:640px){
+  .step-two-strength-note{
+    font-size:.82rem !important;
+    padding:11px 12px !important;
+  }
+}
+</style>
+
+
+<style>
+/* STEP 2 TERMS NOTE */
+.step-two-strength-note{
+  margin-top:12px !important;
+  padding:12px 14px !important;
+  border-radius:10px !important;
+  background:#F8FAFC !important;
+  border:1px solid #E5E7EB !important;
+  color:#1C1C2E !important;
+  font-size:.88rem !important;
+  line-height:1.6 !important;
+  font-weight:700 !important;
+}
+
+.step-two-strength-note strong{
+  color:#E8272A !important;
+}
+
+@media(max-width:640px){
+  .step-two-strength-note{
+    font-size:.82rem !important;
+    padding:11px 12px !important;
+  }
+}
+</style>
+
+
+<style>
+.step-two-strength-note{
+  margin-top:12px !important;
+  padding:12px 14px !important;
+  border-radius:10px !important;
+  background:#F8FAFC !important;
+  border:1px solid #E5E7EB !important;
+  color:#1C1C2E !important;
+  font-size:.88rem !important;
+  line-height:1.6 !important;
+  font-weight:700 !important;
+}
+
+.step-two-strength-note strong{
+  color:#E8272A !important;
+}
+</style>
+
+
+<style>
+/* STEP #2 ONLY NOTE */
+.step-two-strength-note{
+  margin-top:12px !important;
+  padding:12px 14px !important;
+  border-radius:10px !important;
+  background:#F8FAFC !important;
+  border:1px solid #E5E7EB !important;
+  color:#1C1C2E !important;
+  font-size:.88rem !important;
+  line-height:1.6 !important;
+  font-weight:700 !important;
+}
+
+.step-two-strength-note strong{
+  color:#E8272A !important;
+}
+</style>
+
+
+<style>
+.step-two-strength-note{
+  margin-top:12px !important;
+  padding:12px 14px !important;
+  border-radius:10px !important;
+  background:#F8FAFC !important;
+  border:1px solid #E5E7EB !important;
+  color:#1C1C2E !important;
+  font-size:.88rem !important;
+  line-height:1.6 !important;
+  font-weight:700 !important;
+}
+
+.step-two-strength-note strong{
+  color:#E8272A !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -3238,6 +3602,8 @@ body{
         *Exclusive for <strong>FIRST TIME LOCAL RESIDENTS</strong> Only.*
       </p>
 
+
+
       <div class="hero-savings-line">
         <span class="hero-old-price">Regular $30</span>
         <span class="hero-save-pill">Save 50%</span>
@@ -3263,12 +3629,29 @@ body{
     
     
       </div>
-    </div>
-  </section>
+    
+      </section>
 
 <!-- GETTING STARTED -->
 <section id="getting-started"></section>
 <section class="getting-started-section" id="getstarted">
+
+      
+      <div class="first-class-recommendation">
+        <div class="first-class-label">Recommended First Class</div>
+        <h3>Start on a Strength Day</h3>
+<div class="strength-days-row">
+          <span>Monday</span>
+          <span>Wednesday</span>
+          <span>Friday</span>
+        </div>
+        <p>For your first F45 class, we recommend starting on a strength-focused day because they tend to move at a slightly slower pace than our cardio-focused workouts, making them a great introduction to F45.</p>
+
+        
+        
+      </div>
+
+      
   <div class="inner-wide">
 
     <div class="getting-started-block">
@@ -3276,7 +3659,11 @@ body{
       <h2 class="next-title">Here's what to expect after you purchase</h2>
       <div class="next-steps">
         <div class="next-step"><div class="next-num">1</div><div class="next-body"><h4>We'll reach out to you</h4><p>Our team will call and text you Monday–Friday, 9am–6pm to qualify your account, confirm your local residency, and help you schedule your first class if needed.</p></div></div>
-        <div class="next-step"><div class="next-num">2</div><div class="next-body"><h4>Book your classes via the F45 app</h4><p>Download the F45 app, log in, and book any of our available class times. All 3 classes must be used within 7 days of your first session.</p></div></div>
+        <div class="next-step"><div class="next-num">2</div><div class="next-body"><h4>Book your classes via the F45 app</h4><p>Download the F45 app, log in, and book any of our available class times. All 3 classes must be used within 7 days of your first session.</p>
+<div class="step-two-strength-note">
+  Your first class must be booked within 14 days of purchasing the trial.
+</div>
+</div></div>
         <div class="next-step"><div class="next-num">3</div><div class="next-body"><h4>Arrive 15 minutes early for your first class</h4><p>Bring your picture ID, a water bottle, and a sweat towel (mandatory — or purchase one from us). Our coaches will walk you through everything.</p></div></div>
       </div>
     </div>
@@ -3285,8 +3672,7 @@ body{
 
     <div class="getting-started-block mobile-schedule-block">
       <p class="schedule-eyebrow">Class Schedule</p>
-      <h2 class="schedule-title">824 N Federal Hwy, Pompano Beach, FL 33062</h2>
-      <div class="schedule-table-wrap">
+      <h2 class="schedule-title">824 N Federal Hwy, Pompano Beach, FL 33062</h2><div class="schedule-table-wrap">
         <table class="schedule-table">
           <thead>
             <tr>
@@ -3311,88 +3697,6 @@ body{
         </table>
       </div>
 
-<div class="mobile-schedule-accordion">
-
-  <details class="schedule-day-item" open>
-    <summary>
-      <span>Monday</span>
-      <em>Strength</em>
-    </summary>
-    <div class="schedule-day-content">
-      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM
-    </div>
-  </details>
-
-  <details class="schedule-day-item">
-    <summary>
-      <span>Tuesday</span>
-      <em>Cardio</em>
-    </summary>
-    <div class="schedule-day-content">
-      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM
-    </div>
-  </details>
-
-  <details class="schedule-day-item">
-    <summary>
-      <span>Wednesday</span>
-      <em>Strength</em>
-    </summary>
-    <div class="schedule-day-content">
-      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM
-    </div>
-  </details>
-
-  <details class="schedule-day-item">
-    <summary>
-      <span>Thursday</span>
-      <em>Hybrid</em>
-    </summary>
-    <div class="schedule-day-content">
-      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM · 6:30 PM
-    </div>
-  </details>
-
-  <details class="schedule-day-item">
-    <summary>
-      <span>Friday</span>
-      <em>Strength</em>
-    </summary>
-    <div class="schedule-day-content">
-      5:30 AM · 6:30 AM · 7:30 AM · 8:30 AM · 12:00 PM · 5:30 PM
-    </div>
-  </details>
-
-  <details class="schedule-day-item">
-    <summary>
-      <span>Saturday</span>
-      <em>Hybrid</em>
-    </summary>
-    <div class="schedule-day-content">
-      8:15 AM · 9:30 AM
-    </div>
-  </details>
-
-  <details class="schedule-day-item">
-    <summary>
-      <span>Sunday</span>
-      <em>Hybrid</em>
-    </summary>
-    <div class="schedule-day-content">
-      8:30 AM · 9:30 AM
-    </div>
-  </details>
-
-</div>
-
-
-      
-
-      
-
-    </div>
-
-  </div>
 </section>
 
 <!-- WHY JOIN -->
