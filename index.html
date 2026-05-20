@@ -2359,6 +2359,82 @@ body{
 }
 </style>
 
+
+<style>
+/* ACTUALLY CONDENSE STICKY NAV BAR */
+.fixed-nav,
+.fixed-navbar,
+.navbar,
+.main-navbar,
+.site-navbar,
+.navbar-wrapper{
+  height:auto !important;
+  min-height:0 !important;
+  padding-top:4px !important;
+  padding-bottom:4px !important;
+}
+
+.fixed-nav .container,
+.fixed-navbar .container,
+.navbar .container,
+.navbar-inner,
+.nav-inner{
+  min-height:42px !important;
+  height:42px !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  display:flex !important;
+  align-items:center !important;
+}
+
+.fixed-nav img,
+.fixed-navbar img,
+.navbar img{
+  max-height:26px !important;
+  width:auto !important;
+}
+
+.fixed-nav a,
+.fixed-navbar a,
+.navbar a{
+  line-height:1 !important;
+}
+
+@media(max-width:640px){
+
+  .fixed-nav,
+  .fixed-navbar,
+  .navbar,
+  .main-navbar,
+  .site-navbar,
+  .navbar-wrapper{
+    padding-top:2px !important;
+    padding-bottom:2px !important;
+  }
+
+  .fixed-nav .container,
+  .fixed-navbar .container,
+  .navbar .container,
+  .navbar-inner,
+  .nav-inner{
+    min-height:36px !important;
+    height:36px !important;
+  }
+
+  .fixed-nav img,
+  .fixed-navbar img,
+  .navbar img{
+    max-height:22px !important;
+  }
+
+  .fixed-nav a,
+  .fixed-navbar a,
+  .navbar a{
+    font-size:11px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
