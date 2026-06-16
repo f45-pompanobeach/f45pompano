@@ -4682,12 +4682,11 @@ body{
         </p>
       </div>
 
-      <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/pompanobeach@f45training.com" method="POST">
+      <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/pompanobeach@f45training.com" method="POST" target="formsubmitHiddenFrame">
       <input type="hidden" name="_subject" value="[F45-QR-LEAD] {{partner}} Exclusive">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" id="formNextUrl" name="_next" value="">
-      <input type="hidden" id="fullNameHidden" name="Full Name" value="">
+<input type="hidden" id="fullNameHidden" name="Full Name" value="">
       <input type="hidden" name="Partner" value="{{partner}} Exclusive">
       <input type="hidden" name="Offer" value="{{trialType}} for {{trialCost}}">
       <input type="hidden" name="Source" value="{{source}}">
@@ -4727,6 +4726,7 @@ body{
           First-time local residents only. Valid for a limited time. Must book first class in advance.
         </p>
       </form>
+      <iframe name="formsubmitHiddenFrame" title="Form submission" style="display:none;width:0;height:0;border:0;"></iframe>
 
       <div id="claimSuccess" class="claim-success" tabindex="-1">
         <div class="success-unlocked-label">Offer unlocked</div>
@@ -5225,34 +5225,27 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("submitted") === "true") {
-    showSuccessBox();
-    return;
-  }
-
   if (!form) return;
 
   form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
     const firstNameField = form.querySelector("#firstName");
     const lastNameField = form.querySelector("#lastName");
     const phoneField = form.querySelector("#phone, #mobilePhone, #mobile");
     const fullNameHidden = form.querySelector("#fullNameHidden");
-    const nextUrlField = form.querySelector("#formNextUrl");
 
     const validName = function (value) {
       return /^[A-Za-z][A-Za-z\s\-']{1,}$/.test((value || "").trim());
     };
 
     if (!validName(firstNameField && firstNameField.value)) {
-      event.preventDefault();
       alert("Please enter your full first name with at least 2 letters.");
       if (firstNameField) firstNameField.focus();
       return;
     }
 
     if (!validName(lastNameField && lastNameField.value)) {
-      event.preventDefault();
       alert("Please enter your full last name with at least 2 letters.");
       if (lastNameField) lastNameField.focus();
       return;
@@ -5263,7 +5256,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const isValidUSPhone = phoneDigits.length === 10 || (phoneDigits.length === 11 && phoneDigits.charAt(0) === "1");
 
       if (!isValidUSPhone) {
-        event.preventDefault();
         alert("Please enter a valid U.S. phone number so we can contact you about your trial.");
         phoneField.focus();
         return;
@@ -5277,16 +5269,17 @@ document.addEventListener("DOMContentLoaded", function () {
       fullNameHidden.value = ((firstNameField && firstNameField.value.trim()) || "") + " " + ((lastNameField && lastNameField.value.trim()) || "");
     }
 
-    if (nextUrlField) {
-      const cleanUrl = window.location.origin + window.location.pathname;
-      nextUrlField.value = cleanUrl + "?submitted=true#offer";
-    }
-
     const submitButton = form.querySelector("button[type='submit']");
     if (submitButton) {
       submitButton.disabled = true;
       submitButton.textContent = "Unlocking Offer...";
     }
+
+    HTMLFormElement.prototype.submit.call(form);
+
+    setTimeout(function () {
+      showSuccessBox();
+    }, 500);
   });
 });</script>
 
