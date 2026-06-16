@@ -4683,21 +4683,19 @@ body{
       </div>
 
       <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/ajax/pompanobeach@f45training.com" method="POST">
-      <input type="hidden" name="_subject" value="[F45-QR-LEAD] {{partner}} Exclusive">
+      <input type="hidden" name="_subject" value="New Partner Lead: {{partner}} Exclusive">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="Partner" value="{{partner}} Exclusive">
-      <input type="hidden" name="Offer" value="{{trialType}} for {{trialCost}}">
-      <input type="hidden" name="Source" value="{{source}}">
-      <input type="hidden" id="fullNameHidden" name="Full Name" value="">
+<input type="hidden" id="fullNameHidden" name="Full Name" value="">
 <div class="form-row">
           <label for="firstName">First Name *</label>
-          <input id="firstName" type="text" autocomplete="given-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters." name="first_name">
+          <input id="firstName" type="text" autocomplete="given-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters.">
         </div>
 
         <div class="form-row">
           <label for="lastName">Last Name *</label>
-          <input id="lastName" type="text" autocomplete="family-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters." name="last_name">
+          <input id="lastName" type="text" autocomplete="family-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters.">
         </div>
 
         <div class="form-row">
@@ -5072,7 +5070,7 @@ body{
       5.0 ⭐⭐⭐⭐⭐ Google Reviews<br>
       Address: 824 N Federal Hwy, Pompano Beach, FL 33062<br>
       Email: <a href="mailto:pompanobeach@f45training.com">pompanobeach@f45training.com</a><br>
-      Phone: <a href="tel:">{{{phone}}}</a>
+      Phone: <a href="tel:">{{phone}}</a>
     </div>
     <div class="footer-map">
       <div class="embedded-map-wrap">
@@ -5273,17 +5271,17 @@ document.addEventListener("DOMContentLoaded", function () {
       submitButton.textContent = "Unlocking Offer...";
     }
 
+    const partnerName = "{{partner}} Exclusive";
+
     const payload = {
-      _subject: "[F45-QR-LEAD] {{partner}} Exclusive",
+      _subject: "New Partner Lead: " + fullName.trim() + " - " + partnerName,
       _template: "table",
       _captcha: "false",
       "Full Name": fullName.trim(),
-      email: emailField ? emailField.value.trim() : "",
-      phone: phoneField ? phoneField.value.trim() : "",
-      "ZIP Code on ID": zipField ? zipField.value.trim() : "",
-      Partner: "{{partner}} Exclusive",
-      Offer: "{{trialType}} for {{trialCost}}",
-      Source: "{{source}}"
+      "Email": emailField ? emailField.value.trim() : "",
+      "Phone": phoneField ? phoneField.value.trim() : "",
+      "ZIP Code": zipField ? zipField.value.trim() : "",
+      "Partner": partnerName
     };
 
     try {
@@ -5302,7 +5300,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       showSuccessBox();
     } catch (error) {
-      alert("Something went wrong submitting the form. Please call or text us at {{{phone}}} and we’ll help you activate the offer.");
+      alert("Something went wrong submitting the form. Please call or text us at {{phone}} and we’ll help you activate the offer.");
       if (submitButton) {
         submitButton.disabled = false;
         submitButton.textContent = "Submit & Unlock Offer";
