@@ -1841,6 +1841,111 @@ body{
   .first-class-combined{margin-top:30px;}
 }
 
+
+/* Success state alignment fixes */
+.claim-success-actions{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:18px auto 28px;
+}
+.claim-success-actions .promo-code-confirm{
+  margin:0 !important;
+  min-height:66px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+}
+.claim-success-actions .screenshot-cta{
+  margin:0 !important;
+  min-height:66px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1.1;
+}
+@media(max-width:640px){
+  .claim-success-actions{
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+  }
+  .claim-success-actions .promo-code-confirm,
+  .claim-success-actions .screenshot-cta{
+    width:100%;
+    min-height:58px;
+  }
+}
+
+
+/* Promo code stacked label/code */
+.claim-success-actions .promo-code-confirm{
+  flex-direction:column;
+  gap:4px;
+  text-align:center;
+}
+.claim-success-actions .promo-code-confirm span{
+  display:block;
+  color:#FFFFFF;
+  font-size:.84rem;
+  font-weight:900;
+  line-height:1;
+}
+.claim-success-actions .promo-code-confirm strong{
+  display:block;
+  font-size:1.05rem;
+  line-height:1.1;
+}
+
+
+/* Success state transition + promo-copy button */
+.claim-success{
+  opacity:0;
+  transform:translateY(10px);
+  transition:opacity .32s ease, transform .32s ease;
+}
+.claim-success.is-visible{
+  opacity:1;
+  transform:translateY(0);
+}
+.claim-success:focus{outline:none;}
+.success-unlocked-label{
+  display:inline-block;
+  background:#FFB800;
+  color:#1C1C2E;
+  text-transform:uppercase;
+  letter-spacing:1.6px;
+  font-size:.76rem;
+  font-weight:900;
+  border-radius:999px;
+  padding:7px 13px;
+  margin-bottom:12px;
+}
+.promo-copy-button{
+  border:none;
+  cursor:pointer;
+  font-family:'Inter',system-ui,sans-serif;
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.promo-copy-button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 18px rgba(0,0,0,.18);
+}
+.promo-copy-button em{
+  display:block;
+  margin-top:5px;
+  color:rgba(255,255,255,.7);
+  font-style:normal;
+  font-size:.72rem;
+  font-weight:800;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+}
+.promo-copy-button.copied em{color:#FFB800;}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
@@ -4538,19 +4643,24 @@ body{
         </p>
       </form>
 
-      <div id="claimSuccess" class="claim-success">
-        <h3>Your request has been received.</h3>
+      <div id="claimSuccess" class="claim-success" tabindex="-1">
+        <div class="success-unlocked-label">Offer unlocked</div>
+        <h3>Use this promo code at Mindbody checkout.</h3>
         <p>
           Continue to Mindbody to activate the offer. Eligibility will be verified before your first class.
         </p>
 
-        <div class="promo-code-confirm">
-          Promo Code: <strong>{{promoCode}}</strong>
-        </div>
+        <div class="claim-success-actions">
+          <button type="button" class="promo-code-confirm promo-copy-button" id="promoCopyButton" data-promo-code="{{promoCode}}" aria-label="Copy promo code {{promoCode}}">
+            <span>Promo Code:</span>
+            <strong>{{promoCode}}</strong>
+            <em id="copyStatus">Tap to copy</em>
+          </button>
 
-        <a class="screenshot-cta" href="{{mindbodyTrialUrl}}" target="_blank" rel="noopener">
-          Continue to Mindbody
-        </a>
+          <a class="screenshot-cta" href="{{mindbodyTrialUrl}}" target="_blank" rel="noopener">
+            Continue to Mindbody
+          </a>
+        </div>
 
         <p class="mindbody-help-note">
           Use the same email you entered here. If Mindbody says your account already exists,
@@ -5014,11 +5124,21 @@ body{
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("partnerLeadForm");
   const successBox = document.getElementById("claimSuccess");
-const source = "{{source}}";
-if (!form) return;
+  const promoCopyButton = document.getElementById("promoCopyButton");
+  const copyStatus = document.getElementById("copyStatus");
+
+  if (!form) return;
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+
+    const submitButton = form.querySelector("button[type='submit']");
+    const originalButtonText = submitButton ? submitButton.textContent : "";
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Unlocking Offer...";
+    }
 
     const firstName = form.querySelector("#firstName");
     const subject = form.querySelector("input[name='subject']");
@@ -5026,12 +5146,50 @@ if (!form) return;
       subject.value = "[F45-QR-LEAD] {{partner}} - " + firstName.value.trim();
     }
 
-    form.style.display = "none";
-    successBox.style.display = "block";
-    successBox.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(function () {
+      form.style.display = "none";
+      successBox.style.display = "block";
+
+      requestAnimationFrame(function () {
+        successBox.classList.add("is-visible");
+        successBox.focus({ preventScroll: true });
+
+        const successRect = successBox.getBoundingClientRect();
+        const targetY = window.scrollY + successRect.top - ((window.innerHeight - successRect.height) / 2);
+
+        window.scrollTo({
+          top: Math.max(0, targetY),
+          left: 0,
+          behavior: "smooth"
+        });
+      });
+    }, 350);
   });
-});
-</script>
+
+  if (promoCopyButton) {
+    promoCopyButton.addEventListener("click", async function () {
+      const code = promoCopyButton.getAttribute("data-promo-code") || "{{promoCode}}";
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(code);
+        } else {
+          const tempInput = document.createElement("input");
+          tempInput.value = code;
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          document.execCommand("copy");
+          document.body.removeChild(tempInput);
+        }
+
+        promoCopyButton.classList.add("copied");
+        if (copyStatus) copyStatus.textContent = "Copied!";
+      } catch (error) {
+        if (copyStatus) copyStatus.textContent = "Copy manually";
+      }
+    });
+  }
+});</script>
 
 </body>
 </html>
