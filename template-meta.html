@@ -2046,6 +2046,70 @@ body{
   margin-top:6px;
 }
 
+
+/* Make the F45 logo much larger on the Meta page */
+.hero-brand img,
+.topbar-brand img,
+.site-logo img,
+.logo img,
+img[alt*="F45"],
+img[alt*="f45"]{
+  max-height: 78px !important;
+  height: auto !important;
+  width: auto !important;
+}
+@media (max-width: 640px){
+  .hero-brand img,
+  .topbar-brand img,
+  .site-logo img,
+  .logo img,
+  img[alt*="F45"],
+  img[alt*="f45"]{
+    max-height: 64px !important;
+  }
+}
+
+
+/* Refine nav logo: crop white edges and enlarge visible logo area */
+.hero-brand,
+.topbar-brand,
+.site-logo,
+.logo{
+  overflow:hidden !important;
+}
+
+.hero-brand img,
+.topbar-brand img,
+.site-logo img,
+.logo img,
+img[alt*="F45"],
+img[alt*="f45"]{
+  max-height:56px !important;
+  height:56px !important;
+  width:auto !important;
+  display:block !important;
+  object-fit:cover !important;
+  object-position:center !important;
+  transform:scale(1.18) !important;
+  transform-origin:center center !important;
+  padding:0 !important;
+  margin:0 auto !important;
+  box-sizing:border-box !important;
+}
+
+@media (max-width: 640px){
+  .hero-brand img,
+  .topbar-brand img,
+  .site-logo img,
+  .logo img,
+  img[alt*="F45"],
+  img[alt*="f45"]{
+    max-height:48px !important;
+    height:48px !important;
+    transform:scale(1.14) !important;
+  }
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
@@ -4645,7 +4709,7 @@ body{
       
       <div class="promo-code-box">
         
-        <span>Meta Exclusive Offer</span>
+        <span>{{partner}} Exclusive Offer</span>
       </div>
       <div class="topbar-cta-stack">
 
@@ -4688,7 +4752,7 @@ body{
 
 
         <div class="screenshot-offer-card form-overlay-card" id="claim-form">
-      <div class="claim-partner-ribbon">Meta Exclusive</div>
+      <div class="claim-partner-ribbon">{{partner}} Exclusive</div>
       <div class="claim-form-header overlay-claim-header">
         <h2>Reserve Your {{trialType}} for {{trialCost}}</h2>
         <p>
@@ -4703,11 +4767,11 @@ body{
       <div class="meta-direct-cta-block">
         <div class="claim-form-title" style="margin-bottom:12px;">Activate Your Trial</div>
         <p class="claim-form-sub" style="margin-bottom:18px;">
-          This Meta-exclusive 3 classes for $15 offer is for first-time local residents. Continue to Mindbody to create your account, activate your trial, and book your first class.
+          This {{partner}} exclusive 3 classes for $15 offer is for first-time local residents. Activate your trial and book your first class online.
         </p>
 
         <a class="screenshot-cta meta-direct-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=110702" target="_blank" rel="noopener">
-          Continue to Mindbody — $15 Trial
+          Activate Your $15 Trial
         </a>
 
         <p class="mindbody-help-note meta-direct-note">
