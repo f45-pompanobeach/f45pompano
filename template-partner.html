@@ -1946,6 +1946,74 @@ body{
 }
 .promo-copy-button.copied em{color:#FFB800;}
 
+
+/* Center top CTA above the supporting text */
+.topbar-cta-stack{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+.topbar-cta-stack .promo-claim-btn{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.topbar-mindbody-note,
+.subtle-urgency-note{
+  text-align:center !important;
+}
+
+
+/* Make partner name in yellow ribbon more prominent */
+.claim-partner-ribbon{
+  font-size:1.08rem !important;
+  line-height:1.2 !important;
+  letter-spacing:1.5px !important;
+  padding:16px 20px !important;
+}
+@media(max-width:640px){
+  .claim-partner-ribbon{
+    font-size:.98rem !important;
+    letter-spacing:1.1px !important;
+    padding:15px 14px !important;
+  }
+}
+
+
+/* Make partner name in yellow ribbon even more prominent */
+.claim-partner-ribbon{
+  font-size:1.28rem !important;
+  line-height:1.18 !important;
+  letter-spacing:1.7px !important;
+  padding:18px 22px !important;
+}
+@media(max-width:640px){
+  .claim-partner-ribbon{
+    font-size:1.08rem !important;
+    line-height:1.18 !important;
+    letter-spacing:1.2px !important;
+    padding:16px 14px !important;
+  }
+}
+
+
+/* Make partner name fill most of the yellow ribbon */
+.claim-partner-ribbon{
+  font-size:1.55rem !important;
+  line-height:1.12 !important;
+  letter-spacing:1.8px !important;
+  padding:18px 20px !important;
+}
+@media(max-width:640px){
+  .claim-partner-ribbon{
+    font-size:1.28rem !important;
+    line-height:1.14 !important;
+    letter-spacing:1.1px !important;
+    padding:17px 12px !important;
+  }
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
@@ -4588,9 +4656,8 @@ body{
 
 
         <div class="screenshot-offer-card form-overlay-card" id="claim-form">
-      <div class="claim-partner-ribbon">{{partner}} Exclusive Trial</div>
+      <div class="claim-partner-ribbon">{{partner}}</div>
       <div class="claim-form-header overlay-claim-header">
-        <div class="claim-eyebrow">Exclusive Partner Trial</div>
         <h2>Reserve Your {{trialType}} for {{trialCost}}</h2>
         <p>
           Complete this short form to reserve your 3-class local resident trial.
@@ -4657,7 +4724,7 @@ body{
             <em id="copyStatus">Tap to copy</em>
           </button>
 
-          <a class="screenshot-cta" href="{{mindbodyTrialUrl}}" target="_blank" rel="noopener">
+          <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" rel="noopener">
             Continue to Mindbody
           </a>
         </div>
