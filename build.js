@@ -61,9 +61,22 @@ for (const file of fs.readdirSync(dataDir)) {
     ...partner
   };
 
+  const renderedPartnerPage = render(
+    file === "meta.json" ? metaTemplate : partnerTemplate,
+    partnerData
+  );
+
   fs.writeFileSync(
     path.join(distDir, `${partnerData.slug}.html`),
-    render(file === "meta.json" ? metaTemplate : partnerTemplate, partnerData)
+    renderedPartnerPage
+  );
+
+  const partnerPageDir = path.join(distDir, partnerData.slug);
+  fs.mkdirSync(partnerPageDir, { recursive: true });
+
+  fs.writeFileSync(
+    path.join(partnerPageDir, "index.html"),
+    renderedPartnerPage
   );
 
   console.log(`Generated ${partnerData.slug}.html`);
