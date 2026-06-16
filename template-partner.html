@@ -2014,6 +2014,21 @@ body{
   }
 }
 
+
+/* Anchor offset for fixed header navigation */
+#first-class{
+  scroll-margin-top:120px;
+}
+
+/* Direct $15 trial success state */
+.claim-success-actions{
+  justify-content:center !important;
+}
+.claim-success-actions .screenshot-cta{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
@@ -4613,7 +4628,7 @@ body{
       
       <div class="promo-code-box">
         
-        <span>{{partner}} Trial</span>
+        <span>{{partner}} Exclusive Offer</span>
       </div>
       <div class="topbar-cta-stack">
 
@@ -4656,7 +4671,7 @@ body{
 
 
         <div class="screenshot-offer-card form-overlay-card" id="claim-form">
-      <div class="claim-partner-ribbon">{{partner}}</div>
+      <div class="claim-partner-ribbon">{{partner}} Exclusive</div>
       <div class="claim-form-header overlay-claim-header">
         <h2>Reserve Your {{trialType}} for {{trialCost}}</h2>
         <p>
@@ -4667,36 +4682,39 @@ body{
         </p>
       </div>
 
-      <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form">
-        <input type="hidden" name="subject" value="[F45-QR-LEAD] {{partner}}">
-        <input type="hidden" name="source" value="{{source}}">
-        <input type="hidden" name="partner" value="{{partner}}">
-        <input type="hidden" name="promoCode" value="{{promoCode}}">
-        <input type="hidden" name="offer" value="{{trialType}} for {{trialCost}}">
+      <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/pompanobeach@f45training.com" method="POST">
+      <input type="hidden" name="_subject" value="[F45-QR-LEAD] {{partner}} Exclusive">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" id="formNextUrl" name="_next" value="">
+      <input type="hidden" id="fullNameHidden" name="Full Name" value="">
+      <input type="hidden" name="Partner" value="{{partner}} Exclusive">
+      <input type="hidden" name="Offer" value="{{trialType}} for {{trialCost}}">
+      <input type="hidden" name="Source" value="{{source}}">
 
-        <div class="form-row">
+<div class="form-row">
           <label for="firstName">First Name *</label>
-          <input id="firstName" name="firstName" type="text" autocomplete="given-name" required>
+          <input id="firstName" type="text" autocomplete="given-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters.">
         </div>
 
         <div class="form-row">
           <label for="lastName">Last Name *</label>
-          <input id="lastName" name="lastName" type="text" autocomplete="family-name" required>
+          <input id="lastName" type="text" autocomplete="family-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters.">
         </div>
 
         <div class="form-row">
           <label for="phone">Mobile Phone *</label>
-          <input id="phone" name="phone" type="tel" autocomplete="tel" required>
+          <input id="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="(954) 555-1234" title="Please enter a valid U.S. phone number." name="Phone">
         </div>
 
         <div class="form-row">
           <label for="email">Email *</label>
-          <input id="email" name="email" type="email" autocomplete="email" required>
+          <input id="email" type="email" autocomplete="email" required name="Email">
         </div>
 
         <div class="form-row">
-          <label for="zipCode">ZIP Code *</label>
-          <input id="zipCode" name="zipCode" type="text" inputmode="numeric" maxlength="5" required>
+          <label for="zipCode">ZIP Code on your ID *</label>
+          <input id="zipCode" type="text" inputmode="numeric" maxlength="5" required name="ZIP Code on ID">
         </div>
 <label class="checkbox-row">
           <input type="checkbox" name="firstTimeLocalResident" value="Yes" required>
@@ -4712,26 +4730,20 @@ body{
 
       <div id="claimSuccess" class="claim-success" tabindex="-1">
         <div class="success-unlocked-label">Offer unlocked</div>
-        <h3>Use this promo code at Mindbody checkout.</h3>
+        <h3>Your partner-exclusive 3 classes for $15 trial is ready.</h3>
         <p>
-          Continue to Mindbody to activate the offer. Eligibility will be verified before your first class.
+          Continue to Mindbody to create your account and activate your trial. Eligibility will be verified before your first class.
         </p>
 
         <div class="claim-success-actions">
-          <button type="button" class="promo-code-confirm promo-copy-button" id="promoCopyButton" data-promo-code="{{promoCode}}" aria-label="Copy promo code {{promoCode}}">
-            <span>Promo Code:</span>
-            <strong>{{promoCode}}</strong>
-            <em id="copyStatus">Tap to copy</em>
-          </button>
-
-          <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" rel="noopener">
-            Continue to Mindbody
+          <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=110702" target="_blank" rel="noopener">
+            Continue to Mindbody — $15 Trial
           </a>
         </div>
 
         <p class="mindbody-help-note">
-          Use the same email you entered here. If Mindbody says your account already exists,
-          choose “Forgot Password” or call/text us at {{phone}}.
+          Mindbody may ask you to sign in or create an account before checkout. Use the same email you entered here.
+          If Mindbody says your account already exists, choose “Forgot Password” or call/text us at {phone}.
         </p>
       </div>
     </div>
@@ -5191,71 +5203,91 @@ body{
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("partnerLeadForm");
   const successBox = document.getElementById("claimSuccess");
-  const promoCopyButton = document.getElementById("promoCopyButton");
-  const copyStatus = document.getElementById("copyStatus");
+
+  function showSuccessBox() {
+    if (!form || !successBox) return;
+
+    form.style.display = "none";
+    successBox.style.display = "block";
+
+    requestAnimationFrame(function () {
+      successBox.classList.add("is-visible");
+      successBox.focus({ preventScroll: true });
+
+      const successRect = successBox.getBoundingClientRect();
+      const targetY = window.scrollY + successRect.top - ((window.innerHeight - successRect.height) / 2);
+
+      window.scrollTo({
+        top: Math.max(0, targetY),
+        left: 0,
+        behavior: "smooth"
+      });
+    });
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("submitted") === "true") {
+    showSuccessBox();
+    return;
+  }
 
   if (!form) return;
 
   form.addEventListener("submit", function (event) {
-    event.preventDefault();
+    const firstNameField = form.querySelector("#firstName");
+    const lastNameField = form.querySelector("#lastName");
+    const phoneField = form.querySelector("#phone, #mobilePhone, #mobile");
+    const fullNameHidden = form.querySelector("#fullNameHidden");
+    const nextUrlField = form.querySelector("#formNextUrl");
+
+    const validName = function (value) {
+      return /^[A-Za-z][A-Za-z\s\-']{1,}$/.test((value || "").trim());
+    };
+
+    if (!validName(firstNameField && firstNameField.value)) {
+      event.preventDefault();
+      alert("Please enter your full first name with at least 2 letters.");
+      if (firstNameField) firstNameField.focus();
+      return;
+    }
+
+    if (!validName(lastNameField && lastNameField.value)) {
+      event.preventDefault();
+      alert("Please enter your full last name with at least 2 letters.");
+      if (lastNameField) lastNameField.focus();
+      return;
+    }
+
+    if (phoneField) {
+      const phoneDigits = phoneField.value.replace(/\D/g, "");
+      const isValidUSPhone = phoneDigits.length === 10 || (phoneDigits.length === 11 && phoneDigits.charAt(0) === "1");
+
+      if (!isValidUSPhone) {
+        event.preventDefault();
+        alert("Please enter a valid U.S. phone number so we can contact you about your trial.");
+        phoneField.focus();
+        return;
+      }
+
+      const normalizedPhone = phoneDigits.length === 11 ? phoneDigits.substring(1) : phoneDigits;
+      phoneField.value = "(" + normalizedPhone.substring(0, 3) + ") " + normalizedPhone.substring(3, 6) + "-" + normalizedPhone.substring(6);
+    }
+
+    if (fullNameHidden) {
+      fullNameHidden.value = ((firstNameField && firstNameField.value.trim()) || "") + " " + ((lastNameField && lastNameField.value.trim()) || "");
+    }
+
+    if (nextUrlField) {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      nextUrlField.value = cleanUrl + "?submitted=true#offer";
+    }
 
     const submitButton = form.querySelector("button[type='submit']");
-    const originalButtonText = submitButton ? submitButton.textContent : "";
-
     if (submitButton) {
       submitButton.disabled = true;
       submitButton.textContent = "Unlocking Offer...";
     }
-
-    const firstName = form.querySelector("#firstName");
-    const subject = form.querySelector("input[name='subject']");
-    if (firstName && subject && firstName.value.trim()) {
-      subject.value = "[F45-QR-LEAD] {{partner}} - " + firstName.value.trim();
-    }
-
-    setTimeout(function () {
-      form.style.display = "none";
-      successBox.style.display = "block";
-
-      requestAnimationFrame(function () {
-        successBox.classList.add("is-visible");
-        successBox.focus({ preventScroll: true });
-
-        const successRect = successBox.getBoundingClientRect();
-        const targetY = window.scrollY + successRect.top - ((window.innerHeight - successRect.height) / 2);
-
-        window.scrollTo({
-          top: Math.max(0, targetY),
-          left: 0,
-          behavior: "smooth"
-        });
-      });
-    }, 350);
   });
-
-  if (promoCopyButton) {
-    promoCopyButton.addEventListener("click", async function () {
-      const code = promoCopyButton.getAttribute("data-promo-code") || "{{promoCode}}";
-
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(code);
-        } else {
-          const tempInput = document.createElement("input");
-          tempInput.value = code;
-          document.body.appendChild(tempInput);
-          tempInput.select();
-          document.execCommand("copy");
-          document.body.removeChild(tempInput);
-        }
-
-        promoCopyButton.classList.add("copied");
-        if (copyStatus) copyStatus.textContent = "Copied!";
-      } catch (error) {
-        if (copyStatus) copyStatus.textContent = "Copy manually";
-      }
-    });
-  }
 });</script>
 
 </body>
