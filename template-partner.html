@@ -4724,10 +4724,10 @@ img[alt*="f45"]{
       </div>
 
       <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/ajax/pompanobeach@f45training.com" method="POST">
-      <input type="hidden" name="_subject" value="New Partner Lead: {{partner}} Exclusive">
+      <input type="hidden" name="_subject" value="New Partner Lead: {{partner}}">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="Partner" value="{{partner}} Exclusive">
+      <input type="hidden" name="Partner" value="{{partner}}">
 <input type="hidden" id="fullNameHidden" name="Full Name" value="">
 <div class="form-row">
           <label for="firstName">First Name *</label>
@@ -5312,7 +5312,7 @@ document.addEventListener("DOMContentLoaded", function () {
       submitButton.textContent = "Unlocking Offer...";
     }
 
-    const partnerName = "{{partner}} Exclusive";
+    const partnerName = "{{partner}}";
 
     const payload = {
       _subject: "New Partner Lead: " + fullName.trim() + " - " + partnerName,
@@ -5320,7 +5320,7 @@ document.addEventListener("DOMContentLoaded", function () {
       _captcha: "false",
       "Full Name": fullName.trim(),
       "Email": emailField ? emailField.value.trim() : "",
-      "Phone": phoneField ? phoneField.value.trim() : "",
+      "Phone": phoneField ? phoneField.value.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "") : "",
       "ZIP Code": zipField ? zipField.value.trim() : "",
       "Partner": partnerName
     };
