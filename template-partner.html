@@ -2029,6 +2029,47 @@ body{
   margin-right:auto !important;
 }
 
+
+/* Refine nav logo: crop white edges and enlarge visible logo area */
+.hero-brand,
+.topbar-brand,
+.site-logo,
+.logo{
+  overflow:hidden !important;
+}
+
+.hero-brand img,
+.topbar-brand img,
+.site-logo img,
+.logo img,
+img[alt*="F45"],
+img[alt*="f45"]{
+  max-height:56px !important;
+  height:56px !important;
+  width:auto !important;
+  display:block !important;
+  object-fit:cover !important;
+  object-position:center !important;
+  transform:scale(1.18) !important;
+  transform-origin:center center !important;
+  padding:0 !important;
+  margin:0 auto !important;
+  box-sizing:border-box !important;
+}
+
+@media (max-width: 640px){
+  .hero-brand img,
+  .topbar-brand img,
+  .site-logo img,
+  .logo img,
+  img[alt*="F45"],
+  img[alt*="f45"]{
+    max-height:48px !important;
+    height:48px !important;
+    transform:scale(1.14) !important;
+  }
+}
+
 </style>
 
   <!-- Open Graph / Social Sharing -->
