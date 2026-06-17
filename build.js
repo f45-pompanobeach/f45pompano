@@ -32,8 +32,6 @@ function render(template, data) {
   return html;
 }
 
-const redirectLines = [];
-
 // Default homepage
 const genericData = {
   ...shared,
@@ -45,7 +43,7 @@ fs.writeFileSync(
   render(genericTemplate, genericData)
 );
 
-// Partner pages — flat .html files only
+// Partner pages
 for (const file of fs.readdirSync(dataDir)) {
   if (file === "shared.json") continue;
   if (file === "generic.json") continue;
@@ -65,14 +63,5 @@ for (const file of fs.readdirSync(dataDir)) {
     render(partnerTemplate, partnerData)
   );
 
-  // Redirect clean URLs to the flat .html page so relative image paths still work.
-  redirectLines.push(`/${partnerData.slug} /${partnerData.slug}.html 301`);
-  redirectLines.push(`/${partnerData.slug}/ /${partnerData.slug}.html 301`);
-
   console.log(`Generated ${partnerData.slug}.html`);
 }
-
-fs.writeFileSync(
-  path.join(distDir, "_redirects"),
-  `${redirectLines.join("\n")}\n`
-);
