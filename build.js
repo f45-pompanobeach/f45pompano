@@ -6,6 +6,9 @@ const genericTemplate = fs.readFileSync("template-generic.html", "utf8");
 const metaTemplate = fs.existsSync("template-meta.html")
   ? fs.readFileSync("template-meta.html", "utf8")
   : partnerTemplate;
+const sandsHarborTemplate = fs.existsSync("template-sands-harbor.html")
+  ? fs.readFileSync("template-sands-harbor.html", "utf8")
+  : partnerTemplate;
 
 const dataDir = "data";
 const distDir = "dist";
@@ -62,7 +65,9 @@ for (const file of fs.readdirSync(dataDir)) {
   };
 
   const renderedPartnerPage = render(
-    file === "meta.json" ? metaTemplate : partnerTemplate,
+    file === "meta.json" ? metaTemplate :
+    file === "sands-harbor.json" ? sandsHarborTemplate :
+    partnerTemplate,
     partnerData
   );
 
