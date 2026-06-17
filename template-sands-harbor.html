@@ -1832,8 +1832,8 @@ body{
 .first-class-section{padding-bottom:58px;}
 .first-class-combined{margin-top:42px;}
 .first-class-combined .getting-started-block{margin-top:28px;}
-.first-class-why-block{margin-bottom:28px;}
-.first-class-recommendation-combined{margin:28px auto;}
+.first-class-why-block{margin-bottom:56px;}
+.first-class-recommendation-combined{margin:56px auto 28px;}
 .schedule-section{padding-top:56px;}
 .schedule-section .mobile-schedule-block{margin-top:0;}
 @media(max-width:640px){
@@ -2041,7 +2041,9 @@ body{
 .hero-brand img,
 .topbar-brand img,
 .site-logo img,
-.logo img{
+.logo img,
+img[alt*="F45"],
+img[alt*="f45"]{
   max-height:56px !important;
   height:56px !important;
   width:auto !important;
@@ -4661,14 +4663,14 @@ body{
 .sands-offer-options{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-  margin:18px 0 20px;
+  gap:16px;
+  margin:22px 0 22px;
 }
 .sands-offer-card{
   background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.22);
-  border-radius:12px;
-  padding:18px 14px;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:14px;
+  padding:22px 18px 20px;
   text-align:center;
   box-shadow:0 10px 28px rgba(0,0,0,.18);
 }
@@ -4677,19 +4679,49 @@ body{
   background:#FFB800;
   color:#1C1C2E;
   border-radius:999px;
-  padding:5px 10px;
-  margin-bottom:10px;
-  font-size:.70rem;
+  padding:6px 12px;
+  margin-bottom:14px;
+  font-size:.72rem;
   font-weight:900;
   letter-spacing:1.2px;
   text-transform:uppercase;
 }
 .sands-offer-price{
   color:#FFFFFF;
-  font-size:1.55rem;
+  font-size:1.62rem;
   line-height:1.05;
   font-weight:900;
   letter-spacing:-.02em;
+}
+.sands-original-row{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:7px;
+  margin-top:11px;
+}
+.sands-original-label{
+  color:rgba(255,255,255,.68);
+  font-size:.78rem;
+  font-weight:700;
+}
+.sands-price-strike{
+  color:#FFFFFF;
+  font-size:1rem;
+  line-height:1;
+  font-weight:900;
+  text-decoration:line-through;
+  text-decoration-thickness:2px;
+  text-decoration-color:#E8272A;
+}
+.sands-value-note{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.16);
+  color:rgba(255,255,255,.78);
+  font-size:.84rem;
+  line-height:1.45;
+  font-weight:600;
 }
 .sands-offer-regular{
   margin-top:7px;
@@ -4698,19 +4730,20 @@ body{
   font-weight:700;
 }
 .sands-offer-note{
-  color:rgba(255,255,255,.84);
-  font-size:1.12rem;
-  line-height:1.45;
-  font-weight:700;
-  margin:0 0 18px;
+  color:rgba(255,255,255,.92);
+  font-size:clamp(1.28rem,2.4vw,1.65rem);
+  line-height:1.32;
+  font-weight:900;
+  margin:0 auto 22px;
+  max-width:640px;
 }
 @media(max-width:640px){
   .sands-offer-options{
     grid-template-columns:1fr;
-    gap:10px;
+    gap:12px;
   }
   .sands-offer-price{
-    font-size:1.38rem;
+    font-size:1.42rem;
   }
 }
 </style>
@@ -4775,7 +4808,6 @@ body{
 
         <div class="sands-offer-options" aria-label="Sands Harbor guest offer options">
           <div class="sands-offer-card">
-            <div class="sands-deal-tag">Hotel Guest Rate</div>
             <div class="sands-offer-label">Single Class</div>
             <div class="sands-offer-price">1 Drop-In for $20</div>
             <div class="sands-original-row">
@@ -4786,7 +4818,6 @@ body{
           </div>
 
           <div class="sands-offer-card featured">
-            <div class="sands-deal-tag">Best Value</div>
             <div class="sands-offer-label">3-Class Guest Pack</div>
             <div class="sands-offer-price">3 Classes for $49</div>
             <div class="sands-original-row">
