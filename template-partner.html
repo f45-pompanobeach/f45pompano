@@ -2030,20 +2030,16 @@ body{
 }
 
 
-/* Refine nav logo: crop white edges and enlarge visible logo area */
-.hero-brand,
-.topbar-brand,
-.site-logo,
-.logo{
+
+/* Refine nav logo only: crop white edges and enlarge visible logo area */
+.screenshot-logo{
   overflow:hidden !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
 }
 
-.hero-brand img,
-.topbar-brand img,
-.site-logo img,
-.logo img,
-img[alt*="F45"],
-img[alt*="f45"]{
+.screenshot-logo img{
   max-height:56px !important;
   height:56px !important;
   width:auto !important;
@@ -2058,12 +2054,7 @@ img[alt*="f45"]{
 }
 
 @media (max-width: 640px){
-  .hero-brand img,
-  .topbar-brand img,
-  .site-logo img,
-  .logo img,
-  img[alt*="F45"],
-  img[alt*="f45"]{
+  .screenshot-logo img{
     max-height:48px !important;
     height:48px !important;
     transform:scale(1.14) !important;
@@ -4823,9 +4814,7 @@ img[alt*="f45"]{
         </div>
       </div>
   </div>
-</section>
 
-<section class="getting-started-section first-class-details-section">
   <div class="inner-wide first-class-combined">
     <div class="getting-started-block first-class-why-block">
       <p class="next-eyebrow">Why F45 Works</p>
