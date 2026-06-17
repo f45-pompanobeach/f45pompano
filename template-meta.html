@@ -2043,7 +2043,50 @@ body{
   margin:8px auto 18px !important;
 }
 .meta-direct-note{
-  margin-top:6px;
+  margin-top:14px;
+}
+.meta-eligibility-check{
+  width:100%;
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  text-align:left;
+  background:#FFF8E1;
+  border:2px solid #FFB800;
+  border-radius:10px;
+  padding:14px 16px;
+  margin:4px 0 16px;
+  font-size:0.92rem;
+  line-height:1.45;
+  font-weight:800;
+  color:var(--navy);
+}
+.meta-eligibility-check input{
+  width:20px;
+  height:20px;
+  margin-top:2px;
+  flex-shrink:0;
+  accent-color:var(--red);
+}
+.meta-direct-cta.is-disabled{
+  opacity:.48;
+  cursor:not-allowed;
+  filter:grayscale(.25);
+}
+.meta-mindbody-help{
+  width:100%;
+  background:#F8FAFC;
+  border:1px solid var(--gray-line);
+  border-left:4px solid var(--red);
+  border-radius:8px;
+  padding:13px 15px;
+  color:#374151;
+  font-size:0.82rem;
+  line-height:1.55;
+  text-align:left;
+}
+.meta-mindbody-help strong{
+  color:var(--navy);
 }
 
 
@@ -4724,25 +4767,26 @@ body{
       <div class="claim-form-header overlay-claim-header">
         <h2>Reserve Your {{trialType}} for {{trialCost}}</h2>
         <p>
-          Your Meta lead form has already been submitted. Activate your $15 trial and book your first class through our official Mindbody checkout. This offer is for first-time local residents only, and eligibility will be verified before your first class.
+          Activate your $15 trial and book your first class through our official Mindbody checkout. Eligibility will be verified before your first class.
         </p>
       </div>
 
       
       <div class="meta-direct-cta-block">
         <div class="claim-form-title" style="margin-bottom:12px;">Activate Your Trial</div>
-        <p class="claim-form-sub" style="margin-bottom:18px;">
-          This Meta exclusive 3 classes for $15 offer is for first-time local residents. Continue to F45 Training Pompano Beach’s official Mindbody checkout to activate your trial and book your first class.
-        </p>
 
-        <a class="screenshot-cta meta-direct-cta" href="/go-meta-trial" target="_blank" rel="noopener">
+        <label class="meta-eligibility-check" for="meta-eligibility-confirm">
+          <input type="checkbox" id="meta-eligibility-confirm">
+          <span>I confirm I am a first-time visitor, a local resident, and able to verify residency for this offer.</span>
+        </label>
+
+        <a class="screenshot-cta meta-direct-cta is-disabled" href="/go-meta-trial" target="_blank" rel="noopener" aria-disabled="true">
           Activate Your $15 Trial
         </a>
 
-        <p class="mindbody-help-note meta-direct-note">
-          Mindbody may ask you to sign in or create an account before checkout. Use the same email you entered in the Meta lead form.
-          If Mindbody says your account already exists, choose “Forgot Password” or call/text us at {{phone}}.
-        </p>
+        <div class="mindbody-help-note meta-direct-note meta-mindbody-help">
+          <strong>Mindbody checkout tip:</strong> You may be asked to sign in or create an account before checkout. Use the same email from your Meta lead form. If your account already exists, choose “Forgot Password” or call/text us at {{phone}}.
+        </div>
       </div>
 
     </div>
@@ -5200,7 +5244,24 @@ body{
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  // Meta-specific landing page: no form on this version.
+  var checkbox = document.getElementById("meta-eligibility-confirm");
+  var cta = document.querySelector(".meta-direct-cta");
+  if (!checkbox || !cta) return;
+
+  function updateCtaState() {
+    var checked = checkbox.checked;
+    cta.classList.toggle("is-disabled", !checked);
+    cta.setAttribute("aria-disabled", checked ? "false" : "true");
+  }
+
+  checkbox.addEventListener("change", updateCtaState);
+  cta.addEventListener("click", function (event) {
+    if (!checkbox.checked) {
+      event.preventDefault();
+      checkbox.focus();
+    }
+  });
+  updateCtaState();
 });</script>
 
 </body>
