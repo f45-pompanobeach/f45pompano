@@ -1797,6 +1797,37 @@ body{
   color:#6B7280 !important;
   font-size:.8rem !important;
 }
+
+.sands-success-main{
+  color:#1C1C2E !important;
+  font-size:1.16rem !important;
+  line-height:1.55 !important;
+  font-weight:800 !important;
+  background:#FFF8E1;
+  border:2px solid #FFB800;
+  border-radius:12px;
+  padding:18px 18px;
+  margin:8px 0 16px !important;
+}
+.sands-success-contact{
+  color:#1C1C2E !important;
+  font-size:1.02rem !important;
+  line-height:1.5 !important;
+  font-weight:800 !important;
+  background:#FFFFFF;
+  border:2px solid #E8272A;
+  border-radius:12px;
+  padding:15px 18px;
+}
+.sands-success-contact strong{
+  color:#E8272A;
+  font-weight:900;
+  white-space:nowrap;
+}
+@media(max-width:640px){
+  .sands-success-main{font-size:1.04rem !important;padding:16px 14px;}
+  .sands-success-contact{font-size:.96rem !important;padding:14px 12px;}
+}
 @media(max-width:640px){
   .claim-form-section{padding:38px 14px 44px;}
   .claim-form-header{padding:25px 18px 22px;}
@@ -4949,14 +4980,14 @@ body{
 
         <h3>Your Sands Harbor guest offer is unlocked.</h3>
 
-        <p>
+        <p class="sands-success-main">
           Thanks — we received your info. Our team will reach out to get you set up,
           answer any questions, and help book your first class.
         </p>
 
 
-        <p class="mindbody-help-note">
-          You can also call/text us at {{phone}}. Valid for Sands Harbor guests only. Proof of stay or reservation required.
+        <p class="mindbody-help-note sands-success-contact">
+          You can also call/text us at <strong>{{phone}}</strong>. Valid for Sands Harbor guests only. Proof of stay or reservation required.
         </p>
       </div>
     </div>
