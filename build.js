@@ -7,6 +7,10 @@ const metaTemplate = fs.existsSync("template-meta.html")
   ? fs.readFileSync("template-meta.html", "utf8")
   : partnerTemplate;
 
+const sandsHarborTemplate = fs.existsSync("template-sands-harbor.html")
+  ? fs.readFileSync("template-sands-harbor.html", "utf8")
+  : partnerTemplate;
+
 const dataDir = "data";
 const distDir = "dist";
 
@@ -61,8 +65,13 @@ for (const file of fs.readdirSync(dataDir)) {
     ...partner
   };
 
+  const templateForFile =
+    file === "meta.json" ? metaTemplate :
+    file === "sands-harbor.json" ? sandsHarborTemplate :
+    partnerTemplate;
+
   const renderedPartnerPage = render(
-    file === "meta.json" ? metaTemplate : partnerTemplate,
+    templateForFile,
     partnerData
   );
 
