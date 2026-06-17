@@ -29,6 +29,25 @@ if (fs.existsSync("public")) {
   fs.cpSync("public", distDir, { recursive: true });
 }
 
+const cleanUrlAssetFiles = [
+  "IMG_8224.jpg",
+  "IMG_1404.jpg",
+  "IMG_2603.jpg",
+  "trial-video.mp4",
+  "og-image.jpg"
+];
+
+function copyCleanUrlAssets(targetDir) {
+  for (const assetFile of cleanUrlAssetFiles) {
+    const sourcePath = path.join(distDir, assetFile);
+    const targetPath = path.join(targetDir, assetFile);
+
+    if (fs.existsSync(sourcePath)) {
+      fs.copyFileSync(sourcePath, targetPath);
+    }
+  }
+}
+
 function render(template, data) {
   let html = template;
 
@@ -87,6 +106,8 @@ for (const file of fs.readdirSync(dataDir)) {
     path.join(partnerPageDir, "index.html"),
     renderedPartnerPage
   );
+
+  copyCleanUrlAssets(partnerPageDir);
 
   console.log(`Generated ${partnerData.slug}.html`);
 }
