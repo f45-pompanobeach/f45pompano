@@ -1727,6 +1727,22 @@ body{
   margin-top:4px;
   flex-shrink:0;
 }
+.form-consent,
+.form-trust-note{
+  grid-column:1/-1;
+  font-size:.76rem;
+  line-height:1.5;
+  color:#4B5563;
+  text-align:left;
+  margin:0;
+}
+.form-trust-note{
+  background:#F9FAFB;
+  border:1px solid #E5E7EB;
+  border-radius:8px;
+  padding:12px 14px;
+  color:#374151;
+}
 .claim-submit{
   grid-column:1/-1;
   width:100%;
@@ -4967,6 +4983,10 @@ body{
           <input type="checkbox" name="sandsHarborGuest" value="Yes" required>
           <span>I confirm I am a Sands Harbor guest and can show proof of stay or reservation for this offer.</span>
         </label>
+
+        <p class="form-consent">
+          By submitting this form, I agree that F45 Training Pompano Beach may contact me by phone, text, and email about this offer and future F45 Pompano offers or services. Message/data rates may apply. Message frequency may vary. Reply STOP to opt out of texts or HELP for help. I can unsubscribe from emails at any time.
+        </p>
 
         <button type="submit" class="claim-submit">Unlock Guest Offer</button>
 
