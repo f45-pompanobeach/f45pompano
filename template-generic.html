@@ -4446,6 +4446,32 @@ img[alt*="f45"]{
 }
 </style>
 
+
+
+<style>
+/* FORCE REAL-STUDIO IMAGE CARDS TO FILL THEIR BLACK BOXES */
+.real-studio-card,
+.real-studio-card-large{
+  position:relative !important;
+  overflow:hidden !important;
+}
+
+.real-studio-card > img,
+.real-studio-card-large > img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  display:block !important;
+}
+
+.real-studio-caption{
+  position:absolute !important;
+  z-index:2 !important;
+}
+</style>
+
 </head>
 <body>
 
