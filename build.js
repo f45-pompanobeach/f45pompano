@@ -4,6 +4,14 @@ const path = require("path");
 const partnerTemplate = fs.readFileSync("template-partner.html", "utf8");
 const genericTemplate = fs.readFileSync("template-generic.html", "utf8");
 
+const metaTemplate = fs.existsSync("template-meta.html")
+  ? fs.readFileSync("template-meta.html", "utf8")
+  : partnerTemplate;
+
+const sandsHarborTemplate = fs.existsSync("template-sands-harbor.html")
+  ? fs.readFileSync("template-sands-harbor.html", "utf8")
+  : partnerTemplate;
+
 const dataDir = "data";
 const distDir = "dist";
 
@@ -58,9 +66,14 @@ for (const file of fs.readdirSync(dataDir)) {
     ...partner
   };
 
+  const templateForFile =
+    file === "meta.json" ? metaTemplate :
+    file === "sands-harbor.json" ? sandsHarborTemplate :
+    partnerTemplate;
+
   fs.writeFileSync(
     path.join(distDir, `${partnerData.slug}.html`),
-    render(partnerTemplate, partnerData)
+    render(templateForFile, partnerData)
   );
 
   console.log(`Generated ${partnerData.slug}.html`);
