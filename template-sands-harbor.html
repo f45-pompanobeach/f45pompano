@@ -4663,14 +4663,14 @@ img[alt*="f45"]{
 .sands-offer-options{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:16px;
-  margin:22px 0 22px;
+  gap:12px;
+  margin:18px 0 20px;
 }
 .sands-offer-card{
   background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.24);
-  border-radius:14px;
-  padding:22px 18px 20px;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:12px;
+  padding:18px 14px;
   text-align:center;
   box-shadow:0 10px 28px rgba(0,0,0,.18);
 }
@@ -4679,49 +4679,19 @@ img[alt*="f45"]{
   background:#FFB800;
   color:#1C1C2E;
   border-radius:999px;
-  padding:6px 12px;
-  margin-bottom:14px;
-  font-size:.72rem;
+  padding:5px 10px;
+  margin-bottom:10px;
+  font-size:.70rem;
   font-weight:900;
   letter-spacing:1.2px;
   text-transform:uppercase;
 }
 .sands-offer-price{
   color:#FFFFFF;
-  font-size:1.62rem;
+  font-size:1.55rem;
   line-height:1.05;
   font-weight:900;
   letter-spacing:-.02em;
-}
-.sands-original-row{
-  display:flex;
-  align-items:baseline;
-  justify-content:center;
-  gap:7px;
-  margin-top:11px;
-}
-.sands-original-label{
-  color:rgba(255,255,255,.68);
-  font-size:.78rem;
-  font-weight:700;
-}
-.sands-price-strike{
-  color:#FFFFFF;
-  font-size:1rem;
-  line-height:1;
-  font-weight:900;
-  text-decoration:line-through;
-  text-decoration-thickness:2px;
-  text-decoration-color:#E8272A;
-}
-.sands-value-note{
-  margin-top:12px;
-  padding-top:12px;
-  border-top:1px solid rgba(255,255,255,.16);
-  color:rgba(255,255,255,.78);
-  font-size:.84rem;
-  line-height:1.45;
-  font-weight:600;
 }
 .sands-offer-regular{
   margin-top:7px;
@@ -4729,21 +4699,60 @@ img[alt*="f45"]{
   font-size:.82rem;
   font-weight:700;
 }
+.sands-original-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin:14px auto 0;
+  padding:9px 12px;
+  background:rgba(0,0,0,.26);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:10px;
+  width:fit-content;
+  max-width:100%;
+}
+.sands-original-label{
+  color:#FFFFFF;
+  font-size:.95rem;
+  line-height:1;
+  font-weight:900;
+}
+.sands-price-strike{
+  color:#FFB800;
+  font-size:1.35rem;
+  line-height:1;
+  font-weight:900;
+  text-decoration:line-through;
+  text-decoration-thickness:3px;
+  text-decoration-color:#E8272A;
+}
 .sands-offer-note{
-  color:rgba(255,255,255,.92);
-  font-size:clamp(1.28rem,2.4vw,1.65rem);
-  line-height:1.32;
+  color:#FFFFFF;
+  font-size:clamp(1.55rem,3.2vw,2.15rem);
+  line-height:1.18;
   font-weight:900;
   margin:0 auto 22px;
-  max-width:640px;
+  max-width:720px;
+  text-shadow:0 2px 8px rgba(0,0,0,.45);
 }
 @media(max-width:640px){
   .sands-offer-options{
     grid-template-columns:1fr;
-    gap:12px;
+    gap:10px;
   }
   .sands-offer-price{
+    font-size:1.38rem;
+  }
+  .sands-offer-note{
     font-size:1.42rem;
+    line-height:1.22;
+  }
+  .sands-original-label{
+    font-size:.9rem;
+  }
+  .sands-price-strike{
+    font-size:1.25rem;
   }
 }
 </style>
