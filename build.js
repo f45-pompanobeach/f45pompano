@@ -4,14 +4,6 @@ const path = require("path");
 const partnerTemplate = fs.readFileSync("template-partner.html", "utf8");
 const genericTemplate = fs.readFileSync("template-generic.html", "utf8");
 
-const metaTemplate = fs.existsSync("template-meta.html")
-  ? fs.readFileSync("template-meta.html", "utf8")
-  : partnerTemplate;
-
-const sandsHarborTemplate = fs.existsSync("template-sands-harbor.html")
-  ? fs.readFileSync("template-sands-harbor.html", "utf8")
-  : partnerTemplate;
-
 const dataDir = "data";
 const distDir = "dist";
 
@@ -40,6 +32,8 @@ function render(template, data) {
   return html;
 }
 
+const redirectLines = [];
+
 // Default homepage
 const genericData = {
   ...shared,
@@ -51,7 +45,7 @@ fs.writeFileSync(
   render(genericTemplate, genericData)
 );
 
-// Partner pages
+// Partner pages — flat .html files only
 for (const file of fs.readdirSync(dataDir)) {
   if (file === "shared.json") continue;
   if (file === "generic.json") continue;
@@ -66,15 +60,19 @@ for (const file of fs.readdirSync(dataDir)) {
     ...partner
   };
 
-  const templateForFile =
-    file === "meta.json" ? metaTemplate :
-    file === "sands-harbor.json" ? sandsHarborTemplate :
-    partnerTemplate;
-
   fs.writeFileSync(
     path.join(distDir, `${partnerData.slug}.html`),
-    render(templateForFile, partnerData)
+    render(partnerTemplate, partnerData)
   );
+
+  // Redirect clean URLs to the flat .html page so relative image paths still work.
+  redirectLines.push(`/${partnerData.slug} /${partnerData.slug}.html 301`);
+  redirectLines.push(`/${partnerData.slug}/ /${partnerData.slug}.html 301`);
 
   console.log(`Generated ${partnerData.slug}.html`);
 }
+
+fs.writeFileSync(
+  path.join(distDir, "_redirects"),
+  `${redirectLines.join("\n")}\n`
+);
