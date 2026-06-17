@@ -4778,7 +4778,7 @@ body{
           <span>I confirm I am a first-time visitor, a local resident, and able to verify residency for this offer.</span>
         </label>
 
-        <a class="screenshot-cta meta-direct-cta is-disabled" href="/go-meta-trial" target="_blank" rel="noopener" aria-disabled="true">
+        <a class="screenshot-cta meta-direct-cta" href="/go-meta-trial" target="_blank" rel="noopener">
           Activate Your $15 Trial
         </a>
 
@@ -5246,20 +5246,20 @@ document.addEventListener("DOMContentLoaded", function () {
   var cta = document.querySelector(".meta-direct-cta");
   if (!checkbox || !cta) return;
 
-  function updateCtaState() {
-    var checked = checkbox.checked;
-    cta.classList.toggle("is-disabled", !checked);
-    cta.setAttribute("aria-disabled", checked ? "false" : "true");
-  }
+  checkbox.addEventListener("change", function () {
+    if (checkbox.checked) {
+      checkbox.setCustomValidity("");
+    }
+  });
 
-  checkbox.addEventListener("change", updateCtaState);
   cta.addEventListener("click", function (event) {
     if (!checkbox.checked) {
       event.preventDefault();
+      checkbox.setCustomValidity("Please confirm you are a first-time visitor, a local resident, and able to verify residency before continuing.");
+      checkbox.reportValidity();
       checkbox.focus();
     }
   });
-  updateCtaState();
 });</script>
 
 </body>
