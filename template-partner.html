@@ -1584,498 +1584,12 @@ body{
   }
 }
 
-
-/* CLAIM FORM PREVIEW - added to current partner template */
-.claim-form-section{
-  background:linear-gradient(180deg,#EDF0F8 0%,#FFFFFF 100%);
-  padding:58px 20px 62px;
-}
-.claim-form-wrap{
-  max-width:760px;
-  margin:0 auto;
-  background:#FFFFFF;
-  border:1px solid #E5E7EB;
-  border-top:6px solid #E8272A;
-  border-radius:16px;
-  box-shadow:0 18px 45px rgba(28,28,46,.12);
-  overflow:hidden;
-}
-
-.claim-partner-ribbon{
-  background:#FFB800;
-  color:#1C1C2E;
-  text-align:center;
-  font-size:.86rem;
-  font-weight:900;
-  letter-spacing:1.3px;
-  text-transform:uppercase;
-  padding:13px 20px;
-  border-bottom:1px solid rgba(28,28,46,.12);
-}
-.claim-offer-band{
-  max-width:500px;
-  margin:18px auto 0;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.16);
-  border-radius:12px;
-  padding:14px 18px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.claim-offer-band span{
-  color:#FFFFFF;
-  font-weight:900;
-  font-size:1.05rem;
-}
-.claim-offer-band strong{
-  color:#FFB800;
-  font-size:1.55rem;
-  line-height:1;
-}
-.claim-offer-band small{
-  flex-basis:100%;
-  color:rgba(255,255,255,.68);
-  font-size:.76rem;
-  font-weight:700;
-  letter-spacing:.3px;
-}
-
-.claim-form-header{
-  background:#1C1C2E;
-  color:#FFFFFF;
-  text-align:center;
-  padding:30px 28px 26px;
-}
-.claim-eyebrow{
-  color:#FFB800;
-  font-size:.78rem;
-  font-weight:900;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-.claim-form-header h2{
-  font-size:clamp(1.65rem,4vw,2.35rem);
-  line-height:1.08;
-  font-weight:900;
-  margin:0 0 10px;
-}
-.claim-form-header p{
-  max-width:560px;
-  margin:0 auto;
-  color:rgba(255,255,255,.76);
-  font-size:.94rem;
-  line-height:1.6;
-}
-.partner-lead-form{
-  padding:28px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-}
-.partner-lead-form .form-row{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-}
-.partner-lead-form .form-row.full{
-  grid-column:1/-1;
-}
-.partner-lead-form label{
-  font-size:.76rem;
-  font-weight:900;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  color:#1C1C2E;
-}
-.partner-lead-form input,
-.partner-lead-form select{
-  width:100%;
-  border:1px solid #D5DAE3;
-  border-radius:8px;
-  padding:14px 14px;
-  font-family:'Inter',system-ui,sans-serif;
-  font-size:1rem;
-  color:#111111;
-  background:#FFFFFF;
-}
-.partner-lead-form input:focus,
-.partner-lead-form select:focus{
-  outline:none;
-  border-color:#E8272A;
-  box-shadow:0 0 0 4px rgba(232,39,42,.12);
-}
-.checkbox-row{
-  grid-column:1/-1;
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-  padding:14px 14px;
-  background:#FFF8E1;
-  border:1px solid #FFD54F;
-  border-radius:8px;
-  font-size:.9rem;
-  line-height:1.5;
-  color:#1C1C2E;
-  font-weight:700;
-}
-.checkbox-row input{
-  width:auto;
-  margin-top:4px;
-  flex-shrink:0;
-}
-.claim-submit{
-  grid-column:1/-1;
-  width:100%;
-  border:none;
-  border-radius:8px;
-  background:#E8272A;
-  color:#FFFFFF;
-  font-size:1rem;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  padding:17px 22px;
-  cursor:pointer;
-  box-shadow:0 4px 0 rgba(80,0,0,.25),0 4px 12px rgba(0,0,0,.18);
-}
-.claim-submit:hover{background:#C91F22;}
-.form-small-note{
-  grid-column:1/-1;
-  text-align:center;
-  color:#6B7280;
-  font-size:.78rem;
-  line-height:1.5;
-  margin-top:-4px;
-}
-.claim-success{
-  display:none;
-  margin:28px;
-  padding:28px 24px;
-  text-align:center;
-  border-radius:12px;
-  background:#F7FFF7;
-  border:1px solid #B7E4B7;
-}
-.claim-success h3{
-  color:#1C1C2E;
-  font-size:1.35rem;
-  line-height:1.15;
-  font-weight:900;
-  margin-bottom:8px;
-}
-.claim-success p{
-  color:#4B5563;
-  font-size:.93rem;
-  line-height:1.6;
-  margin-bottom:18px;
-}
-.promo-code-confirm{
-  display:inline-block;
-  background:#1C1C2E;
-  color:#FFFFFF;
-  padding:12px 18px;
-  border-radius:8px;
-  font-size:.92rem;
-  font-weight:800;
-  margin-bottom:18px;
-}
-.promo-code-confirm strong{
-  color:#FFB800;
-  letter-spacing:2px;
-}
-.claim-success .screenshot-cta{
-  font-size:20px;
-  padding:16px 22px;
-}
-.mindbody-help-note{
-  margin-top:15px !important;
-  margin-bottom:0 !important;
-  color:#6B7280 !important;
-  font-size:.8rem !important;
-}
-@media(max-width:640px){
-  .claim-form-section{padding:38px 14px 44px;}
-  .claim-form-header{padding:25px 18px 22px;}
-  .partner-lead-form{grid-template-columns:1fr;padding:20px;gap:14px;}
-  .claim-success{margin:20px;}
-  .claim-success .screenshot-cta{font-size:17px;white-space:normal;}
-}
-
-
-.form-overlay-card{
-  padding:0 !important;
-  overflow:hidden !important;
-  width:min(720px,94vw) !important;
-  max-width:720px !important;
-}
-.form-overlay-card .claim-form-header{
-  border-radius:0 !important;
-}
-.form-overlay-card .partner-lead-form{
-  background:#FFFFFF;
-}
-.form-overlay-card .claim-success{
-  margin:24px;
-}
-@media(max-width:640px){
-  .screenshot-hero{min-height:1200px !important;}
-  .form-overlay-card{width:94vw !important;}
-  .form-overlay-card .claim-success{margin:20px;}
-}
-
-
-/* Combined First Class section updates */
-.first-class-section{padding-bottom:58px;}
-.first-class-combined{margin-top:42px;}
-.first-class-combined .getting-started-block{margin-top:28px;}
-.first-class-why-block{margin-bottom:28px;}
-.first-class-recommendation-combined{margin:28px auto;}
-.schedule-section{padding-top:56px;}
-.schedule-section .mobile-schedule-block{margin-top:0;}
-@media(max-width:640px){
-  .first-class-section{padding-bottom:42px;}
-  .first-class-combined{margin-top:30px;}
-}
-
-
-/* Success state alignment fixes */
-.claim-success-actions{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  flex-wrap:wrap;
-  margin:18px auto 28px;
-}
-.claim-success-actions .promo-code-confirm{
-  margin:0 !important;
-  min-height:66px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  white-space:nowrap;
-}
-.claim-success-actions .screenshot-cta{
-  margin:0 !important;
-  min-height:66px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  line-height:1.1;
-}
-@media(max-width:640px){
-  .claim-success-actions{
-    flex-direction:column;
-    align-items:stretch;
-    gap:10px;
-  }
-  .claim-success-actions .promo-code-confirm,
-  .claim-success-actions .screenshot-cta{
-    width:100%;
-    min-height:58px;
-  }
-}
-
-
-/* Promo code stacked label/code */
-.claim-success-actions .promo-code-confirm{
-  flex-direction:column;
-  gap:4px;
-  text-align:center;
-}
-.claim-success-actions .promo-code-confirm span{
-  display:block;
-  color:#FFFFFF;
-  font-size:.84rem;
-  font-weight:900;
-  line-height:1;
-}
-.claim-success-actions .promo-code-confirm strong{
-  display:block;
-  font-size:1.05rem;
-  line-height:1.1;
-}
-
-
-/* Success state transition + promo-copy button */
-.claim-success{
-  opacity:0;
-  transform:translateY(10px);
-  transition:opacity .32s ease, transform .32s ease;
-}
-.claim-success.is-visible{
-  opacity:1;
-  transform:translateY(0);
-}
-.claim-success:focus{outline:none;}
-.success-unlocked-label{
-  display:inline-block;
-  background:#FFB800;
-  color:#1C1C2E;
-  text-transform:uppercase;
-  letter-spacing:1.6px;
-  font-size:.76rem;
-  font-weight:900;
-  border-radius:999px;
-  padding:7px 13px;
-  margin-bottom:12px;
-}
-.promo-copy-button{
-  border:none;
-  cursor:pointer;
-  font-family:'Inter',system-ui,sans-serif;
-  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
-}
-.promo-copy-button:hover{
-  transform:translateY(-1px);
-  box-shadow:0 6px 18px rgba(0,0,0,.18);
-}
-.promo-copy-button em{
-  display:block;
-  margin-top:5px;
-  color:rgba(255,255,255,.7);
-  font-style:normal;
-  font-size:.72rem;
-  font-weight:800;
-  letter-spacing:.4px;
-  text-transform:uppercase;
-}
-.promo-copy-button.copied em{color:#FFB800;}
-
-
-/* Center top CTA above the supporting text */
-.topbar-cta-stack{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-  text-align:center !important;
-}
-.topbar-cta-stack .promo-claim-btn{
-  margin-left:auto !important;
-  margin-right:auto !important;
-}
-.topbar-mindbody-note,
-.subtle-urgency-note{
-  text-align:center !important;
-}
-
-
-/* Make partner name in yellow ribbon more prominent */
-.claim-partner-ribbon{
-  font-size:1.08rem !important;
-  line-height:1.2 !important;
-  letter-spacing:1.5px !important;
-  padding:16px 20px !important;
-}
-@media(max-width:640px){
-  .claim-partner-ribbon{
-    font-size:.98rem !important;
-    letter-spacing:1.1px !important;
-    padding:15px 14px !important;
-  }
-}
-
-
-/* Make partner name in yellow ribbon even more prominent */
-.claim-partner-ribbon{
-  font-size:1.28rem !important;
-  line-height:1.18 !important;
-  letter-spacing:1.7px !important;
-  padding:18px 22px !important;
-}
-@media(max-width:640px){
-  .claim-partner-ribbon{
-    font-size:1.08rem !important;
-    line-height:1.18 !important;
-    letter-spacing:1.2px !important;
-    padding:16px 14px !important;
-  }
-}
-
-
-/* Make partner name fill most of the yellow ribbon */
-.claim-partner-ribbon{
-  font-size:1.55rem !important;
-  line-height:1.12 !important;
-  letter-spacing:1.8px !important;
-  padding:18px 20px !important;
-}
-@media(max-width:640px){
-  .claim-partner-ribbon{
-    font-size:1.28rem !important;
-    line-height:1.14 !important;
-    letter-spacing:1.1px !important;
-    padding:17px 12px !important;
-  }
-}
-
-
-/* Anchor offset for fixed header navigation */
-#first-class{
-  scroll-margin-top:120px;
-}
-
-/* Direct $15 trial success state */
-.claim-success-actions{
-  justify-content:center !important;
-}
-.claim-success-actions .screenshot-cta{
-  margin-left:auto !important;
-  margin-right:auto !important;
-}
-
-
-/* Refine nav logo: crop white edges and enlarge visible logo area */
-.hero-brand,
-.topbar-brand,
-.site-logo,
-.logo{
-  overflow:hidden !important;
-}
-
-.hero-brand img,
-.topbar-brand img,
-.site-logo img,
-.logo img,
-img[alt*="F45"],
-img[alt*="f45"]{
-  max-height:56px !important;
-  height:56px !important;
-  width:auto !important;
-  display:block !important;
-  object-fit:cover !important;
-  object-position:center !important;
-  transform:scale(1.18) !important;
-  transform-origin:center center !important;
-  padding:0 !important;
-  margin:0 auto !important;
-  box-sizing:border-box !important;
-}
-
-@media (max-width: 640px){
-  .hero-brand img,
-  .topbar-brand img,
-  .site-logo img,
-  .logo img,
-  img[alt*="F45"],
-  img[alt*="f45"]{
-    max-height:48px !important;
-    height:48px !important;
-    transform:scale(1.14) !important;
-  }
-}
-
 </style>
 
   <!-- Open Graph / Social Sharing -->
   <!-- Twitter/X Card -->
   <!-- Additional meta -->
-  <meta name="description" content="Try F45 Pompano Beach — Save 50% on your first {{trialType}. Science-backed HIIT workouts + Free InBody scan. First time local residents only.">
+  <meta name="description" content="Try F45 Pompano Beach — Save {{percentageSavings}} on your first {{trialType}. Science-backed HIIT workouts + Free InBody scan. First time local residents only.">
 
 <style>
 .mid-cta-button-stack{
@@ -4648,17 +4162,6 @@ img[alt*="f45"]{
 }
 </style>
 
-
-<style>
-/* Preview-only: use uploaded og-image as fallback background because trial-video.mp4 was not uploaded here */
-.screenshot-hero{
-  background-image:url('og-image.jpg') !important;
-  background-size:cover !important;
-  background-position:center center !important;
-}
-.screenshot-hero-video{opacity:.22;}
-</style>
-
 </head>
 <body>
 
@@ -4669,13 +4172,13 @@ img[alt*="f45"]{
       
       <div class="promo-code-box">
         
-        <span>{{partner}} Exclusive Offer</span>
+        <span>Promo Code: {{promoCode}}</span>
       </div>
       <div class="topbar-cta-stack">
 
 <div class="topbar-cta-stack">
-  <a class="promo-claim-btn" href="#claim-form">RESERVE YOUR TRIAL</a>
-  <div class="topbar-mindbody-note">Partner-exclusive rate unlocked after submitting this form.</div>
+  <a class="promo-claim-btn" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM {{trialType}} FOR {{trialCost}}</a>
+  <div class="topbar-mindbody-note">Secure checkout powered by Mindbody®</div>
 </div>
 
 
@@ -4692,12 +4195,12 @@ img[alt*="f45"]{
       
     </div>
     <nav class="screenshot-nav-links">
-      <a href="#first-class">First Class</a>
-      <a href="#schedule">Schedule</a>
+      <a href="#getting-started">Getting Started</a>
+      <a href="#why-f45">Why F45?</a>
       <a href="#reviews">Reviews</a>
 <a href="#faq">FAQ</a>
       <a href="#contact-us">Contact Us</a>
-
+      
     </nav>
   </header>
 
@@ -4711,93 +4214,68 @@ img[alt*="f45"]{
 
 
 
-        <div class="screenshot-offer-card form-overlay-card" id="claim-form">
-      <div class="claim-partner-ribbon">{{partner}} Exclusive</div>
-      <div class="claim-form-header overlay-claim-header">
-        <h2>Reserve Your {{trialType}} for {{trialCost}}</h2>
-        <p>
-          Complete this short form to reserve your 3-class local resident trial.
-          Your promo code will be shown after you submit the form.
-          You’ll activate your trial and book your first class through Mindbody on the next page.
-          Eligibility will be verified before your first class.
-        </p>
+    <div class="screenshot-offer-card">
+      <div class="screenshot-limited">Limited Time Offer</div>
+      <h1 class="hero-small-title">Start Your Journey Today.</h1>
+
+      <h2 class="hero-clean-offer">
+        <span class="hero-clean-kicker">Get Your First</span>
+        <span class="hero-clean-main">{{trialType}}</span>
+        <span class="hero-clean-price">for Just <strong>{{trialCost}}!</strong></span>
+      </h2>
+
+      <div class="hero-code-box hero-code-clean">
+        <span class="hero-code-label">Use Code:</span>
+        <span class="hero-code-value">{{promoCode}}</span>
       </div>
 
-      <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/ajax/pompanobeach@f45training.com" method="POST">
-      <input type="hidden" name="_subject" value="New Partner Lead: {{partner}}">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="Partner" value="{{partner}}">
-<input type="hidden" id="fullNameHidden" name="Full Name" value="">
-<div class="form-row">
-          <label for="firstName">First Name *</label>
-          <input id="firstName" type="text" autocomplete="given-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters.">
-        </div>
+      <p class="screenshot-local hero-local-strong">
+        <strong class="hero-local-yellow">* FIRST TIME LOCAL RESIDENTS ONLY *</strong>
 
-        <div class="form-row">
-          <label for="lastName">Last Name *</label>
-          <input id="lastName" type="text" autocomplete="family-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters.">
-        </div>
+      </p>
 
-        <div class="form-row">
-          <label for="phone">Mobile Phone *</label>
-          <input id="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="(954) 555-1234" title="Please enter a valid U.S. phone number." name="phone">
-        </div>
 
-        <div class="form-row">
-          <label for="email">Email *</label>
-          <input id="email" type="email" autocomplete="email" required name="email">
-        </div>
 
-        <div class="form-row">
-          <label for="zipCode">ZIP Code on your ID *</label>
-          <input id="zipCode" type="text" inputmode="numeric" maxlength="5" required name="zip_code_on_id">
-        </div>
-<label class="checkbox-row">
-          <input type="checkbox" name="firstTimeLocalResident" value="Yes" required>
-          <span>I confirm I am a first-time visitor, a local resident, and able to verify residency for this offer.</span>
-        </label>
-
-        <button type="submit" class="claim-submit">Submit &amp; Unlock Offer</button>
-
-        <p class="form-small-note">
-          First-time local residents only. Valid for a limited time. Must book first class in advance.
-        </p>
-      </form>
-<div id="claimSuccess" class="claim-success" tabindex="-1">
-        <div class="success-unlocked-label">Offer unlocked</div>
-        <h3>Your partner-exclusive 3 classes for $15 trial is ready.</h3>
-        <p>
-          Continue to Mindbody to create your account and activate your trial. Eligibility will be verified before your first class.
-        </p>
-
-        <div class="claim-success-actions">
-          <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=110702" target="_blank" rel="noopener">
-            Continue to Mindbody — $15 Trial
-          </a>
-        </div>
-
-        <p class="mindbody-help-note">
-          Mindbody may ask you to sign in or create an account before checkout. Use the same email you entered here.
-          If Mindbody says your account already exists, choose “Forgot Password” or call/text us at {{phone}}.
-        </p>
+      <div class="hero-savings-line">
+        <span class="hero-old-price">Regular {{regularPrice}}</span>
+        <span class="hero-save-pill">Save {{percentageSavings}}</span>
       </div>
-    </div>
+
+      <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank">CLAIM {{trialType}} FOR {{trialCost}}</a>
+<div class="hero-mindbody-note" style="
+  margin-top:12px;
+  text-align:center;
+  color:rgba(255,255,255,.82);
+  font-size:13px;
+  line-height:1.35;
+  font-weight:600;
+  letter-spacing:.2px;
+">
+  🔒 Secure checkout &amp; class booking powered by Mindbody®
+</div>
+<div class="subtle-urgency-note">Trial spots are limited each month.</div>
+    
+
+    <div class="hero-partner-exclusive">
+        {{partner}}
+      
+
+</div>
+    
+    
+      </div>
     
       </section>
 
 
-
-
-
-<!-- FIRST CLASS -->
-<section class="real-studio-section first-class-section" id="first-class">
+<section class="real-studio-section">
   <div class="real-studio-inner">
     <p class="real-studio-eyebrow">Real People. Real Coaching.</p>
     <h2>You're not walking into this alone.</h2>
     <p class="real-studio-sub">
       Our coaches guide you through the workout, help with form, and make sure your first class feels approachable.
     </p>
+
     <div class="real-studio-grid">
       <div class="real-studio-card real-studio-card-large">
         <img src="IMG_8224.jpg" alt="F45 coach helping a member during a strength workout">
@@ -4822,73 +4300,58 @@ img[alt*="f45"]{
           <span>Every class helps you build momentum.</span>
         </div>
       </div>
-  </div>
-
-  <div class="inner-wide first-class-combined">
-    <div class="getting-started-block first-class-why-block">
-      <p class="next-eyebrow">Why F45 Works</p>
-      <h2 class="next-title">Coach-led strength and cardio in 45 minutes.</h2>
-      <div class="stat-block">
-      <div class="stat-item">
-        <div class="stat-num">400–750</div>
-        <span class="stat-key">Calories</span>
-        <span class="stat-sub">per session</span>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num">5,000+</div>
-        <span class="stat-key">Exercises</span>
-        <span class="stat-sub">in the system</span>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num">45</div>
-        <span class="stat-key">Minutes</span>
-        <span class="stat-sub">per class</span>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num">7</div>
-        <span class="stat-key">Days</span>
-        <span class="stat-sub">of access</span>
-      </div>
-    </div>
-      <div class="why-grid">
-      <div class="why-card"><div class="why-icon-box">⚡</div><div class="why-body"><h4>High-Intensity Workouts</h4><p>Burn calories, build muscle, and boost your metabolism with our proven HIIT workouts.</p></div></div>
-      <div class="why-card"><div class="why-icon-box">🏆</div><div class="why-body"><h4>Expert-Led Sessions</h4><p>Our certified coaches lead every class, correcting form and pushing you to the right intensity for your level.</p></div></div>
-      <div class="why-card"><div class="why-icon-box">👥</div><div class="why-body"><h4>Pompano Beach Community</h4><p>Members say F45 Pompano feels like a family, not just a gym. No egos — just teammates who show up for each other every session.</p></div></div>
-    </div>
-    </div>
-
-    <div class="first-class-recommendation first-class-recommendation-combined">
-      <div class="first-class-label">Recommended First Class</div>
-      <h3>Start on a Strength Day</h3>
-      <div class="strength-days-row">
-        <span>Monday</span>
-        <span>Wednesday</span>
-        <span>Friday</span>
-      </div>
-      <p>For your first F45 class, we recommend starting on a strength-focused day — Monday, Wednesday, or Friday. Strength days tend to move at a slightly slower pace than cardio days, making them a great introduction to F45.</p>
-    </div>
-
-    <div class="getting-started-block">
-      <p class="next-eyebrow">What Happens Next</p>
-      <h2 class="next-title">Here's what to expect after you submit the form</h2>
-      <div class="next-steps">
-        <div class="next-step"><div class="next-num">1</div><div class="next-body"><h4>Submit the form and activate your trial</h4><p>After you submit the short form, you’ll continue to Mindbody to activate your 3-class trial and book your first class.</p></div></div>
-        <div class="next-step"><div class="next-num">2</div><div class="next-body"><h4>Book your first class</h4><p>You can book your class right away through Mindbody or the F45 app. We recommend starting on a strength day if it’s your first time.</p></div></div>
-        <div class="next-step"><div class="next-num">3</div><div class="next-body"><h4>We’ll confirm eligibility before class</h4><p>Our team may call or text you before your first class to quickly confirm local residency and make sure your account is ready.</p></div></div>
-        <div class="next-step"><div class="next-num">4</div><div class="next-body"><h4>Arrive 15 minutes early</h4><p>Bring a picture ID, water bottle, and sweat towel. Our coaches will walk you through everything before the workout starts.</p></div></div>
-      </div>
     </div>
   </div>
 </section>
-
 <div class="hero-question-bar">
   <strong>Questions before you book?</strong>
-  <span>Text us at <a href="sms:{{phone}}">{{phone}}</a> and we’ll help you choose your first class.</span>
+  <span>Text us at <a href="sms:{{phoneTel}}">{{phone}}</a> and we’ll help you choose your first class.</span>
 </div>
 
-<!-- CLASS SCHEDULE -->
-<section class="getting-started-section schedule-section" id="schedule">
+
+
+
+<!-- GETTING STARTED -->
+<section id="getting-started"></section>
+<section class="getting-started-section" id="getstarted">
+
+      
+      <div class="first-class-recommendation">
+        <div class="first-class-label">Recommended First Class</div>
+        <h3>Start on a Strength Day</h3>
+<div class="strength-days-row">
+          <span>Monday</span>
+          <span>Wednesday</span>
+          <span>Friday</span>
+        </div>
+        <p>For your first F45 class, we recommend starting on a strength-focused day because they tend to move at a slightly slower pace than our cardio-focused workouts, making them a great introduction to F45.</p>
+
+        
+        
+      </div>
+
+      
   <div class="inner-wide">
+
+    <div class="getting-started-block">
+      
+
+
+<p class="next-eyebrow">What Happens Next</p>
+      <h2 class="next-title">Here's what to expect after you purchase</h2>
+      <div class="next-steps">
+        <div class="next-step"><div class="next-num">1</div><div class="next-body"><h4>We'll reach out to you</h4><p>Our team will call and text you Monday–Friday, 9am–6pm to qualify your account, confirm your local residency, and help you schedule your first class if needed.</p></div></div>
+        <div class="next-step"><div class="next-num">2</div><div class="next-body"><h4>Book your classes via the F45 app</h4><p>Download the F45 app, log in, and book any of our available class times. All {{trialType}} must be used within {{trialDuration}} of your first session.</p>
+<div class="step-two-strength-note">
+  {{firstClassBookingText}}
+</div>
+</div></div>
+        <div class="next-step"><div class="next-num">3</div><div class="next-body"><h4>Arrive 15 minutes early for your first class</h4><p>Bring your picture ID, a water bottle, and a sweat towel (mandatory — or purchase one from us). Our coaches will walk you through everything.</p></div></div>
+      </div>
+    </div>
+
+    <div style="height:40px;"></div>
+
     <div class="getting-started-block mobile-schedule-block">
       <p class="schedule-eyebrow">Class Schedule</p>
       <h2 class="schedule-title">824 N Federal Hwy, Pompano Beach, FL 33062</h2><div class="schedule-table-wrap">
@@ -4948,6 +4411,45 @@ img[alt*="f45"]{
 </div>
 
       </div>
+
+</section>
+
+<!-- WHY JOIN -->
+<section class="why-section" id="whyf45">
+  <div class="inner-wide">
+    <p class="section-eyebrow-label" style="font-size:0.9rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:8px;"><span id="why-f45"></span>Why F45 Pompano Beach?</p>
+    <h2 class="why-title">F45 isn't just about fitness — it's about transformation. We'll help you become healthier and happier in just 45 minutes a day.</h2>
+
+    <!-- STAT BLOCK -->
+    <div class="stat-block">
+      <div class="stat-item">
+        <div class="stat-num">400–750</div>
+        <span class="stat-key">Calories</span>
+        <span class="stat-sub">per session</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">5,000+</div>
+        <span class="stat-key">Exercises</span>
+        <span class="stat-sub">in the system</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">45</div>
+        <span class="stat-key">Minutes</span>
+        <span class="stat-sub">per class</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">7</div>
+        <span class="stat-key">Days</span>
+        <span class="stat-sub">of access</span>
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="why-grid">
+      <div class="why-card"><div class="why-icon-box">⚡</div><div class="why-body"><h4>High-Intensity Workouts</h4><p>Burn calories, build muscle, and boost your metabolism with our proven HIIT workouts.</p></div></div>
+      <div class="why-card"><div class="why-icon-box">🏆</div><div class="why-body"><h4>Expert-Led Sessions</h4><p>Our certified coaches lead every class, correcting form and pushing you to the right intensity for your level.</p></div></div>
+      <div class="why-card"><div class="why-icon-box">👥</div><div class="why-body"><h4>Pompano Beach Community</h4><p>Members say F45 Pompano feels like a family, not just a gym. No egos — just teammates who show up for each other every session.</p></div></div>
+    </div>
   </div>
 </section>
 
@@ -4956,11 +4458,11 @@ img[alt*="f45"]{
   <div class="mid-cta-inner">
     <div class="mid-cta-text">
       <div class="mid-cta-title">Ready to try F45 Pompano Beach?</div>
-      <div class="mid-cta-sub">{{trialType}} for {{trialCost}} · Save 50%</div>
+      <div class="mid-cta-sub">{{trialType}} for {{trialCost}} · Save {{percentageSavings}}</div>
     </div>
     <div class="mid-cta-button-stack">
-<a href="#claim-form" class="mid-cta-btn">RESERVE YOUR TRIAL</a>
-<div class="attached-mindbody-note">Partner-exclusive rate unlocked after submitting this form.</div>
+<a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="mid-cta-btn">CLAIM YOUR {{trialType}} FOR {{trialCost}}</a>
+<div class="attached-mindbody-note">🔒 Secure checkout &amp; class booking powered by Mindbody®</div>
 <div class="subtle-urgency-note">Trial spots are limited each month.</div>
 </div>
         
@@ -5011,7 +4513,7 @@ img[alt*="f45"]{
 
       <div class="faq-item">
         <div class="faq-q"><span class="faq-q-label">Q</span><h4>Who qualifies for this offer?</h4></div>
-        <div class="faq-a"><span class="faq-a-label">A</span><p>This offer is for first-time local residents only. Qualifying zip codes: <strong>33060, 33062, 33064, 33069, 33308, 33309, 33334, 33441</strong>. We'll verify your ID at your first class. If your ID doesn't show a qualifying zip, email us a lease or recent electric bill with your name and address before your first class.</p></div>
+        <div class="faq-a"><span class="faq-a-label">A</span><p>This offer is for first-time local residents only. Qualifying zip codes: <strong>{{qualifiedZipCodes}}</strong>. We'll verify your ID at your first class. If your ID doesn't show a qualifying zip, email us a lease or recent electric bill with your name and address before your first class.</p></div>
       </div>
 
       <div class="faq-item">
@@ -5055,8 +4557,8 @@ img[alt*="f45"]{
     <div class="faq-grid">
 
       <div class="faq-item">
-        <div class="faq-q"><span class="faq-q-label">Q</span><h4>What if I can't use all {{trialType}} in 7 days?</h4></div>
-        <div class="faq-a"><span class="faq-a-label">A</span><p>Since this is a special trial offer, the {{trialType}} must be used within 7 days of your first session — no extensions. Most members tell us they knew F45 was for them after just 1 or 2 classes!</p></div>
+        <div class="faq-q"><span class="faq-q-label">Q</span><h4>What if I can't use all {{trialType}} in {{trialDuration}}?</h4></div>
+        <div class="faq-a"><span class="faq-a-label">A</span><p>Since this is a special trial offer, the {{trialType}} must be used within {{trialDuration}} of your first session — no extensions. Most members tell us they knew F45 was for them after just 1 or 2 classes!</p></div>
       </div>
 
       <div class="faq-item">
@@ -5076,8 +4578,8 @@ img[alt*="f45"]{
       <div class="mid-cta-sub">{{trialType}} for {{trialCost}}</div>
     </div>
     <div class="mid-cta-button-stack">
-<a href="#claim-form" class="mid-cta-btn">RESERVE YOUR TRIAL</a>
-<div class="attached-mindbody-note">Partner-exclusive rate unlocked after submitting this form.</div>
+<a href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" class="mid-cta-btn">CLAIM YOUR {{trialType}} FOR {{trialCost}}</a>
+<div class="attached-mindbody-note">🔒 Secure checkout &amp; class booking powered by Mindbody®</div>
 <div class="subtle-urgency-note">Trial spots are limited each month.</div>
 </div>
         
@@ -5110,8 +4612,8 @@ img[alt*="f45"]{
     <div class="footer-info">
       5.0 ⭐⭐⭐⭐⭐ Google Reviews<br>
       Address: 824 N Federal Hwy, Pompano Beach, FL 33062<br>
-      Email: <a href="mailto:pompanobeach@f45training.com">pompanobeach@f45training.com</a><br>
-      Phone: <a href="tel:">{{phone}}</a>
+      Email: <a href="mailto:{{email}}">{{email}}</a><br>
+      Phone: <a href="tel:{{phoneTel}}">{{phone}}</a>
     </div>
     <div class="footer-map">
       <div class="embedded-map-wrap">
@@ -5233,122 +4735,6 @@ img[alt*="f45"]{
   document.head.appendChild(style);
 })();
 </script>
-
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("partnerLeadForm");
-  const successBox = document.getElementById("claimSuccess");
-
-  function showSuccessBox() {
-    if (!form || !successBox) return;
-
-    form.style.display = "none";
-    successBox.style.display = "block";
-
-    requestAnimationFrame(function () {
-      successBox.classList.add("is-visible");
-      successBox.focus({ preventScroll: true });
-
-      const successRect = successBox.getBoundingClientRect();
-      const targetY = window.scrollY + successRect.top - ((window.innerHeight - successRect.height) / 2);
-
-      window.scrollTo({
-        top: Math.max(0, targetY),
-        left: 0,
-        behavior: "smooth"
-      });
-    });
-  }
-
-  if (!form) return;
-
-  form.addEventListener("submit", async function (event) {
-    event.preventDefault();
-
-    const firstNameField = form.querySelector("#firstName");
-    const lastNameField = form.querySelector("#lastName");
-    const emailField = form.querySelector("#email");
-    const phoneField = form.querySelector("#phone, #mobilePhone, #mobile");
-    const zipField = form.querySelector("#zipCode");
-    const fullNameHidden = form.querySelector("#fullNameHidden");
-
-    const validName = function (value) {
-      return /^[A-Za-z][A-Za-z\s\-']{1,}$/.test((value || "").trim());
-    };
-
-    if (!validName(firstNameField && firstNameField.value)) {
-      alert("Please enter your full first name with at least 2 letters.");
-      if (firstNameField) firstNameField.focus();
-      return;
-    }
-
-    if (!validName(lastNameField && lastNameField.value)) {
-      alert("Please enter your full last name with at least 2 letters.");
-      if (lastNameField) lastNameField.focus();
-      return;
-    }
-
-    if (phoneField) {
-      const phoneDigits = phoneField.value.replace(/\D/g, "");
-      const isValidUSPhone = phoneDigits.length === 10 || (phoneDigits.length === 11 && phoneDigits.charAt(0) === "1");
-
-      if (!isValidUSPhone) {
-        alert("Please enter a valid U.S. phone number so we can contact you about your trial.");
-        phoneField.focus();
-        return;
-      }
-
-      const normalizedPhone = phoneDigits.length === 11 ? phoneDigits.substring(1) : phoneDigits;
-      phoneField.value = "(" + normalizedPhone.substring(0, 3) + ") " + normalizedPhone.substring(3, 6) + "-" + normalizedPhone.substring(6);
-    }
-
-    const fullName = ((firstNameField && firstNameField.value.trim()) || "") + " " + ((lastNameField && lastNameField.value.trim()) || "");
-    if (fullNameHidden) fullNameHidden.value = fullName.trim();
-
-    const submitButton = form.querySelector("button[type='submit']");
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = "Unlocking Offer...";
-    }
-
-    const partnerName = "{{partner}}";
-
-    const payload = {
-      _subject: "New Partner Lead: " + fullName.trim() + " - " + partnerName,
-      _template: "table",
-      _captcha: "false",
-      "Full Name": fullName.trim(),
-      "Email": emailField ? emailField.value.trim() : "",
-      "Phone": phoneField ? phoneField.value.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "") : "",
-      "ZIP Code": zipField ? zipField.value.trim() : "",
-      "Partner": partnerName
-    };
-
-    try {
-      const response = await fetch(form.action, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        throw new Error("FormSubmit did not accept the submission");
-      }
-
-      showSuccessBox();
-    } catch (error) {
-      alert("Something went wrong submitting the form. Please call or text us at {{phone}} and we’ll help you activate the offer.");
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent = "Submit & Unlock Offer";
-      }
-    }
-  });
-});</script>
 
 </body>
 </html>
