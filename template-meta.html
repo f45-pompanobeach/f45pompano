@@ -4725,19 +4725,30 @@ body{
 @media(max-width:640px){.fixed-header-spacer{height:92px !important;}}
 
 
-/* Meta cleanup: lighten offer box and pull next section closer */
+/* Meta cleanup: keep only the main CTA and place the video behind the offer card */
 .screenshot-hero{
-  background:#EDF0F8 !important;
+  background:#000 !important;
+  background-image:none !important;
   height:auto !important;
   min-height:0 !important;
   padding:34px 20px 38px !important;
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-  overflow:visible !important;
+  overflow:hidden !important;
+  position:relative !important;
 }
 .screenshot-hero::after{
   display:none !important;
+}
+.screenshot-hero-video{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  display:block !important;
+  opacity:.32 !important;
 }
 .screenshot-offer-card{
   background:#FFFFFF !important;
@@ -4746,6 +4757,8 @@ body{
   border-top:6px solid #E8272A !important;
   box-shadow:0 18px 45px rgba(28,28,46,.14) !important;
   backdrop-filter:none !important;
+  position:relative !important;
+  z-index:2 !important;
 }
 .screenshot-offer-card::before{
   display:none !important;
@@ -4783,6 +4796,9 @@ body{
 <div class="fixed-header-spacer" aria-hidden="true"></div>
 
 <section class="screenshot-hero" id="offer">
+  <video class="screenshot-hero-video" autoplay muted loop playsinline id="offer-video">
+    <source src="trial-video.mp4" type="video/mp4">
+  </video>
         <div class="screenshot-offer-card form-overlay-card" id="claim-form">
       <div class="claim-partner-ribbon">{{partner}} Exclusive</div>
       <div class="claim-form-header overlay-claim-header">
@@ -4977,13 +4993,7 @@ body{
   </div>
 </section>
 
-<div class="mid-cta-button-stack">
-<a href="#claim-form" class="mid-cta-btn">RESERVE YOUR TRIAL</a>
-<div class="attached-mindbody-note">First-time local resident offer. Activate through Mindbody.</div>
-<div class="subtle-urgency-note">Trial spots are limited each month.</div>
 </div>
-        
-  </div>
 </div>
 
 <!-- REVIEWS -->
@@ -5087,13 +5097,7 @@ body{
   </div>
 </section>
 
-<div class="mid-cta-button-stack">
-<a href="#claim-form" class="mid-cta-btn">RESERVE YOUR TRIAL</a>
-<div class="attached-mindbody-note">First-time local resident offer. Activate through Mindbody.</div>
-<div class="subtle-urgency-note">Trial spots are limited each month.</div>
 </div>
-        
-  </div>
 </div>
 
 <!-- CONTACT -->
