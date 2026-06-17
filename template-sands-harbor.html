@@ -4670,7 +4670,7 @@ img[alt*="f45"]{
   background:rgba(255,255,255,.10);
   border:1px solid rgba(255,255,255,.22);
   border-radius:12px;
-  padding:18px 14px;
+  padding:20px 16px 18px;
   text-align:center;
   box-shadow:0 10px 28px rgba(0,0,0,.18);
 }
@@ -4679,9 +4679,9 @@ img[alt*="f45"]{
   background:#FFB800;
   color:#1C1C2E;
   border-radius:999px;
-  padding:5px 10px;
-  margin-bottom:10px;
-  font-size:.70rem;
+  padding:6px 12px;
+  margin-bottom:12px;
+  font-size:.74rem;
   font-weight:900;
   letter-spacing:1.2px;
   text-transform:uppercase;
@@ -4693,6 +4693,41 @@ img[alt*="f45"]{
   font-weight:900;
   letter-spacing:-.02em;
 }
+.sands-special-line{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.sands-special-service{
+  color:#FFFFFF;
+  font-size:clamp(1.05rem,2vw,1.35rem);
+  font-weight:900;
+  line-height:1.05;
+}
+.sands-special-price{
+  color:#FFB800;
+  font-size:clamp(2.6rem,5.3vw,4.15rem);
+  line-height:.9;
+  font-weight:900;
+  letter-spacing:-.05em;
+  text-shadow:0 4px 14px rgba(0,0,0,.55);
+}
+.sands-guest-callout{
+  display:inline-block;
+  margin-top:9px;
+  background:#E8272A;
+  color:#FFFFFF;
+  border-radius:999px;
+  padding:7px 13px;
+  font-size:.78rem;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  box-shadow:0 4px 12px rgba(0,0,0,.26);
+}
 .sands-offer-regular{
   margin-top:7px;
   color:rgba(255,255,255,.76);
@@ -4703,27 +4738,45 @@ img[alt*="f45"]{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:10px;
-  margin:16px auto 0;
-  padding:11px 16px;
-  background:rgba(0,0,0,.34);
-  border:1px solid rgba(255,255,255,.30);
+  flex-wrap:wrap;
+  gap:9px;
+  margin:15px auto 0;
+  padding:9px 13px;
+  background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.18);
   border-radius:10px;
   width:fit-content;
   max-width:100%;
 }
 .sands-original-label{
-  color:#FFFFFF;
-  font-size:1.08rem;
+  color:rgba(255,255,255,.68);
+  font-size:.8rem;
   line-height:1;
-  font-weight:900;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.7px;
 }
 .sands-price-strike{
-  color:#FFB800;
-  font-size:1.75rem;
+  position:relative;
+  display:inline-block;
+  color:rgba(255,255,255,.95);
+  font-size:clamp(1.18rem,2vw,1.48rem);
   line-height:1;
   font-weight:900;
   text-decoration:none;
+  padding:0 3px;
+}
+.sands-price-strike::after{
+  content:"";
+  position:absolute;
+  left:-6%;
+  right:-6%;
+  top:54%;
+  height:2px;
+  background:rgba(232,39,42,.95);
+  transform:rotate(-18deg);
+  transform-origin:center;
+  pointer-events:none;
 }
 .sands-offer-note{
   color:#FFFFFF;
@@ -4743,6 +4796,12 @@ img[alt*="f45"]{
   .sands-offer-price{
     font-size:1.38rem;
   }
+  .sands-special-price{
+    font-size:3.35rem;
+  }
+  .sands-special-service{
+    font-size:1.12rem;
+  }
   .sands-offer-note{
     font-size:1.2rem;
     line-height:1.28;
@@ -4750,10 +4809,10 @@ img[alt*="f45"]{
     letter-spacing:.01em;
   }
   .sands-original-label{
-    font-size:1rem;
+    font-size:.74rem;
   }
   .sands-price-strike{
-    font-size:1.65rem;
+    font-size:1.22rem;
   }
 }
 </style>
@@ -4819,20 +4878,26 @@ img[alt*="f45"]{
         <div class="sands-offer-options" aria-label="Sands Harbor guest offer options">
           <div class="sands-offer-card">
             <div class="sands-offer-label">Single Class</div>
-            <div class="sands-offer-price">1 Drop-In for $20</div>
+            <div class="sands-offer-price">
+              <div class="sands-special-line"><span class="sands-special-service">1 Drop-In</span> <span class="sands-special-price">$20</span></div>
+              <div class="sands-guest-callout">Sands Harbor Guest Special</div>
+            </div>
             <div class="sands-original-row">
-              <span class="sands-original-label" style="font-size:1.16rem !important; color:#FFFFFF !important; font-weight:900 !important;">Regular price:</span>
-              <span class="sands-price-strike" style="text-decoration:none !important; color:#FFB800 !important; font-size:2.05rem !important; font-weight:900 !important; line-height:1 !important;">$30</span>
+              <span class="sands-original-label">Regular price:</span>
+              <span class="sands-price-strike">$30</span>
             </div>
             <div class="sands-value-note">Perfect if you want one F45 workout during your stay.</div>
           </div>
 
           <div class="sands-offer-card featured">
             <div class="sands-offer-label">3-Class Guest Pack</div>
-            <div class="sands-offer-price">3 Classes for $49</div>
+            <div class="sands-offer-price">
+              <div class="sands-special-line"><span class="sands-special-service">3 Classes</span> <span class="sands-special-price">$49</span></div>
+              <div class="sands-guest-callout">Sands Harbor Guest Special</div>
+            </div>
             <div class="sands-original-row">
-              <span class="sands-original-label" style="font-size:1.16rem !important; color:#FFFFFF !important; font-weight:900 !important;">Regular price:</span>
-              <span class="sands-price-strike" style="text-decoration:none !important; color:#FFB800 !important; font-size:2.05rem !important; font-weight:900 !important; line-height:1 !important;">$90</span>
+              <span class="sands-original-label">Regular price:</span>
+              <span class="sands-price-strike">$90</span>
             </div>
             <div class="sands-value-note">That’s almost half off regular drop-in pricing.</div>
           </div>
