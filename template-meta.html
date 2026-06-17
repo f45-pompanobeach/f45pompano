@@ -549,6 +549,14 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   overflow:hidden;
   background:#111;
 }
+.screenshot-hero-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:saturate(1.05);
+}
 .screenshot-hero::after{
   content:'';
   position:absolute;
@@ -878,9 +886,15 @@ hr.div{border:none;border-top:1px solid var(--gray-line);margin:0;}
   height:100%;
   background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.18) 35%, rgba(255,255,255,.55) 50%, rgba(255,255,255,.18) 65%, transparent 100%);
   transform:skewX(-20deg);
+  animation:f45Shimmer 2.8s infinite;
   pointer-events:none;
 }
 
+@keyframes f45Shimmer{
+  0%{left:-140%;}
+  45%{left:140%;}
+  100%{left:140%;}
+}
 
 /* Match mid-page CTA bars to top promo bar */
 .mid-cta-bar{
@@ -1406,6 +1420,7 @@ body{
   height:100%;
   background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.18) 35%, rgba(255,255,255,.55) 50%, rgba(255,255,255,.18) 65%, transparent 100%);
   transform:skewX(-20deg);
+  animation:f45Shimmer 2.8s infinite;
   pointer-events:none;
 }
 
@@ -4278,6 +4293,7 @@ body{
   height:100%;
   background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.18) 35%, rgba(255,255,255,.55) 50%, rgba(255,255,255,.18) 65%, transparent 100%);
   transform:skewX(-20deg);
+  animation:f45Shimmer 2.8s infinite;
   pointer-events:none;
 }
 
@@ -4685,7 +4701,18 @@ body{
 
 
 <style>
-/* Meta cleanup: no floating promo bar, no video, no extra CTA blocks, no shimmer animations */
+/* Preview-only: use uploaded og-image as fallback background because trial-video.mp4 was not uploaded here */
+.screenshot-hero{
+  background-image:url('og-image.jpg') !important;
+  background-size:cover !important;
+  background-position:center center !important;
+}
+.screenshot-hero-video{opacity:.22;}
+</style>
+
+
+<style>
+/* Meta safety cleanup: no floating promo bar, video, extra CTAs, or shimmer animations */
 .promo-claim-btn::after,
 .mid-cta-btn::after,
 .bar-cta-btn::after,
@@ -4696,6 +4723,40 @@ body{
 }
 .fixed-header-spacer{height:92px !important;}
 @media(max-width:640px){.fixed-header-spacer{height:92px !important;}}
+
+
+/* Meta cleanup: lighten offer box and pull next section closer */
+.screenshot-hero{
+  background:#EDF0F8 !important;
+  height:auto !important;
+  min-height:0 !important;
+  padding:34px 20px 38px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:visible !important;
+}
+.screenshot-hero::after{
+  display:none !important;
+}
+.screenshot-offer-card{
+  background:#FFFFFF !important;
+  color:#111111 !important;
+  border:1px solid #E5E7EB !important;
+  border-top:6px solid #E8272A !important;
+  box-shadow:0 18px 45px rgba(28,28,46,.14) !important;
+  backdrop-filter:none !important;
+}
+.screenshot-offer-card::before{
+  display:none !important;
+}
+@media(max-width:640px){
+  .screenshot-hero{
+    height:auto !important;
+    min-height:0 !important;
+    padding:22px 12px 26px !important;
+  }
+}
 </style>
 
 </head>
@@ -4738,7 +4799,7 @@ body{
           <span>I confirm I am a first-time visitor, a local resident, and able to verify residency for this offer.</span>
         </label>
 
-        <a class="screenshot-cta meta-direct-cta" href="/go-meta-trial" target="_blank" rel="noopener">
+        <a class="screenshot-cta meta-direct-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=110702" target="_blank" rel="noopener">
           Activate Your $15 Trial
         </a>
 
@@ -4916,6 +4977,15 @@ body{
   </div>
 </section>
 
+<div class="mid-cta-button-stack">
+<a href="#claim-form" class="mid-cta-btn">RESERVE YOUR TRIAL</a>
+<div class="attached-mindbody-note">First-time local resident offer. Activate through Mindbody.</div>
+<div class="subtle-urgency-note">Trial spots are limited each month.</div>
+</div>
+        
+  </div>
+</div>
+
 <!-- REVIEWS -->
 <section class="reviews-section" id="reviews">
   <div class="inner-wide">
@@ -5016,6 +5086,15 @@ body{
     </div>
   </div>
 </section>
+
+<div class="mid-cta-button-stack">
+<a href="#claim-form" class="mid-cta-btn">RESERVE YOUR TRIAL</a>
+<div class="attached-mindbody-note">First-time local resident offer. Activate through Mindbody.</div>
+<div class="subtle-urgency-note">Trial spots are limited each month.</div>
+</div>
+        
+  </div>
+</div>
 
 <!-- CONTACT -->
 <section class="contact-section" id="contact">
