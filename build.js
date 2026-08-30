@@ -47,11 +47,7 @@ function addLocalComplianceLinks(html) {
     `      © 2026 F45 TRAINING &nbsp;|&nbsp;
       <a href="/privacy/">F45 Pompano Privacy Policy</a>
       &nbsp;|&nbsp;
-      <a href="/terms/">F45 Pompano Terms &amp; Conditions</a>
-      &nbsp;|&nbsp;
-      <a href="https://f45training.com/terms/" target="_blank">Corporate Terms &amp; Disclosures</a>
-      &nbsp;|&nbsp;
-      <a href="https://f45training.com/privacy-policy/" target="_blank">Corporate Privacy Policy</a>`
+      <a href="/terms/">F45 Pompano Terms &amp; Conditions</a>`
   );
 }
 
