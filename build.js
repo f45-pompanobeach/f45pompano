@@ -143,7 +143,8 @@ const rootLeadCaptureCss = String.raw`
 .root-lead-form{padding:22px !important;display:grid !important;grid-template-columns:1fr 1fr !important;gap:13px !important;background:#fff !important;}
 .root-lead-form .form-row{display:flex !important;flex-direction:column !important;gap:6px !important;}
 .root-lead-form label:not(.sms-consent-row){font-size:.7rem !important;font-weight:900 !important;letter-spacing:1px !important;text-transform:uppercase !important;color:#1C1C2E !important;}
-.root-lead-form input{width:100% !important;border:1px solid #D5DAE3 !important;border-radius:8px !important;padding:12px !important;font-family:'Inter',system-ui,sans-serif !important;font-size:.95rem !important;color:#111 !important;background:#fff !important;line-height:1.2 !important;}
+.root-lead-form input{width:100% !important;border:2px solid #B8C0CC !important;border-radius:8px !important;padding:12px !important;font-family:'Inter',system-ui,sans-serif !important;font-size:.95rem !important;color:#111 !important;background:#FFFFFF !important;line-height:1.2 !important;box-shadow:0 1px 0 rgba(17,24,39,.06) !important;}
+.root-lead-form input::placeholder{color:#9CA3AF !important;opacity:1 !important;}
 .root-lead-form input:focus{outline:none !important;border-color:#E8272A !important;box-shadow:0 0 0 4px rgba(232,39,42,.12) !important;}
 .sms-consent-row{
   grid-column:1/-1 !important;
@@ -152,11 +153,11 @@ const rootLeadCaptureCss = String.raw`
   align-items:flex-start !important;
   padding:13px !important;
   background:#F7F8FB !important;
-  border:1px solid #D1D5DB !important;
+  border:1px solid #9CA3AF !important;
   border-radius:8px !important;
   font-size:.82rem !important;
   line-height:1.55 !important;
-  color:#1F2937 !important;
+  color:#111827 !important;
   text-align:left !important;
 }
 .sms-consent-row input{width:auto !important;margin-top:4px !important;flex-shrink:0 !important;accent-color:#E8272A !important;}
@@ -166,7 +167,7 @@ const rootLeadCaptureCss = String.raw`
   grid-column:1/-1 !important;
   font-size:.8rem !important;
   line-height:1.5 !important;
-  color:#374151 !important;
+  color:#1F2937 !important;
   margin:-4px 0 0 !important;
   text-align:left !important;
 }
