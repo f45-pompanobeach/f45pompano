@@ -38,15 +38,36 @@ function render(template, data) {
   return html;
 }
 
+function addLocalComplianceLinks(html) {
+  return html.replace(
+    `      © 2026 F45 TRAINING &nbsp;|&nbsp;
+      <a href="https://f45training.com/terms/" target="_blank">Terms &amp; Disclosures</a>
+      &nbsp;|&nbsp;
+      <a href="https://f45training.com/privacy-policy/" target="_blank">Privacy Policy</a>`,
+    `      © 2026 F45 TRAINING &nbsp;|&nbsp;
+      <a href="/privacy/">F45 Pompano Privacy Policy</a>
+      &nbsp;|&nbsp;
+      <a href="/terms/">F45 Pompano Terms &amp; Conditions</a>
+      &nbsp;|&nbsp;
+      <a href="https://f45training.com/terms/" target="_blank">Corporate Terms &amp; Disclosures</a>
+      &nbsp;|&nbsp;
+      <a href="https://f45training.com/privacy-policy/" target="_blank">Corporate Privacy Policy</a>`
+  );
+}
+
 // Default homepage
 const genericData = {
   ...shared,
   ...generic
 };
 
+const renderedGenericPage = addLocalComplianceLinks(
+  render(genericTemplate, genericData)
+);
+
 fs.writeFileSync(
   path.join(distDir, "index.html"),
-  render(genericTemplate, genericData)
+  renderedGenericPage
 );
 
 // Partner pages
