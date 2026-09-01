@@ -173,6 +173,33 @@ const rootLeadCaptureCss = String.raw`
   font-weight:600 !important;
   text-align:left !important;
 }
+.terms-privacy-row{
+  grid-column:1/-1 !important;
+  display:flex !important;
+  gap:10px !important;
+  align-items:flex-start !important;
+  padding:12px !important;
+  background:#FFFFFF !important;
+  border:1px solid #D1D5DB !important;
+  border-radius:8px !important;
+  font-size:.82rem !important;
+  line-height:1.45 !important;
+  color:#111827 !important;
+  text-align:left !important;
+}
+.terms-privacy-row input{width:auto !important;margin-top:4px !important;flex-shrink:0 !important;accent-color:#E8272A !important;}
+.terms-privacy-row a{color:#E8272A !important;font-weight:900 !important;text-decoration:none !important;}
+.terms-privacy-row a:hover{text-decoration:underline !important;}
+.terms-privacy-error{
+  grid-column:1/-1 !important;
+  display:none !important;
+  margin:-4px 0 0 !important;
+  color:#B91C1C !important;
+  font-size:.8rem !important;
+  line-height:1.4 !important;
+  font-weight:800 !important;
+  text-align:left !important;
+}
 .sms-no-share-note{
   grid-column:1/-1 !important;
   font-size:.8rem !important;
@@ -249,6 +276,13 @@ const rootLeadCaptureHtml = String.raw`
 
       <p class="root-inquiry-disclosure">By submitting this form, you agree that F45 Training Pompano Beach may contact you by phone or email to respond to your inquiry and help you with this trial offer.</p>
 
+      <label class="terms-privacy-row">
+        <input id="rootTermsPrivacy" type="checkbox" name="terms_privacy_acknowledged" value="yes" required>
+        <span>I agree to F45 Training Pompano Beach’s <a href="https://f45pompano.com/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a> and acknowledge the <a href="https://f45pompano.com/privacy/" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+      </label>
+
+      <p id="rootTermsPrivacyError" class="terms-privacy-error">Please agree to the Terms &amp; Conditions and acknowledge the Privacy Policy before continuing.</p>
+
       <label class="sms-consent-row">
         <input id="rootSmsConsent" type="checkbox" name="sms_consent_checkbox" value="yes">
         <span>I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> | <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span>
@@ -313,6 +347,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const emailField = form.querySelector("#rootEmail");
     const phoneField = form.querySelector("#rootPhone");
     const smsCheckbox = form.querySelector("#rootSmsConsent");
+    const termsPrivacyCheckbox = form.querySelector("#rootTermsPrivacy");
+    const termsPrivacyError = form.querySelector("#rootTermsPrivacyError");
     const fullNameHidden = form.querySelector("#rootFullNameHidden");
     const smsOptInHidden = form.querySelector("#rootSmsOptInHidden");
     const smsTimestampHidden = form.querySelector("#rootSmsConsentTimestampHidden");
@@ -320,6 +356,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const validName = function (value) {
       return /^[A-Za-z][A-Za-z\s\-']{1,}$/.test((value || "").trim());
     };
+
+    if (termsPrivacyError) {
+      termsPrivacyError.style.setProperty("display", "none", "important");
+    }
+
+    if (!termsPrivacyCheckbox || !termsPrivacyCheckbox.checked) {
+      if (termsPrivacyError) {
+        termsPrivacyError.style.setProperty("display", "block", "important");
+      }
+      if (termsPrivacyCheckbox) termsPrivacyCheckbox.focus();
+      return;
+    }
 
     if (!validName(firstNameField && firstNameField.value)) {
       alert("Please enter your full first name with at least 2 letters.");
@@ -373,6 +421,10 @@ document.addEventListener("DOMContentLoaded", function () {
       "last_name": lastNameField ? lastNameField.value.trim() : "",
       "email": emailField ? emailField.value.trim() : "",
       "phone": normalizedPhoneForPayload,
+      "terms_privacy_acknowledged": true,
+      "terms_privacy_acknowledged_timestamp": timestamp,
+      "terms_privacy_version": "2026-09-01-v1",
+      "terms_privacy_disclosure": "I agree to F45 Training Pompano Beach’s Terms & Conditions and acknowledge the Privacy Policy.",
       "sms_opt_in": smsOptIn,
       "sms_consent_timestamp": timestamp,
       "source_url": "https://f45pompano.com/",
