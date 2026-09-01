@@ -163,6 +163,16 @@ const rootLeadCaptureCss = String.raw`
 .sms-consent-row input{width:auto !important;margin-top:4px !important;flex-shrink:0 !important;accent-color:#E8272A !important;}
 .sms-consent-row a{color:#E8272A !important;font-weight:900 !important;text-decoration:none !important;}
 .sms-consent-row a:hover{text-decoration:underline !important;}
+.root-inquiry-disclosure{
+  grid-column:1/-1 !important;
+  margin:0 !important;
+  padding:0 !important;
+  color:#1F2937 !important;
+  font-size:.82rem !important;
+  line-height:1.45 !important;
+  font-weight:600 !important;
+  text-align:left !important;
+}
 .sms-no-share-note{
   grid-column:1/-1 !important;
   font-size:.8rem !important;
@@ -236,6 +246,8 @@ const rootLeadCaptureHtml = String.raw`
         <label for="rootPhone">Mobile Phone *</label>
         <input id="rootPhone" name="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="(954) 555-1234" title="Please enter a valid U.S. phone number.">
       </div>
+
+      <p class="root-inquiry-disclosure">By submitting this form, you agree that F45 Training Pompano Beach may contact you by phone or email to respond to your inquiry and help you with this trial offer.</p>
 
       <label class="sms-consent-row">
         <input id="rootSmsConsent" type="checkbox" name="sms_consent_checkbox" value="yes">
