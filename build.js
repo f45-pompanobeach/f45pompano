@@ -215,7 +215,7 @@ const rootLeadCaptureHtml = String.raw`
       <input type="hidden" id="rootSmsConsentTimestampHidden" name="sms_consent_timestamp" value="">
       <input type="hidden" name="source_url" value="https://f45pompano.com/">
       <input type="hidden" name="consent_version" value="2026-08-29-v1">
-      <input type="hidden" name="consent_language" value="I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Standard message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. Privacy Policy | Terms & Conditions. Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes.">
+      <input type="hidden" name="consent_language" value="I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. Privacy Policy | Terms & Conditions. Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes.">
 
       <div class="form-row">
         <label for="rootFirstName">First Name *</label>
@@ -239,7 +239,7 @@ const rootLeadCaptureHtml = String.raw`
 
       <label class="sms-consent-row">
         <input id="rootSmsConsent" type="checkbox" name="sms_consent_checkbox" value="yes">
-        <span>I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Standard message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> | <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span>
+        <span>I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> | <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span>
       </label>
 
       <p class="sms-no-share-note">Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes.</p>
@@ -365,7 +365,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "sms_consent_timestamp": timestamp,
       "source_url": "https://f45pompano.com/",
       "consent_version": "2026-08-29-v1",
-      "consent_language": "I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Standard message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. Privacy Policy | Terms & Conditions. Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes."
+      "consent_language": "I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. Privacy Policy | Terms & Conditions. Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes."
     };
 
     try {
