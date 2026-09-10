@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Spin to Win | F45 Training Pompano Beach</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--red:#E8272A;--red-hover:#C91F22;--navy:#1C1C2E;--white:#FFFFFF;--gray-bg:#EDF0F8;--gray-line:#E5E7EB;--gray-text:#6B7280;--black:#111111;--yellow:#FFB800}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--gray-bg);color:var(--black);min-height:100vh}
+.page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 16px}
+.shell{width:min(700px,100%)}
+.hero{display:grid;grid-template-columns:45% 55%;border-radius:16px 16px 0 0;overflow:hidden;box-shadow:0 14px 38px rgba(28,28,46,.14)}
+.brand{background:var(--white);min-height:165px;padding:18px;display:flex;align-items:center;justify-content:center;border:1px solid var(--gray-line);border-right:0}
+.brand-logo{width:100%;height:auto;max-width:300px;max-height:130px;object-fit:contain;display:none}
+.brand-logo.loaded{display:block}
+.hero-copy{background:var(--navy);color:var(--white);min-height:165px;padding:24px 25px;display:flex;flex-direction:column;justify-content:center}
+.hero-copy .eyebrow{color:var(--yellow);font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px}
+.hero-copy h1{margin:0 0 8px;font-size:clamp(30px,6vw,43px);line-height:.98;font-weight:900;text-transform:uppercase;letter-spacing:-1px}
+.hero-copy p{margin:0;color:rgba(255,255,255,.82);font-size:13px;line-height:1.5;font-weight:500}
+.yellow-rule{height:5px;background:var(--yellow)}
+.card{background:var(--white);overflow:hidden;border-top:6px solid var(--red);border-radius:0 0 16px 16px;box-shadow:0 16px 45px rgba(28,28,46,.14)}
+form{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.field{display:flex;flex-direction:column;gap:6px}.full{grid-column:1/-1}
+.field-label{font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--navy)}
+input[type=text],input[type=email],input[type=tel]{width:100%;border:2px solid #B8C0CC;border-radius:8px;padding:13px 12px;font:inherit;font-size:15px;color:#111;background:#fff;line-height:1.2}
+input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 4px rgba(232,39,42,.12)}
+.checkrow{grid-column:1/-1;display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #D1D5DB;border-radius:8px;background:#F7F8FB;font-size:12px;line-height:1.5;color:#374151}
+.checkrow input{width:auto;margin-top:3px;accent-color:var(--red);flex-shrink:0}.checkrow a{color:var(--red);font-weight:800;text-decoration:none}.optional{background:#FFF8E1;border-color:#FFD54F}
+.submit{grid-column:1/-1;width:100%;border:0;border-radius:4px;background:var(--red);color:#fff;padding:16px 18px;font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.7px;cursor:pointer;box-shadow:0 4px 0 rgba(80,0,0,.24)}
+.submit:hover{background:var(--red-hover)}.submit:disabled{opacity:.55;cursor:default}
+.fine{grid-column:1/-1;margin:-2px 0 0;text-align:center;color:var(--gray-text);font-size:11px;line-height:1.5}
+.help{grid-column:1/-1;margin:2px 0 0;text-align:center;color:#4B5563;font-size:12px;line-height:1.45;font-weight:600}
+.trap{position:absolute;left:-10000px}
+.notice{display:none;margin:24px;padding:8px 0 30px;text-align:center}.notice.show{display:block}
+.notice-icon{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;margin:2px auto 16px;background:#EEF2F7;font-size:34px}
+.notice h2{margin:0 0 10px;color:var(--navy);font-size:28px;font-weight:900;text-transform:uppercase}.notice p{margin:0 auto;max-width:440px;color:#4B5563;font-size:15px;line-height:1.55}
+.steps{max-width:440px;margin:20px auto 0;text-align:left;background:#F7F8FB;border:1px solid var(--gray-line);border-left:4px solid var(--red);border-radius:4px;padding:15px 16px;color:#374151;font-size:13px;line-height:1.7}.steps strong{color:var(--navy)}
+.error{padding-bottom:28px}.error .notice-icon{background:#FFF1F1;color:#B91C1C}.error h2{color:#B91C1C}
+.footer{text-align:center;color:#7A8190;font-size:10px;line-height:1.5;margin:18px 0 0}.footer a{color:#6B7280;text-decoration:none;font-weight:700}
+@media(max-width:560px){
+  .page{align-items:flex-start;padding:14px 10px}
+  .hero{grid-template-columns:1fr}
+  .brand{min-height:125px;padding:14px;border-right:1px solid var(--gray-line);border-bottom:0}
+  .brand-logo{max-width:330px;max-height:102px}
+  .hero-copy{min-height:auto;padding:18px 20px 19px;text-align:center}
+  .hero-copy .eyebrow{font-size:10px;margin-bottom:5px}
+  .hero-copy h1{font-size:34px;margin-bottom:7px}
+  .hero-copy p{font-size:12px}
+  form{grid-template-columns:1fr;padding:18px;gap:12px}.field{grid-column:1/-1}.notice{margin:18px;padding-bottom:25px}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="shell">
+    <section class="hero" aria-label="F45 Training Pompano Beach Spin to Win">
+      <div class="brand">
+        <img id="brandLogo" class="brand-logo" alt="F45 Training Pompano Beach logo">
+      </div>
+      <div class="hero-copy">
+        <div class="eyebrow">F45 Pompano Beach</div>
+        <h1>Spin to Win</h1>
+        <p>Complete this quick form. We’ll text you a link to confirm your entry, then you’re ready to spin.</p>
+      </div>
+    </section>
+    <div class="yellow-rule"></div>
+
+    <section class="card">
+      <form id="f" novalidate>
+        <div class="field"><label class="field-label" for="fn">First Name</label><input id="fn" type="text" autocomplete="given-name" maxlength="40" required></div>
+        <div class="field"><label class="field-label" for="ln">Last Name</label><input id="ln" type="text" autocomplete="family-name" maxlength="40" required></div>
+        <div class="field full"><label class="field-label" for="em">Email</label><input id="em" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+        <div class="field"><label class="field-label" for="ph">Mobile Number</label><input id="ph" type="tel" autocomplete="tel" inputmode="tel" placeholder="(954) 555-1234" required></div>
+        <div class="field"><label class="field-label" for="zp">Home ZIP Code</label><input id="zp" type="text" autocomplete="postal-code" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="33062" required></div>
+        <div class="trap"><label>Website<input id="web" type="text" tabindex="-1" autocomplete="off"></label></div>
+
+        <label class="checkrow"><input id="vc" type="checkbox" required><span>I agree to receive one automated text from F45 Training Pompano Beach containing my entry confirmation link. Message and data rates may apply.</span></label>
+        <label class="checkrow"><input id="tc" type="checkbox" required><span>I agree to F45 Training Pompano Beach’s <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a> and acknowledge the <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+        <label class="checkrow optional"><input id="mk" type="checkbox"><span><strong>Optional:</strong> I’d also like occasional offers and updates from F45 Training Pompano Beach by text. Message frequency varies. Reply STOP to opt out or HELP for help. Consent is not a condition of purchase.</span></label>
+
+        <button class="submit" id="b" type="submit">Submit &amp; Get Text</button>
+        <p class="fine">One entry per person. Home ZIP code is used to determine local-area status and grand-prize eligibility where applicable.</p>
+        <p class="help">No phone with you? Ask the F45 coach or representative for assistance.</p>
+      </form>
+
+      <div class="notice" id="ok"><div class="notice-icon">📱</div><h2>Check Your Phone</h2><p id="okp">We sent your F45 confirmation text.</p><div class="steps"><strong>Next step:</strong><br>Open the text from F45 Pompano Beach and tap the confirmation link. Then show the confirmed screen to the F45 coach or representative.</div></div>
+      <div class="notice error" id="err"><div class="notice-icon">!</div><h2>Text Not Sent</h2><p id="errp">Please check your information and try again.</p></div>
+    </section>
+
+    <div class="footer">F45 Training Pompano Beach · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></div>
+  </div>
+</main>
+<script>
+(()=>{
+  const f=document.getElementById('f'),b=document.getElementById('b'),ok=document.getElementById('ok'),err=document.getElementById('err'),errp=document.getElementById('errp');
+  const logo=document.getElementById('brandLogo');
+  fetch('/',{cache:'force-cache'}).then(r=>r.ok?r.text():Promise.reject()).then(html=>{
+    const doc=new DOMParser().parseFromString(html,'text/html');
+    const original=doc.querySelector('.screenshot-logo-img');
+    const src=original&&original.getAttribute('src');
+    if(src){logo.src=src;logo.classList.add('loaded')}
+  }).catch(()=>{});
+  function fail(m){errp.textContent=m||'Please check your information and try again.';err.classList.add('show');err.scrollIntoView({behavior:'smooth',block:'center'})}
+  f.addEventListener('submit',async e=>{
+    e.preventDefault();err.classList.remove('show');if(!f.reportValidity())return;
+    const z=document.getElementById('zp').value.trim();if(!/^\d{5}$/.test(z)){fail('Please enter your 5-digit home ZIP code.');return}
+    b.disabled=true;b.textContent='Sending Text...';
+    const p={first_name:document.getElementById('fn').value.trim(),last_name:document.getElementById('ln').value.trim(),phone:document.getElementById('ph').value.trim(),email:document.getElementById('em').value.trim(),zip:z,website:document.getElementById('web').value,verification_consent:document.getElementById('vc').checked,terms_accepted:document.getElementById('tc').checked,marketing_opt_in:document.getElementById('mk').checked};
+    try{
+      const r=await fetch('/api/pier/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(p)}),j=await r.json().catch(()=>({}));
+      if(!r.ok||!j.ok)throw new Error(j.message||'We could not send the confirmation text. Please try again.');
+      f.style.display='none';document.getElementById('okp').textContent=`Thanks, ${j.first_name||p.first_name}. We sent your F45 confirmation link. It expires in 30 minutes.`;ok.classList.add('show');ok.scrollIntoView({behavior:'smooth',block:'center'});
+    }catch(x){fail(x.message);b.disabled=false;b.textContent='Submit & Get Text'}
+  });
+})();
+</script>
+</body>
+</html>
