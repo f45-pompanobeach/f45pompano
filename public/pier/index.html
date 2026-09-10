@@ -17,7 +17,6 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--gray-bg);c
 .brand-logo{width:100%;height:auto;max-width:300px;max-height:130px;object-fit:contain;display:none}
 .brand-logo.loaded{display:block}
 .hero-copy{background:var(--navy);color:var(--white);min-height:165px;padding:24px 25px;display:flex;flex-direction:column;justify-content:center}
-.hero-copy .eyebrow{color:var(--yellow);font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px}
 .hero-copy h1{margin:0 0 8px;font-size:clamp(30px,6vw,43px);line-height:.98;font-weight:900;text-transform:uppercase;letter-spacing:-1px}
 .hero-copy p{margin:0;color:rgba(255,255,255,.82);font-size:13px;line-height:1.5;font-weight:500}
 .yellow-rule{height:5px;background:var(--yellow)}
@@ -28,7 +27,7 @@ form{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:13px}
 input[type=text],input[type=email],input[type=tel]{width:100%;border:2px solid #B8C0CC;border-radius:8px;padding:13px 12px;font:inherit;font-size:15px;color:#111;background:#fff;line-height:1.2}
 input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 4px rgba(232,39,42,.12)}
 .checkrow{grid-column:1/-1;display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #D1D5DB;border-radius:8px;background:#F7F8FB;font-size:12px;line-height:1.5;color:#374151}
-.checkrow input{width:auto;margin-top:3px;accent-color:var(--red);flex-shrink:0}.checkrow a{color:var(--red);font-weight:800;text-decoration:none}.optional{background:#FFF8E1;border-color:#FFD54F}
+.checkrow input{width:auto;margin-top:3px;accent-color:var(--red);flex-shrink:0}.checkrow a{color:var(--red);font-weight:800;text-decoration:none}
 .submit{grid-column:1/-1;width:100%;border:0;border-radius:4px;background:var(--red);color:#fff;padding:16px 18px;font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.7px;cursor:pointer;box-shadow:0 4px 0 rgba(80,0,0,.24)}
 .submit:hover{background:var(--red-hover)}.submit:disabled{opacity:.55;cursor:default}
 .fine{grid-column:1/-1;margin:-2px 0 0;text-align:center;color:var(--gray-text);font-size:11px;line-height:1.5}
@@ -46,7 +45,6 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
   .brand{min-height:125px;padding:14px;border-right:1px solid var(--gray-line);border-bottom:0}
   .brand-logo{max-width:330px;max-height:102px}
   .hero-copy{min-height:auto;padding:18px 20px 19px;text-align:center}
-  .hero-copy .eyebrow{font-size:10px;margin-bottom:5px}
   .hero-copy h1{font-size:34px;margin-bottom:7px}
   .hero-copy p{font-size:12px}
   form{grid-template-columns:1fr;padding:18px;gap:12px}.field{grid-column:1/-1}.notice{margin:18px;padding-bottom:25px}
@@ -61,7 +59,6 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
         <img id="brandLogo" class="brand-logo" alt="F45 Training Pompano Beach logo">
       </div>
       <div class="hero-copy">
-        <div class="eyebrow">F45 Pompano Beach</div>
         <h1>Spin to Win</h1>
         <p>Complete this quick form. We’ll text you a link to confirm your entry, then you’re ready to spin.</p>
       </div>
@@ -79,7 +76,7 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
 
         <label class="checkrow"><input id="vc" type="checkbox" required><span>I agree to receive one automated text from F45 Training Pompano Beach containing my entry confirmation link. Message and data rates may apply.</span></label>
         <label class="checkrow"><input id="tc" type="checkbox" required><span>I agree to F45 Training Pompano Beach’s <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a> and acknowledge the <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
-        <label class="checkrow optional"><input id="mk" type="checkbox"><span><strong>Optional:</strong> I’d also like occasional offers and updates from F45 Training Pompano Beach by text. Message frequency varies. Reply STOP to opt out or HELP for help. Consent is not a condition of purchase.</span></label>
+        <label class="checkrow"><input id="mk" type="checkbox"><span>I’d like to receive occasional offers and updates from F45 Training Pompano Beach by text. Message frequency varies. Reply STOP to opt out or HELP for help. Consent is not a condition of purchase.</span></label>
 
         <button class="submit" id="b" type="submit">Submit &amp; Get Text</button>
         <p class="fine">One entry per person. Home ZIP code is used to determine local-area status and grand-prize eligibility where applicable.</p>
