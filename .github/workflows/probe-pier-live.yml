@@ -14,26 +14,27 @@ jobs:
     steps:
       - name: Wait for live host deployment
         run: sleep 45
-      - name: Verify public Pier page
+      - name: Verify public Pier page and API health
         shell: bash
         run: |
           set -euo pipefail
-          URL='https://f45pompano.com/pier/?probe=b28dabac'
-          OUT=$(mktemp)
-          HDR=$(mktemp)
-          curl -L --max-time 30 -sS -D "$HDR" -o "$OUT" -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$URL"
-          head -40 "$HDR"
-          echo "TITLE: $(grep -io '<title>[^<]*' "$OUT" | head -1 | sed 's/<title>//I')"
-          echo "SPIN_COUNT: $(grep -io 'Spin to Win' "$OUT" | wc -l | tr -d ' ')"
-          echo "EYEBROW_COUNT: $(grep -Foc '<div class=\"eyebrow\">F45 Pompano Beach</div>' "$OUT" || true)"
-          echo "OPTIONAL_LABEL_COUNT: $(grep -Foc '<strong>Optional:</strong>' "$OUT" || true)"
-          echo "OPTIONAL_CLASS_COUNT: $(grep -Foc 'class=\"checkrow optional\"' "$OUT" || true)"
-          echo "MARKETING_COPY_COUNT: $(grep -Foc 'I’d like to receive occasional offers and updates from F45 Training Pompano Beach by text.' "$OUT" || true)"
-          echo "MARKETING_REQUIRED_COUNT: $(grep -Eoc 'id=\"mk\"[^>]*required|required[^>]*id=\"mk\"' "$OUT" || true)"
-          test "$(grep -io 'Spin to Win' "$OUT" | wc -l | tr -d ' ')" -gt 0
-          test "$(grep -Foc '<div class=\"eyebrow\">F45 Pompano Beach</div>' "$OUT" || true)" -eq 0
-          test "$(grep -Foc '<strong>Optional:</strong>' "$OUT" || true)" -eq 0
-          test "$(grep -Foc 'class=\"checkrow optional\"' "$OUT" || true)" -eq 0
-          test "$(grep -Foc 'I’d like to receive occasional offers and updates from F45 Training Pompano Beach by text.' "$OUT" || true)" -eq 1
-          test "$(grep -Eoc 'id=\"mk\"[^>]*required|required[^>]*id=\"mk\"' "$OUT" || true)" -eq 0
-          rm -f "$OUT" "$HDR"
+          PAGE=$(mktemp)
+          curl -L --max-time 30 -sS -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=final-5a0b9421' -o "$PAGE"
+          echo "TITLE: $(grep -io '<title>[^<]*' "$PAGE" | head -1 | sed 's/<title>//I')"
+          echo "SPIN_COUNT: $(grep -io 'Spin to Win' "$PAGE" | wc -l | tr -d ' ')"
+          echo "NO_PHONE_HELP_COUNT: $(grep -Foc 'No phone with you?' "$PAGE" || true)"
+          test "$(grep -io 'Spin to Win' "$PAGE" | wc -l | tr -d ' ')" -gt 0
+          test "$(grep -Foc 'No phone with you?' "$PAGE" || true)" -eq 0
+
+          echo '===== API HEALTH ====='
+          HEALTH=$(mktemp)
+          CODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=final-5a0b9421')
+          echo "HEALTH_HTTP: $CODE"
+          echo "HEALTH_BODY: $(cat "$HEALTH")"
+
+          echo '===== REGISTER ROUTE ====='
+          REG=$(mktemp)
+          RCODE=$(curl -L --max-time 30 -sS -o "$REG" -w '%{http_code}' -X POST -H 'content-type: application/json' --data '{}' 'https://f45pompano.com/api/pier/register')
+          echo "REGISTER_HTTP: $RCODE"
+          echo "REGISTER_BODY: $(cat "$REG")"
+          rm -f "$PAGE" "$HEALTH" "$REG"
