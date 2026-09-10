@@ -12,27 +12,28 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe public Pier URLs
+      - name: Wait for live host deployment
+        run: sleep 45
+      - name: Verify public Pier page
         shell: bash
         run: |
-          set -u
-          for URL in \
-            'https://f45pompano.com/pier/' \
-            'https://f45pompano.com/pier/index.html' \
-            'https://f45pompano.com/pier/?probe=3685f404' \
-            'https://f45pompano.com/pier/index.html?probe=3685f404'
-          do
-            echo "===== $URL ====="
-            OUT=$(mktemp)
-            HDR=$(mktemp)
-            if curl -L --max-time 30 -sS -D "$HDR" -o "$OUT" -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$URL"; then
-              head -40 "$HDR"
-              echo "TITLE: $(grep -io '<title>[^<]*' "$OUT" | head -1 | sed 's/<title>//I')"
-              echo "SPIN_COUNT: $(grep -io 'Spin to Win' "$OUT" | wc -l | tr -d ' ')"
-              echo "VERIFY_COUNT: $(grep -io 'Verify Your Entry' "$OUT" | wc -l | tr -d ' ')"
-              echo "BYTES: $(wc -c < "$OUT" | tr -d ' ')"
-            else
-              echo 'CURL_FAILED'
-            fi
-            rm -f "$OUT" "$HDR"
-          done
+          set -euo pipefail
+          URL='https://f45pompano.com/pier/?probe=b28dabac'
+          OUT=$(mktemp)
+          HDR=$(mktemp)
+          curl -L --max-time 30 -sS -D "$HDR" -o "$OUT" -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$URL"
+          head -40 "$HDR"
+          echo "TITLE: $(grep -io '<title>[^<]*' "$OUT" | head -1 | sed 's/<title>//I')"
+          echo "SPIN_COUNT: $(grep -io 'Spin to Win' "$OUT" | wc -l | tr -d ' ')"
+          echo "EYEBROW_COUNT: $(grep -Foc '<div class=\"eyebrow\">F45 Pompano Beach</div>' "$OUT" || true)"
+          echo "OPTIONAL_LABEL_COUNT: $(grep -Foc '<strong>Optional:</strong>' "$OUT" || true)"
+          echo "OPTIONAL_CLASS_COUNT: $(grep -Foc 'class=\"checkrow optional\"' "$OUT" || true)"
+          echo "MARKETING_COPY_COUNT: $(grep -Foc 'I’d like to receive occasional offers and updates from F45 Training Pompano Beach by text.' "$OUT" || true)"
+          echo "MARKETING_REQUIRED_COUNT: $(grep -Eoc 'id=\"mk\"[^>]*required|required[^>]*id=\"mk\"' "$OUT" || true)"
+          test "$(grep -io 'Spin to Win' "$OUT" | wc -l | tr -d ' ')" -gt 0
+          test "$(grep -Foc '<div class=\"eyebrow\">F45 Pompano Beach</div>' "$OUT" || true)" -eq 0
+          test "$(grep -Foc '<strong>Optional:</strong>' "$OUT" || true)" -eq 0
+          test "$(grep -Foc 'class=\"checkrow optional\"' "$OUT" || true)" -eq 0
+          test "$(grep -Foc 'I’d like to receive occasional offers and updates from F45 Training Pompano Beach by text.' "$OUT" || true)" -eq 1
+          test "$(grep -Eoc 'id=\"mk\"[^>]*required|required[^>]*id=\"mk\"' "$OUT" || true)" -eq 0
+          rm -f "$OUT" "$HDR"
