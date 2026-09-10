@@ -38,7 +38,7 @@ export async function onRequestPost(context){
 
   const isLocal=LOCAL_ZIPS.has(z), t=await token(firstName,isLocal,env.PIER_TOKEN_SECRET||env.TELNYX_API_KEY);
   const verifyUrl=`${new URL(request.url).origin}/pier/v/${t}`;
-  const text=`F45 Pompano: Hi ${firstName}! Tap to verify your Spin to Win entry: ${verifyUrl}`;
+  const text=`F45 Pompano: Tap to verify your Pier Spin to Win entry: ${verifyUrl}`;
   let r; try{r=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify({from:env.TELNYX_FROM_NUMBER||'+17543463010',to:p,text})})}catch{return reply({ok:false,message:'We could not send the verification text. Please try again.'},502)}
   if(!r.ok){let code=null;try{const j=await r.json();code=j?.errors?.[0]?.code||null}catch{}return reply({ok:false,error:'sms_rejected',provider_status:r.status,provider_code:code,message:'We could not send the verification text. Please check your mobile number or ask the F45 team for help.'},502)}
   const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:new Date().toISOString()};
