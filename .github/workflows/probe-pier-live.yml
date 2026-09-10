@@ -1,0 +1,38 @@
+name: Probe Live Pier
+
+on:
+  push:
+    paths:
+      - '.github/workflows/probe-pier-live.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe public Pier URLs
+        shell: bash
+        run: |
+          set -u
+          for URL in \
+            'https://f45pompano.com/pier/' \
+            'https://f45pompano.com/pier/index.html' \
+            'https://f45pompano.com/pier/?probe=3685f404' \
+            'https://f45pompano.com/pier/index.html?probe=3685f404'
+          do
+            echo "===== $URL ====="
+            OUT=$(mktemp)
+            HDR=$(mktemp)
+            if curl -L --max-time 30 -sS -D "$HDR" -o "$OUT" -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$URL"; then
+              head -40 "$HDR"
+              echo "TITLE: $(grep -io '<title>[^<]*' "$OUT" | head -1 | sed 's/<title>//I')"
+              echo "SPIN_COUNT: $(grep -io 'Spin to Win' "$OUT" | wc -l | tr -d ' ')"
+              echo "VERIFY_COUNT: $(grep -io 'Verify Your Entry' "$OUT" | wc -l | tr -d ' ')"
+              echo "BYTES: $(wc -c < "$OUT" | tr -d ' ')"
+            else
+              echo 'CURL_FAILED'
+            fi
+            rm -f "$OUT" "$HDR"
+          done
