@@ -10,12 +10,15 @@ async function emailPrize(lead,prize,at){
   const body=new URLSearchParams({_subject:`PIER PRIZE - ${lead.first_name} ${lead.last_name} - ${prize}`,_template:'table',_captcha:'false','Event':'Pompano Beach Pier Cleanup - 2026-09-12','Name':`${lead.first_name} ${lead.last_name}`,'Phone':lead.phone,'Email':lead.email,'ZIP':lead.zip,'Local ZIP':lead.is_local?'Yes':'No','Prize':prize,'Recorded At':at});
   return fetch('https://formsubmit.co/ajax/pompanobeach@f45training.com',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded;charset=UTF-8',accept:'application/json'},body:body.toString()});
 }
+function smsSafe(v){
+  return String(v||'').replace(/[–—]/g,'-').replace(/[’‘]/g,"'").replace(/[“”]/g,'"').normalize('NFKD').replace(/[^\x20-\x7E]/g,'').trim();
+}
 function prizeText(prize,correction){
-  const corrected=correction?'Correction — ':'';
+  const corrected=correction?'Correction: ':'';
   if(prize==='F45 Kettlebell Keychain'){
-    return `F45 Pompano: ${corrected}You won an F45 kettlebell keychain + 1 FREE class! Complete your first F45 class by Sat 9/19 to enter our bonus drawing for a Soundcore Boom 3i waterproof portable Bluetooth speaker + 2-pack of Owala SmoothSip Slider 20 oz tumblers ($130+ value). We'll reach out to help get you scheduled. Questions? 954-302-3889. Reply STOP to opt out.`;
+    return `F45 Pompano: ${corrected}You won a kettlebell keychain! We're gifting you 1 FREE class. Take it by 9/19 for our $130+ speaker + tumbler drawing. Reply STOP to opt out.`;
   }
-  return `F45 Pompano: ${corrected}You won ${prize} at the Pompano Pier event! Complete your first F45 class by Sat 9/19 to enter our bonus drawing for a Soundcore Boom 3i waterproof portable Bluetooth speaker + 2-pack of Owala SmoothSip Slider 20 oz tumblers ($130+ value). We'll reach out to help get you set up. Questions? 954-302-3889. Reply STOP to opt out.`;
+  return `F45 Pompano: ${corrected}You won ${smsSafe(prize)}! Take your first class by 9/19 for entry in our $130+ speaker + tumbler drawing. Reply STOP to opt out.`;
 }
 async function sendPrizeText(env,lead,prize,correction){
   if(!env.TELNYX_API_KEY)return {status:'not_configured',message_id:null,error_code:null};
@@ -37,7 +40,9 @@ export async function onRequestPost(context){
   const id=String(body.id||'').trim();
   const clear=body.prize===null||body.prize===''||body.prize==='__NONE__';
   const prize=clear?null:String(body.prize||'').trim();
-  if(!id||(!clear&&!PRIZES.includes(prize)))return json({ok:false,error:'invalid_prize'},400);
+  const custom=body.custom===true;
+  const validCustom=custom&&prize&&prize.length>=2&&prize.length<=35&&!/[\r\n]/.test(prize)&&prize!=='__NONE__';
+  if(!id||(!clear&&!PRIZES.includes(prize)&&!validCustom))return json({ok:false,error:'invalid_prize',message:'Choose a listed prize or enter a write-in prize up to 35 characters.'},400);
   try{
     await ensureSchema(env);
     const db=eventDb(env);
