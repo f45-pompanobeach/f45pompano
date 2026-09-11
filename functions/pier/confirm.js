@@ -1,0 +1,30 @@
+import {markConfirmed} from '../api/pier/_shared.js';
+
+const enc=new TextEncoder(),dec=new TextDecoder();
+function esc(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#039;')}
+function unb64(v){const p=v.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-v.length%4)%4),s=atob(p),a=new Uint8Array(s.length);for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a}
+function b64(a){let s='';for(const b of a)s+=String.fromCharCode(b);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'')}
+async function sign(v,secret){const k=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);const s=new Uint8Array(await crypto.subtle.sign('HMAC',k,enc.encode(v)));return b64(s.slice(0,12))}
+function equal(a,b){if(a.length!==b.length)return false;let n=0;for(let i=0;i<a.length;i++)n|=a.charCodeAt(i)^b.charCodeAt(i);return n===0}
+const css=`*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#EDF0F8;color:#111}.shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:min(560px,100%);background:#fff;border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 18px 48px rgba(28,28,46,.16);border-top:7px solid #E8272A}.check,.icon{margin:0 auto 14px;width:82px;height:82px;border-radius:50%;display:grid;place-items:center;font-size:44px;font-weight:900}.check{background:#E9FBEF;color:#16833B;border:3px solid #54C978}.icon{background:#FFF0F0;color:#B91C1C;border:3px solid #F1A6A6}.eyebrow{font-size:12px;font-weight:900;letter-spacing:2.2px;color:#16833B;margin-bottom:8px}h1{font-size:clamp(26px,7vw,38px);line-height:1.02;margin:0 0 12px;color:#1C1C2E;font-weight:900}.lead{font-size:18px;margin:0 0 18px;color:#4B5563}.visitor-note{display:block;width:100%;margin:2px 0 18px;padding:14px 16px;border-radius:10px;background:#FFF2F2;border:2px solid #E8272A;color:#B91C1C;font-size:18px;font-weight:900;letter-spacing:1.4px;text-align:center}.show{background:#1C1C2E;color:#fff;border-radius:12px;padding:19px 14px;margin-top:18px}.show b{display:block;font-size:14px;letter-spacing:1.2px}.show span{display:block;color:#FFCC00;font-size:12px;letter-spacing:1.5px;margin-top:8px}.fine{font-size:11px;color:#6B7280;margin:16px 0 0}.invalid p{color:#4B5563;line-height:1.55}.btn{display:block;background:#E8272A;color:#fff;text-decoration:none;padding:15px;border-radius:6px;font-size:14px;font-weight:900;letter-spacing:.8px;margin-top:20px}`;
+function page(o){
+  if(!o.valid){
+    const h=o.expired?'CONFIRMATION EXPIRED':'CONFIRMATION LINK INVALID';
+    const p=o.expired?'Your confirmation link is more than 20 minutes old. Return to the F45 entry form and submit again.':'This confirmation link could not be confirmed. Return to the F45 entry form and submit again.';
+    return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${h} | F45 Pompano</title><style>${css}</style></head><body><main class="shell"><section class="card invalid"><div class="icon">!</div><h1>${h}</h1><p>${p}</p><a class="btn" href="/pier/">RETURN TO ENTRY</a></section></main></body></html>`
+  }
+  const locality=o.local?'':`<div class="visitor-note">NON-LOCAL ZIP</div>`;
+  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Entry Confirmed | F45 Pompano</title><style>${css}</style></head><body><main class="shell"><section class="card"><div class="check">✓</div><div class="eyebrow">ENTRY CONFIRMED</div><h1>${esc(o.name.toUpperCase())}, YOU'RE CONFIRMED!</h1><p class="lead">Your entry has been confirmed.</p>${locality}<div class="show"><b>SHOW THIS SCREEN TO THE F45 TEAM</b><span>CONFIRMATION ${esc(o.code.toUpperCase())}</span></div><p class="fine">Event and studio eligibility rules apply.</p></section></main></body></html>`
+}
+function out(body,status=200){return new Response(body,{status,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store, max-age=0','x-robots-tag':'noindex, nofollow','x-content-type-options':'nosniff'}})}
+export async function onRequestGet(c){
+  const secret=c.env.PIER_TOKEN_SECRET||c.env.TELNYX_API_KEY;if(!secret)return out(page({valid:false}),503);
+  const t=String(new URL(c.request.url).searchParams.get('t')||''),x=t.split('.');if(x.length!==5)return out(page({valid:false}),400);
+  const [n,l,e,r,s]=x;if(!/^[01]$/.test(l)||!/^[a-z0-9]+$/i.test(e)||!/^[A-Za-z0-9_-]+$/.test(r)||!/^[A-Za-z0-9_-]+$/.test(s))return out(page({valid:false}),400);
+  const p=`${n}.${l}.${e}.${r}`;if(!equal(s,await sign(p,secret)))return out(page({valid:false}),400);
+  const exp=parseInt(e,36);if(!Number.isFinite(exp)||exp<Math.floor(Date.now()/1000))return out(page({valid:false,expired:true}),410);
+  let first;try{first=dec.decode(unb64(n)).slice(0,24)}catch{return out(page({valid:false}),400)}
+  try{await markConfirmed(c.env,r)}catch{}
+  return out(page({valid:true,name:first,local:l==='1',code:r.slice(-6)}));
+}
+export function onRequest(){return new Response('Method not allowed',{status:405})}
