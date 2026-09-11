@@ -1,3 +1,5 @@
+import {markConfirmed} from '../../api/pier/_shared.js';
+
 const enc=new TextEncoder(),dec=new TextDecoder();
 function esc(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#039;')}
 function unb64(v){const p=v.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-v.length%4)%4),s=atob(p),a=new Uint8Array(s.length);for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a}
@@ -17,5 +19,14 @@ function page(o){
   return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Entry Confirmed | F45 Pompano</title><style>${css}</style></head><body><main class="shell"><section class="card">${brand()}<div class="check">✓</div><div class="eyebrow">ENTRY CONFIRMED</div><h1>${esc(o.name.toUpperCase())}, YOU'RE CONFIRMED!</h1><p class="lead">Your entry has been confirmed.</p>${locality}<div class="show"><b>SHOW THIS SCREEN TO THE F45 TEAM</b><span>CONFIRMATION ${esc(o.code.toUpperCase())}</span></div><p class="fine">Event and studio eligibility rules apply.</p></section></main>${logoScript}</body></html>`
 }
 function out(body,status=200){return new Response(body,{status,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store, max-age=0','x-robots-tag':'noindex, nofollow','x-content-type-options':'nosniff'}})}
-export async function onRequestGet(c){const secret=c.env.PIER_TOKEN_SECRET||c.env.TELNYX_API_KEY;if(!secret)return out(page({valid:false}),503);const t=String(c.params.token||''),x=t.split('.');if(x.length!==5)return out(page({valid:false}),400);const [n,l,e,r,s]=x;if(!/^[01]$/.test(l)||!/^[a-z0-9]+$/i.test(e)||!/^[A-Za-z0-9_-]+$/.test(r))return out(page({valid:false}),400);const p=`${n}.${l}.${e}.${r}`;if(!equal(s,await sign(p,secret)))return out(page({valid:false}),400);const exp=parseInt(e,36);if(!Number.isFinite(exp)||exp<Math.floor(Date.now()/1000))return out(page({valid:false,expired:true}),410);let first;try{first=dec.decode(unb64(n)).slice(0,24)}catch{return out(page({valid:false}),400)}return out(page({valid:true,name:first,local:l==='1',code:r.slice(-6)}))}
+export async function onRequestGet(c){
+  const secret=c.env.PIER_TOKEN_SECRET||c.env.TELNYX_API_KEY;if(!secret)return out(page({valid:false}),503);
+  const t=String(c.params.token||''),x=t.split('.');if(x.length!==5)return out(page({valid:false}),400);
+  const [n,l,e,r,s]=x;if(!/^[01]$/.test(l)||!/^[a-z0-9]+$/i.test(e)||!/^[A-Za-z0-9_-]+$/.test(r))return out(page({valid:false}),400);
+  const p=`${n}.${l}.${e}.${r}`;if(!equal(s,await sign(p,secret)))return out(page({valid:false}),400);
+  const exp=parseInt(e,36);if(!Number.isFinite(exp)||exp<Math.floor(Date.now()/1000))return out(page({valid:false,expired:true}),410);
+  let first;try{first=dec.decode(unb64(n)).slice(0,24)}catch{return out(page({valid:false}),400)}
+  try{await markConfirmed(c.env,r)}catch{}
+  return out(page({valid:true,name:first,local:l==='1',code:r.slice(-6)}));
+}
 export function onRequest(){return new Response('Method not allowed',{status:405})}
