@@ -3,7 +3,7 @@ export const EVENT_NAME='Pompano Beach Pier Cleanup';
 export const EVENT_TYPE='community-event';
 export const EVENT_SOURCE='Event Table';
 export const EVENT_COACH='Jonathan';
-export const PRIZES=['F45 Kettlebell Keychain','1 Free Class','3 Free Classes','1 Week Unlimited','2 Weeks Unlimited','You + a Friend — 3 Classes Each'];
+export const PRIZES=['F45 Kettlebell Keychain','1 Free Class','3 Free Classes','1 Week Unlimited','2 Weeks Unlimited','You + Friend — 3 Free Classes Each'];
 const STAFF_PIN_HASH='27c07c5ddfa9e28d81ee804e4645378dccacbc94438f716f557d611f21092c5f';
 const enc=new TextEncoder();
 
