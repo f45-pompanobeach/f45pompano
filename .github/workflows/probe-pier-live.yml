@@ -11,50 +11,112 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
+      - name: Provision shared Pier D1 storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+            echo 'CLOUDFLARE_API_TOKEN is not available'
+            exit 2
+          fi
+          API='https://api.cloudflare.com/client/v4'
+          AUTH=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'Content-Type: application/json')
+
+          ZONE=$(curl -fsS "${AUTH[@]}" "$API/zones?name=f45pompano.com")
+          ACCOUNT_ID=$(printf '%s' "$ZONE" | jq -r '.result[0].account.id // empty')
+          test -n "$ACCOUNT_ID"
+          echo 'Cloudflare account resolved.'
+
+          PROJECTS=$(curl -fsS "${AUTH[@]}" "$API/accounts/$ACCOUNT_ID/pages/projects")
+          PROJECT_NAME=$(printf '%s' "$PROJECTS" | jq -r '.result[] | select((.domains // []) | index("f45pompano.com")) | .name' | head -1)
+          if [ -z "$PROJECT_NAME" ]; then
+            PROJECT_NAME=$(printf '%s' "$PROJECTS" | jq -r '.result[] | select(.source.config.repo_name=="f45pompano") | .name' | head -1)
+          fi
+          test -n "$PROJECT_NAME"
+          echo "Pages project: $PROJECT_NAME"
+
+          DBS=$(curl -fsS "${AUTH[@]}" "$API/accounts/$ACCOUNT_ID/d1/database?name=f45-pier-leads")
+          DB_ID=$(printf '%s' "$DBS" | jq -r '.result[0].uuid // empty')
+          if [ -z "$DB_ID" ]; then
+            CREATED=$(curl -fsS -X POST "${AUTH[@]}" "$API/accounts/$ACCOUNT_ID/d1/database" --data '{"name":"f45-pier-leads","primary_location_hint":"enam"}')
+            printf '%s' "$CREATED" | jq '{success,errors,result:{name:.result.name,uuid:.result.uuid}}'
+            DB_ID=$(printf '%s' "$CREATED" | jq -r '.result.uuid // empty')
+          fi
+          test -n "$DB_ID"
+          echo "D1 database ready: $DB_ID"
+
+          SQL='CREATE TABLE IF NOT EXISTS pier_leads (id TEXT PRIMARY KEY,event_key TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,first_name TEXT NOT NULL,last_name TEXT NOT NULL,email TEXT NOT NULL,phone TEXT NOT NULL,zip TEXT NOT NULL,is_local INTEGER NOT NULL DEFAULT 0,marketing_opt_in INTEGER NOT NULL DEFAULT 0,event_sms_consent INTEGER NOT NULL DEFAULT 1,confirmation_code TEXT,token_nonce TEXT,token_expires_at INTEGER,confirmed_at TEXT,sms_message_id TEXT,sms_delivery_status TEXT,sms_error_code TEXT,prize TEXT,prize_saved_at TEXT,prize_text_status TEXT,prize_text_message_id TEXT,prize_text_error_code TEXT); CREATE INDEX IF NOT EXISTS idx_pier_leads_event_created ON pier_leads(event_key,created_at DESC); CREATE INDEX IF NOT EXISTS idx_pier_leads_token_nonce ON pier_leads(token_nonce);'
+          Q=$(jq -nc --arg sql "$SQL" '{sql:$sql}')
+          SCHEMA=$(curl -fsS -X POST "${AUTH[@]}" "$API/accounts/$ACCOUNT_ID/d1/database/$DB_ID/query" --data "$Q")
+          test "$(printf '%s' "$SCHEMA" | jq -r '.success')" = 'true'
+          echo 'D1 schema ready.'
+
+          PROJECT=$(curl -fsS "${AUTH[@]}" "$API/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME")
+          PROD_D1=$(printf '%s' "$PROJECT" | jq -c '.result.deployment_configs.production.d1_databases // {}')
+          PREV_D1=$(printf '%s' "$PROJECT" | jq -c '.result.deployment_configs.preview.d1_databases // {}')
+          BINDING=$(jq -nc --arg id "$DB_ID" --argjson prod "$PROD_D1" --argjson prev "$PREV_D1" '{deployment_configs:{production:{d1_databases:($prod + {PIER_DB:{id:$id}})},preview:{d1_databases:($prev + {PIER_DB:{id:$id}})}}}')
+          PATCHED=$(curl -fsS -X PATCH "${AUTH[@]}" "$API/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME" --data "$BINDING")
+          printf '%s' "$PATCHED" | jq '{success,errors,result:{name:.result.name,production_d1:.result.deployment_configs.production.d1_databases,preview_d1:.result.deployment_configs.preview.d1_databases}}'
+          test "$(printf '%s' "$PATCHED" | jq -r '.success')" = 'true'
+          test "$(printf '%s' "$PATCHED" | jq -r '.result.deployment_configs.production.d1_databases.PIER_DB.id // empty')" = "$DB_ID"
+          echo 'PIER_DB binding configured.'
+
       - name: Wait for live host deployment
-        run: sleep 45
-      - name: Verify Pier booth workflow live
+        run: sleep 60
+
+      - name: Verify live shared dashboard deployment
         shell: bash
         run: |
           set -euo pipefail
 
           echo '===== ENTRY PAGE ====='
           PAGE=$(mktemp)
-          PCODE=$(curl -L --max-time 30 -sS -o "$PAGE" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=nonlocal-prominent-final')
+          PCODE=$(curl -L --max-time 30 -sS -o "$PAGE" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=live-dashboard-final')
           echo "PAGE_HTTP: $PCODE"
           echo "PAGE_TITLE: $(grep -io '<title>[^<]*' "$PAGE" | head -1 | sed 's/<title>//I')"
           echo "GENERIC_CONSENT_COUNT: $(grep -Foc 'related to my entry, including entry confirmation, prize notifications, and prize redemption or setup follow-up' "$PAGE" || true)"
           echo "TWENTY_MIN_COUNT: $(grep -Foc 'expires in 20 minutes' "$PAGE" || true)"
-          test "$PCODE" = "200"
+          test "$PCODE" = '200'
           test "$(grep -Foc 'related to my entry, including entry confirmation, prize notifications, and prize redemption or setup follow-up' "$PAGE" || true)" -eq 1
           test "$(grep -Foc 'expires in 20 minutes' "$PAGE" || true)" -eq 1
 
-          echo '===== STAFF LOGGER ====='
+          echo '===== STAFF DASHBOARD ====='
           STAFF=$(mktemp)
-          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=nonlocal-prominent-final')
+          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=live-dashboard-final')
           echo "STAFF_HTTP: $SCODE"
-          echo "LOGGER_COUNT: $(grep -Foc 'F45 Pier Prize Logger' "$STAFF" || true)"
-          test "$SCODE" = "200"
-          test "$(grep -Foc 'F45 Pier Prize Logger' "$STAFF" || true)" -ge 1
+          echo "DASHBOARD_COUNT: $(grep -Foc 'F45 Event Lead Dashboard' "$STAFF" || true)"
+          test "$SCODE" = '200'
+          test "$(grep -Foc 'F45 Event Lead Dashboard' "$STAFF" || true)" -ge 1
 
           echo '===== API HEALTH ====='
           HEALTH=$(mktemp)
-          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=nonlocal-prominent-final')
+          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=live-dashboard-final')
           echo "HEALTH_HTTP: $HCODE"
           echo "HEALTH_BODY: $(cat "$HEALTH")"
-          test "$HCODE" = "200"
+          test "$HCODE" = '200'
           grep -q '"telnyx_configured":true' "$HEALTH"
+          grep -q '"d1_configured":true' "$HEALTH"
+          grep -q '"d1_ok":true' "$HEALTH"
+          grep -q '"staff_dashboard":true' "$HEALTH"
           grep -q '"assignment_status":"ASSIGNED"' "$HEALTH"
+
+          echo '===== STAFF AUTH ====='
+          AUTH_BODY=$(mktemp)
+          ACODE=$(curl -L --max-time 30 -sS -o "$AUTH_BODY" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/staff/leads')
+          echo "UNAUTH_STAFF_HTTP: $ACODE"
+          echo "UNAUTH_STAFF_BODY: $(cat "$AUTH_BODY")"
+          test "$ACODE" = '401'
+          grep -q '"unauthorized"' "$AUTH_BODY"
 
           echo '===== CONFIRMATION ROUTE ====='
           CONF=$(mktemp)
           CCODE=$(curl -L --max-time 30 -sS -o "$CONF" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/pier/v/not-a-valid-token')
           echo "CONFIRM_HTTP: $CCODE"
           echo "GENERIC_INVALID_COUNT: $(grep -Foc 'Return to the F45 entry form and submit again.' "$CONF" || true)"
-          echo "PROMINENT_NONLOCAL_STYLE_COUNT: $(grep -Foc '.visitor-note{display:block;width:100%;margin:2px 0 18px;padding:14px 16px' "$CONF" || true)"
-          test "$CCODE" = "400"
+          test "$CCODE" = '400'
           test "$(grep -Foc 'Return to the F45 entry form and submit again.' "$CONF" || true)" -eq 1
-          test "$(grep -Foc '.visitor-note{display:block;width:100%;margin:2px 0 18px;padding:14px 16px' "$CONF" || true)" -eq 1
 
-          rm -f "$PAGE" "$STAFF" "$HEALTH" "$CONF"
+          rm -f "$PAGE" "$STAFF" "$HEALTH" "$AUTH_BODY" "$CONF"
