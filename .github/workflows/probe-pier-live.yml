@@ -14,23 +14,45 @@ jobs:
     steps:
       - name: Wait for live host deployment
         run: sleep 45
-      - name: Inspect recent Pier SMS delivery records
+      - name: Verify Pier booth workflow live
         shell: bash
         run: |
           set -euo pipefail
+
+          echo '===== ENTRY PAGE ====='
+          PAGE=$(mktemp)
+          PCODE=$(curl -L --max-time 30 -sS -o "$PAGE" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=booth-final')
+          echo "PAGE_HTTP: $PCODE"
+          echo "PAGE_TITLE: $(grep -io '<title>[^<]*' "$PAGE" | head -1 | sed 's/<title>//I')"
+          echo "NEXT_ENTRY_COUNT: $(grep -Foc 'Start Next Entry' "$PAGE" || true)"
+          test "$PCODE" = "200"
+          test "$(grep -Foc 'Start Next Entry' "$PAGE" || true)" -eq 1
+
+          echo '===== STAFF LOGGER ====='
+          STAFF=$(mktemp)
+          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=booth-final')
+          echo "STAFF_HTTP: $SCODE"
+          echo "LOGGER_COUNT: $(grep -Foc 'F45 Pier Prize Logger' "$STAFF" || true)"
+          echo "EXPORT_COUNT: $(grep -Foc 'Export CSV' "$STAFF" || true)"
+          test "$SCODE" = "200"
+          test "$(grep -Foc 'F45 Pier Prize Logger' "$STAFF" || true)" -ge 1
+          test "$(grep -Foc 'Export CSV' "$STAFF" || true)" -eq 1
+
           echo '===== API HEALTH ====='
           HEALTH=$(mktemp)
-          CODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=diag-c7c7e764')
-          echo "HEALTH_HTTP: $CODE"
+          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=booth-final')
+          echo "HEALTH_HTTP: $HCODE"
           echo "HEALTH_BODY: $(cat "$HEALTH")"
-          test "$CODE" = "200"
+          test "$HCODE" = "200"
+          grep -q '"telnyx_configured":true' "$HEALTH"
           grep -q '"assignment_status":"ASSIGNED"' "$HEALTH"
 
-          echo '===== RECENT SMS DETAIL RECORDS ====='
-          DIAG=$(mktemp)
-          DCODE=$(curl -L --max-time 30 -sS -o "$DIAG" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/diag?probe=c7c7e764')
-          echo "DIAG_HTTP: $DCODE"
-          echo "DIAG_BODY: $(cat "$DIAG")"
-          test "$DCODE" = "200"
-          grep -q '"ok":true' "$DIAG"
-          rm -f "$HEALTH" "$DIAG"
+          echo '===== CONFIRMATION ROUTE ====='
+          CONF=$(mktemp)
+          CCODE=$(curl -L --max-time 30 -sS -o "$CONF" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/pier/v/not-a-valid-token')
+          echo "CONFIRM_HTTP: $CCODE"
+          echo "CONFIRM_INVALID_COUNT: $(grep -Foc 'CONFIRMATION LINK INVALID' "$CONF" || true)"
+          test "$CCODE" = "400"
+          test "$(grep -Foc 'CONFIRMATION LINK INVALID' "$CONF" || true)" -ge 1
+
+          rm -f "$PAGE" "$STAFF" "$HEALTH" "$CONF"
