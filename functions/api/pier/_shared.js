@@ -73,9 +73,8 @@ export async function markConfirmed(env,nonce){
 }
 async function sha256Hex(value){const b=new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(String(value||''))));return [...b].map(x=>x.toString(16).padStart(2,'0')).join('')}
 function equal(a,b){if(a.length!==b.length)return false;let n=0;for(let i=0;i<a.length;i++)n|=a.charCodeAt(i)^b.charCodeAt(i);return n===0}
-export async function staffAuthorized(request,env){
+export async function staffAuthorized(request){
   const pin=request.headers.get('x-pier-staff-pin')||'';
   if(!pin)return false;
-  const expected=String(env?.PIER_STAFF_PIN_SHA256||STAFF_PIN_HASH).toLowerCase();
-  return equal(await sha256Hex(pin),expected);
+  return equal(await sha256Hex(pin),STAFF_PIN_HASH);
 }
