@@ -82,7 +82,7 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
       </form>
 
       <div class="notice" id="ok"><div class="notice-icon">📱</div><h2>Check Your Phone</h2><p id="okp">We sent your F45 confirmation text.</p><div class="steps"><strong>Next step:</strong><br>Open the text from F45 Pompano Beach and tap the confirmation link. Then show the confirmed screen to the F45 coach or representative.</div></div>
-      <div class="notice error" id="err"><div class="notice-icon">!</div><h2>Text Not Sent</h2><p id="errp">Please check your information and try again.</p></div>
+      <div class="notice error" id="err"><div class="notice-icon">!</div><h2 id="errh">Text Not Sent</h2><p id="errp">Please check your information and try again.</p></div>
     </section>
 
     <div class="footer">F45 Training Pompano Beach · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></div>
@@ -90,7 +90,7 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
 </main>
 <script>
 (()=>{
-  const f=document.getElementById('f'),b=document.getElementById('b'),ok=document.getElementById('ok'),err=document.getElementById('err'),errp=document.getElementById('errp');
+  const f=document.getElementById('f'),b=document.getElementById('b'),ok=document.getElementById('ok'),err=document.getElementById('err'),errh=document.getElementById('errh'),errp=document.getElementById('errp');
   const logo=document.getElementById('brandLogo');
   fetch('/',{cache:'force-cache'}).then(r=>r.ok?r.text():Promise.reject()).then(html=>{
     const doc=new DOMParser().parseFromString(html,'text/html');
@@ -98,16 +98,35 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
     const src=original&&original.getAttribute('src');
     if(src){logo.src=src;logo.classList.add('loaded')}
   }).catch(()=>{});
-  function fail(m){errp.textContent=m||'Please check your information and try again.';err.classList.add('show');err.scrollIntoView({behavior:'smooth',block:'center'})}
+  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  function fail(m,title='Text Not Sent'){errh.textContent=title;errp.textContent=m||'Please check your information and try again.';err.classList.add('show');err.scrollIntoView({behavior:'smooth',block:'center'})}
+  function success(name){f.style.display='none';document.getElementById('okp').textContent=`Thanks, ${name}. Your F45 confirmation text was delivered. The link expires in 30 minutes.`;ok.classList.add('show');ok.scrollIntoView({behavior:'smooth',block:'center'})}
+  async function pollDelivery(id){
+    if(!id)return {pending:true};
+    for(let i=0;i<8;i++){
+      await wait(1500);
+      try{
+        const r=await fetch(`/api/pier/status?id=${encodeURIComponent(id)}`,{cache:'no-store'}),j=await r.json().catch(()=>({}));
+        if(r.ok&&j.ok){if(j.delivered)return {delivered:true};if(j.failed)return {failed:true,code:j.error_code||null}}
+      }catch{}
+    }
+    return {pending:true};
+  }
   f.addEventListener('submit',async e=>{
-    e.preventDefault();err.classList.remove('show');if(!f.reportValidity())return;
+    e.preventDefault();err.classList.remove('show');ok.classList.remove('show');if(!f.reportValidity())return;
     const z=document.getElementById('zp').value.trim();if(!/^\d{5}$/.test(z)){fail('Please enter your 5-digit home ZIP code.');return}
     b.disabled=true;b.textContent='Sending Text...';
     const p={first_name:document.getElementById('fn').value.trim(),last_name:document.getElementById('ln').value.trim(),phone:document.getElementById('ph').value.trim(),email:document.getElementById('em').value.trim(),zip:z,website:document.getElementById('web').value,verification_consent:document.getElementById('vc').checked,terms_accepted:document.getElementById('tc').checked,marketing_opt_in:document.getElementById('mk').checked};
     try{
       const r=await fetch('/api/pier/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(p)}),j=await r.json().catch(()=>({}));
       if(!r.ok||!j.ok)throw new Error(j.message||'We could not send the confirmation text. Please try again.');
-      f.style.display='none';document.getElementById('okp').textContent=`Thanks, ${j.first_name||p.first_name}. We sent your F45 confirmation link. It expires in 30 minutes.`;ok.classList.add('show');ok.scrollIntoView({behavior:'smooth',block:'center'});
+      if(j.delivered){success(j.first_name||p.first_name);return}
+      b.textContent='Confirming Delivery...';
+      const d=await pollDelivery(j.message_id);
+      if(d.failed)throw new Error('The confirmation text could not be delivered. Please check your mobile number and try again.');
+      if(d.delivered){success(j.first_name||p.first_name);return}
+      fail('Telnyx accepted the text, but the carrier has not confirmed delivery yet. Please wait about 30 seconds before trying again.','Still Sending');
+      b.disabled=false;b.textContent='Submit & Get Text';
     }catch(x){fail(x.message);b.disabled=false;b.textContent='Submit & Get Text'}
   });
 })();
