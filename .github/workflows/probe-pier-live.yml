@@ -13,16 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Wait for live host deployment
-        run: sleep 60
+        run: sleep 75
 
-      - name: Verify live dashboard code and report storage state
+      - name: Verify live dashboard and EVENT_DB
         shell: bash
         run: |
           set -euo pipefail
 
           echo '===== ENTRY PAGE ====='
           PAGE=$(mktemp)
-          PCODE=$(curl -L --max-time 30 -sS -o "$PAGE" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=dashboard-code-final')
+          PCODE=$(curl -L --max-time 30 -sS -o "$PAGE" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=eventdb-bound-final')
           echo "PAGE_HTTP: $PCODE"
           echo "GENERIC_CONSENT_COUNT: $(grep -Foc 'related to my entry, including entry confirmation, prize notifications, and prize redemption or setup follow-up' "$PAGE" || true)"
           echo "TWENTY_MIN_COUNT: $(grep -Foc 'expires in 20 minutes' "$PAGE" || true)"
@@ -32,7 +32,7 @@ jobs:
 
           echo '===== STAFF DASHBOARD ====='
           STAFF=$(mktemp)
-          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=dashboard-code-final')
+          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=eventdb-bound-final')
           echo "STAFF_HTTP: $SCODE"
           echo "DASHBOARD_COUNT: $(grep -Foc 'F45 Event Lead Dashboard' "$STAFF" || true)"
           echo "LIVE_LIST_COUNT: $(grep -Foc '/api/pier/staff/leads' "$STAFF" || true)"
@@ -40,13 +40,18 @@ jobs:
           test "$(grep -Foc 'F45 Event Lead Dashboard' "$STAFF" || true)" -ge 1
           test "$(grep -Foc '/api/pier/staff/leads' "$STAFF" || true)" -ge 1
 
-          echo '===== API HEALTH ====='
+          echo '===== API HEALTH / DATABASE ====='
           HEALTH=$(mktemp)
-          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=dashboard-code-final')
+          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=eventdb-bound-final')
           echo "HEALTH_HTTP: $HCODE"
           echo "HEALTH_BODY: $(cat "$HEALTH")"
           test "$HCODE" = '200'
+          grep -q '"service":"event-lead-verification"' "$HEALTH"
           grep -q '"telnyx_configured":true' "$HEALTH"
+          grep -q '"d1_configured":true' "$HEALTH"
+          grep -q '"d1_ok":true' "$HEALTH"
+          grep -q '"schema_ready":true' "$HEALTH"
+          grep -q '"database_binding":"EVENT_DB"' "$HEALTH"
           grep -q '"staff_dashboard":true' "$HEALTH"
           grep -q '"assignment_status":"ASSIGNED"' "$HEALTH"
 
