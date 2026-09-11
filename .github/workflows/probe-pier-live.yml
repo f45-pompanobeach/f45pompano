@@ -19,22 +19,19 @@ jobs:
         run: |
           set -euo pipefail
           PAGE=$(mktemp)
-          curl -L --max-time 30 -sS -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=final-5a0b9421' -o "$PAGE"
+          curl -L --max-time 30 -sS -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=10dlc-88f71f4f' -o "$PAGE"
           echo "TITLE: $(grep -io '<title>[^<]*' "$PAGE" | head -1 | sed 's/<title>//I')"
           echo "SPIN_COUNT: $(grep -io 'Spin to Win' "$PAGE" | wc -l | tr -d ' ')"
-          echo "NO_PHONE_HELP_COUNT: $(grep -Foc 'No phone with you?' "$PAGE" || true)"
-          test "$(grep -io 'Spin to Win' "$PAGE" | wc -l | tr -d ' ')" -gt 0
-          test "$(grep -Foc 'No phone with you?' "$PAGE" || true)" -eq 0
+          echo "RECURRING_CTA_COUNT: $(grep -Foc 'I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach' "$PAGE" || true)"
+          echo "STOP_COUNT: $(grep -Foc 'Reply STOP to opt out or HELP for help.' "$PAGE" || true)"
+          echo "RATES_COUNT: $(grep -Foc 'Message and data rates may apply.' "$PAGE" || true)"
+          test "$(grep -Foc 'I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach' "$PAGE" || true)" -eq 1
+          test "$(grep -Foc 'Reply STOP to opt out or HELP for help.' "$PAGE" || true)" -eq 1
+          test "$(grep -Foc 'Message and data rates may apply.' "$PAGE" || true)" -ge 2
 
           echo '===== API HEALTH ====='
           HEALTH=$(mktemp)
-          CODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=final-5a0b9421')
+          CODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=10dlc-88f71f4f')
           echo "HEALTH_HTTP: $CODE"
           echo "HEALTH_BODY: $(cat "$HEALTH")"
-
-          echo '===== REGISTER ROUTE ====='
-          REG=$(mktemp)
-          RCODE=$(curl -L --max-time 30 -sS -o "$REG" -w '%{http_code}' -X POST -H 'content-type: application/json' --data '{}' 'https://f45pompano.com/api/pier/register')
-          echo "REGISTER_HTTP: $RCODE"
-          echo "REGISTER_BODY: $(cat "$REG")"
-          rm -f "$PAGE" "$HEALTH" "$REG"
+          rm -f "$PAGE" "$HEALTH"
