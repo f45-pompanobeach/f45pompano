@@ -21,7 +21,7 @@ jobs:
 
           echo '===== ENTRY PAGE ====='
           PAGE=$(mktemp)
-          PCODE=$(curl -L --max-time 30 -sS -o "$PAGE" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=generic-entry-final')
+          PCODE=$(curl -L --max-time 30 -sS -o "$PAGE" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=nonlocal-prominent-final')
           echo "PAGE_HTTP: $PCODE"
           echo "PAGE_TITLE: $(grep -io '<title>[^<]*' "$PAGE" | head -1 | sed 's/<title>//I')"
           echo "GENERIC_CONSENT_COUNT: $(grep -Foc 'related to my entry, including entry confirmation, prize notifications, and prize redemption or setup follow-up' "$PAGE" || true)"
@@ -32,7 +32,7 @@ jobs:
 
           echo '===== STAFF LOGGER ====='
           STAFF=$(mktemp)
-          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=generic-entry-final')
+          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=nonlocal-prominent-final')
           echo "STAFF_HTTP: $SCODE"
           echo "LOGGER_COUNT: $(grep -Foc 'F45 Pier Prize Logger' "$STAFF" || true)"
           test "$SCODE" = "200"
@@ -40,7 +40,7 @@ jobs:
 
           echo '===== API HEALTH ====='
           HEALTH=$(mktemp)
-          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=generic-entry-final')
+          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=nonlocal-prominent-final')
           echo "HEALTH_HTTP: $HCODE"
           echo "HEALTH_BODY: $(cat "$HEALTH")"
           test "$HCODE" = "200"
@@ -52,7 +52,9 @@ jobs:
           CCODE=$(curl -L --max-time 30 -sS -o "$CONF" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/pier/v/not-a-valid-token')
           echo "CONFIRM_HTTP: $CCODE"
           echo "GENERIC_INVALID_COUNT: $(grep -Foc 'Return to the F45 entry form and submit again.' "$CONF" || true)"
+          echo "PROMINENT_NONLOCAL_STYLE_COUNT: $(grep -Foc '.visitor-note{display:block;width:100%;margin:2px 0 18px;padding:14px 16px' "$CONF" || true)"
           test "$CCODE" = "400"
           test "$(grep -Foc 'Return to the F45 entry form and submit again.' "$CONF" || true)" -eq 1
+          test "$(grep -Foc '.visitor-note{display:block;width:100%;margin:2px 0 18px;padding:14px 16px' "$CONF" || true)" -eq 1
 
           rm -f "$PAGE" "$STAFF" "$HEALTH" "$CONF"
