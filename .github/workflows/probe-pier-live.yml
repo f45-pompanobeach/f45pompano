@@ -22,27 +22,28 @@ jobs:
 
           echo '===== ENTRY PAGE ====='
           PAGE=$(mktemp)
-          PCODE=$(curl -L --max-time 30 -sS -o "$PAGE" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=eventdb-schema-final')
+          PCODE=$(curl -L --max-time 30 -sS -o "$PAGE" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=staff-controls-final')
           echo "PAGE_HTTP: $PCODE"
-          echo "GENERIC_CONSENT_COUNT: $(grep -Foc 'related to my entry, including entry confirmation, prize notifications, and prize redemption or setup follow-up' "$PAGE" || true)"
-          echo "TWENTY_MIN_COUNT: $(grep -Foc 'expires in 20 minutes' "$PAGE" || true)"
           test "$PCODE" = '200'
           test "$(grep -Foc 'related to my entry, including entry confirmation, prize notifications, and prize redemption or setup follow-up' "$PAGE" || true)" -eq 1
           test "$(grep -Foc 'expires in 20 minutes' "$PAGE" || true)" -eq 1
 
           echo '===== STAFF DASHBOARD ====='
           STAFF=$(mktemp)
-          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=eventdb-schema-final')
+          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=staff-controls-final')
           echo "STAFF_HTTP: $SCODE"
-          echo "DASHBOARD_COUNT: $(grep -Foc 'F45 Event Lead Dashboard' "$STAFF" || true)"
-          echo "LIVE_LIST_COUNT: $(grep -Foc '/api/pier/staff/leads' "$STAFF" || true)"
           test "$SCODE" = '200'
-          test "$(grep -Foc 'F45 Event Lead Dashboard' "$STAFF" || true)" -ge 1
-          test "$(grep -Foc '/api/pier/staff/leads' "$STAFF" || true)" -ge 1
+          grep -Fq 'F45 Event Lead Dashboard' "$STAFF"
+          grep -Fq 'You + Friend — 3 Free Classes Each' "$STAFF"
+          grep -Fq 'None / Reset' "$STAFF"
+          grep -Fq 'Delete Lead' "$STAFF"
+          grep -Fq '/api/pier/staff/delete' "$STAFF"
+          ! grep -Fq 'Double Grand-Prize Entry' "$STAFF"
+          ! grep -Fq 'Grand-Prize Entry — 1 Month Unlimited' "$STAFF"
 
           echo '===== API HEALTH / DATABASE ====='
           HEALTH=$(mktemp)
-          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=eventdb-schema-final')
+          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=staff-controls-final')
           echo "HEALTH_HTTP: $HCODE"
           echo "HEALTH_BODY: $(cat "$HEALTH")"
           test "$HCODE" = '200'
@@ -60,7 +61,6 @@ jobs:
           AUTH_BODY=$(mktemp)
           ACODE=$(curl -L --max-time 30 -sS -o "$AUTH_BODY" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/staff/leads')
           echo "UNAUTH_STAFF_HTTP: $ACODE"
-          echo "UNAUTH_STAFF_BODY: $(cat "$AUTH_BODY")"
           test "$ACODE" = '401'
           grep -q '"unauthorized"' "$AUTH_BODY"
 
@@ -68,7 +68,6 @@ jobs:
           CONF=$(mktemp)
           CCODE=$(curl -L --max-time 30 -sS -o "$CONF" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/pier/v/not-a-valid-token')
           echo "CONFIRM_HTTP: $CCODE"
-          echo "GENERIC_INVALID_COUNT: $(grep -Foc 'Return to the F45 entry form and submit again.' "$CONF" || true)"
           test "$CCODE" = '400'
           test "$(grep -Foc 'Return to the F45 entry form and submit again.' "$CONF" || true)" -eq 1
 
