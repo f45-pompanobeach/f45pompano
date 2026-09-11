@@ -1,3 +1,4 @@
+// Deployment refresh: load current Cloudflare environment secrets.
 export function onRequestGet({ env }) {
   return new Response(JSON.stringify({
     ok: true,
@@ -9,7 +10,7 @@ export function onRequestGet({ env }) {
     headers: {
       'content-type': 'application/json; charset=utf-8',
       'cache-control': 'no-store',
-      'x-content-type-options': 'nosniff'
+      'x-content-type-options':'nosniff'
     }
   });
 }
