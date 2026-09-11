@@ -62,7 +62,7 @@ export async function onRequestPost(context){
   const leadBase={id:leadId,first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,created_at:createdAt,token_nonce:tokenNonce,token_expires_at:tokenExpiresAt,sms_delivery_status:'pending_send'};
   try{await insertLead(env,leadBase)}catch{}
 
-  const confirmUrl=`${new URL(request.url).origin}/pier/v/${t}`;
+  const confirmUrl=`https://f45pompano.com/pier/confirm?t=${encodeURIComponent(t)}`;
   const text=`F45 Pompano: Confirm entry: ${confirmUrl} Reply STOP to opt out.`;
   let r; try{r=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify({from:env.TELNYX_FROM_NUMBER||'+17543463010',to:p,text})})}catch{
     try{await updateLeadSms(env,leadId,{status:'send_error'})}catch{}
