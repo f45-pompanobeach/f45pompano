@@ -13,9 +13,9 @@ async function emailPrize(lead,prize,at){
 function prizeText(prize,correction){
   const corrected=correction?'Correction — ':'';
   if(prize==='F45 Kettlebell Keychain'){
-    return `F45 Pompano: ${corrected}Thanks for visiting F45 Pompano Beach at the Pompano Pier event! You won an F45 kettlebell keychain. As a thank-you for visiting us, local residents can get our 3-class trial for 50% off — just $15 instead of $30. Questions? Call 954-302-3889. Reply STOP to opt out.`;
+    return `F45 Pompano: ${corrected}You won an F45 kettlebell keychain + 1 FREE class! Complete your first F45 class by Sat 9/19 to enter our bonus drawing for a Soundcore Boom 3i waterproof portable Bluetooth speaker + 2-pack of Owala SmoothSip Slider 20 oz tumblers ($130+ value). We'll reach out to help get you scheduled. Questions? 954-302-3889. Reply STOP to opt out.`;
   }
-  return `F45 Pompano: ${corrected}You won ${prize} at the Pompano Pier event! Someone from F45 Pompano Beach will reach out soon to help get you set up. Questions? Call 954-302-3889. Reply STOP to opt out.`;
+  return `F45 Pompano: ${corrected}You won ${prize} at the Pompano Pier event! Complete your first F45 class by Sat 9/19 to enter our bonus drawing for a Soundcore Boom 3i waterproof portable Bluetooth speaker + 2-pack of Owala SmoothSip Slider 20 oz tumblers ($130+ value). We'll reach out to help get you set up. Questions? 954-302-3889. Reply STOP to opt out.`;
 }
 async function sendPrizeText(env,lead,prize,correction){
   if(!env.TELNYX_API_KEY)return {status:'not_configured',message_id:null,error_code:null};
