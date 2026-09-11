@@ -11,6 +11,7 @@ export async function onRequestGet({ env }) {
     d1_ok: false,
     schema_ready: false,
     database_binding: env.EVENT_DB ? 'EVENT_DB' : (env.PIER_DB ? 'PIER_DB' : null),
+    database_error: null,
     staff_dashboard: true,
     sender,
     commit: env.CF_PAGES_COMMIT_SHA || null,
@@ -23,9 +24,10 @@ export async function onRequestGet({ env }) {
       result.schema_ready=await ensureSchema(env);
       const q=await db.prepare('SELECT 1 AS ok').first();
       result.d1_ok=Number(q?.ok)===1;
-    } catch {
+    } catch (e) {
       result.d1_ok=false;
       result.schema_ready=false;
+      result.database_error=String(e?.message||e||'unknown_database_error').slice(0,500);
     }
   }
 
