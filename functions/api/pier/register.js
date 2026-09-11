@@ -1,3 +1,5 @@
+import {insertLead,updateLeadSms} from './_shared.js';
+
 const LOCAL_ZIPS = new Set(['33062','33060','33064','33069','33334','33308','33309','33441']);
 const enc = new TextEncoder();
 const FINAL_FAILURES = new Set(['failed','sending_failed','delivery_failed','gw_timeout','dlr_timeout']);
@@ -51,19 +53,31 @@ export async function onRequestPost(context){
   if(!/^\S+@\S+\.\S+$/.test(e))return reply({ok:false,message:'Please enter a valid email address.'},400);
   if(!p)return reply({ok:false,message:'Please enter a valid U.S. mobile number.'},400);
   if(!z)return reply({ok:false,message:'Please enter a valid 5-digit ZIP code.'},400);
-  if(d.verification_consent!==true||d.terms_accepted!==true)return reply({ok:false,message:'Please accept the required terms and confirmation-text consent.'},400);
+  if(d.verification_consent!==true||d.terms_accepted!==true)return reply({ok:false,message:'Please accept the required terms and entry-text consent.'},400);
   if(!env.TELNYX_API_KEY)return reply({ok:false,error:'sms_not_configured',message:'Confirmation texting is not configured yet. Please ask the F45 team for help.'},503);
 
   const isLocal=LOCAL_ZIPS.has(z), t=await token(firstName,isLocal,env.PIER_TOKEN_SECRET||env.TELNYX_API_KEY);
-  const parts=t.split('.'), confirmationCode=String(parts[3]||'').slice(-6).toUpperCase();
+  const parts=t.split('.'), confirmationCode=String(parts[3]||'').slice(-6).toUpperCase(), tokenNonce=String(parts[3]||''), tokenExpiresAt=parseInt(parts[2],36);
+  const leadId=crypto.randomUUID(),createdAt=new Date().toISOString();
+  const leadBase={id:leadId,first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,created_at:createdAt,token_nonce:tokenNonce,token_expires_at:tokenExpiresAt,sms_delivery_status:'pending_send'};
+  try{await insertLead(env,leadBase)}catch{}
+
   const confirmUrl=`${new URL(request.url).origin}/pier/v/${t}`;
   const text=`F45 Pompano: Confirm entry: ${confirmUrl} Reply STOP to opt out.`;
-  let r; try{r=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify({from:env.TELNYX_FROM_NUMBER||'+17543463010',to:p,text})})}catch{return reply({ok:false,message:'We could not send the confirmation text. Please try again.'},502)}
+  let r; try{r=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify({from:env.TELNYX_FROM_NUMBER||'+17543463010',to:p,text})})}catch{
+    try{await updateLeadSms(env,leadId,{status:'send_error'})}catch{}
+    return reply({ok:false,message:'We could not send the confirmation text. Please try again.'},502)
+  }
   let sendJson={}; try{sendJson=await r.json()}catch{}
-  if(!r.ok){const code=sendJson?.errors?.[0]?.code||null;return reply({ok:false,error:'sms_rejected',provider_status:r.status,provider_code:code,message:'We could not send the confirmation text. Please check your mobile number or ask the F45 team for help.'},502)}
+  if(!r.ok){
+    const code=sendJson?.errors?.[0]?.code||null;
+    try{await updateLeadSms(env,leadId,{status:'rejected',error_code:code})}catch{}
+    return reply({ok:false,error:'sms_rejected',provider_status:r.status,provider_code:code,message:'We could not send the confirmation text. Please check your mobile number or ask the F45 team for help.'},502)
+  }
 
   const messageId=sendJson?.data?.id||null;
   let state=smsState(sendJson?.data);
+  try{await updateLeadSms(env,leadId,{message_id:messageId,status:state.status||'accepted',error_code:state.error_code})}catch{}
   if(FINAL_FAILURES.has(state.status)||state.error_code){
     return reply({ok:false,error:'sms_delivery_failed',provider_code:state.error_code,provider_delivery_status:state.status,message:'The confirmation text could not be delivered. Please check your mobile number and try again.'},502);
   }
@@ -74,6 +88,7 @@ export async function onRequestPost(context){
       const latest=await retrieveMessage(messageId,env.TELNYX_API_KEY);
       if(!latest)continue;
       state={status:latest.status,error_code:latest.error_code,error_title:latest.error_title};
+      try{await updateLeadSms(env,leadId,{message_id:messageId,status:state.status||'accepted',error_code:state.error_code})}catch{}
       if(FINAL_SUCCESS.has(state.status)||FINAL_FAILURES.has(state.status)||state.error_code)break;
     }
   }
@@ -82,8 +97,8 @@ export async function onRequestPost(context){
     return reply({ok:false,error:'sms_delivery_failed',provider_code:state.error_code,provider_delivery_status:state.status,message:'The confirmation text could not be delivered. Please check your mobile number and try again.'},502);
   }
 
-  const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:new Date().toISOString(),delivery_status:state.status||'accepted'};
+  const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:createdAt,delivery_status:state.status||'accepted'};
   context.waitUntil(emailLead(lead).catch(()=>{}));
-  return reply({ok:true,sent:true,first_name:firstName,local_zip:isLocal,confirmation_code:confirmationCode,expires_minutes:20,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
+  return reply({ok:true,sent:true,lead_id:leadId,first_name:firstName,local_zip:isLocal,confirmation_code:confirmationCode,expires_minutes:20,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
 }
 export function onRequest(){return reply({ok:false,error:'method_not_allowed'},405)}
