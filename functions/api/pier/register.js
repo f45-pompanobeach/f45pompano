@@ -27,7 +27,7 @@ async function emailLead(lead){
   const body=new URLSearchParams({
     _subject:`PIER Lead - ${lead.first_name} ${lead.last_name}`,_template:'table',_captcha:'false',
     'Lead Source':'Pompano Beach Pier Cleanup - 2026-09-12','Event Coach':'Jonathan','First Name':lead.first_name,'Last Name':lead.last_name,
-    Email:lead.email,Phone:lead.phone,ZIP:lead.zip,'Local ZIP':lead.is_local?'Yes':'No','Grand Prize Eligible':lead.is_local?'Yes':'No',
+    Email:lead.email,Phone:lead.phone,ZIP:lead.zip,'Confirmation Code':lead.confirmation_code,'Local ZIP':lead.is_local?'Yes':'No','Grand Prize Eligible':lead.is_local?'Yes':'No',
     'Confirmation SMS':'Accepted','SMS Delivery Status':lead.delivery_status||'unknown','Marketing SMS Opt-In':lead.marketing_opt_in?'Yes':'No','Submitted At':lead.submitted_at
   });
   return fetch('https://formsubmit.co/ajax/pompanobeach@f45training.com',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded;charset=UTF-8',accept:'application/json'},body:body.toString()});
@@ -55,6 +55,7 @@ export async function onRequestPost(context){
   if(!env.TELNYX_API_KEY)return reply({ok:false,error:'sms_not_configured',message:'Confirmation texting is not configured yet. Please ask the F45 team for help.'},503);
 
   const isLocal=LOCAL_ZIPS.has(z), t=await token(firstName,isLocal,env.PIER_TOKEN_SECRET||env.TELNYX_API_KEY);
+  const parts=t.split('.'), confirmationCode=String(parts[3]||'').slice(-6).toUpperCase();
   const confirmUrl=`${new URL(request.url).origin}/pier/v/${t}`;
   const text=`F45 Pompano: Confirm entry: ${confirmUrl} Reply STOP to opt out.`;
   let r; try{r=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify({from:env.TELNYX_FROM_NUMBER||'+17543463010',to:p,text})})}catch{return reply({ok:false,message:'We could not send the confirmation text. Please try again.'},502)}
@@ -81,8 +82,8 @@ export async function onRequestPost(context){
     return reply({ok:false,error:'sms_delivery_failed',provider_code:state.error_code,provider_delivery_status:state.status,message:'The confirmation text could not be delivered. Please check your mobile number and try again.'},502);
   }
 
-  const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:new Date().toISOString(),delivery_status:state.status||'accepted'};
+  const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:new Date().toISOString(),delivery_status:state.status||'accepted'};
   context.waitUntil(emailLead(lead).catch(()=>{}));
-  return reply({ok:true,sent:true,first_name:firstName,local_zip:isLocal,expires_minutes:30,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
+  return reply({ok:true,sent:true,first_name:firstName,local_zip:isLocal,confirmation_code:confirmationCode,expires_minutes:30,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
 }
 export function onRequest(){return reply({ok:false,error:'method_not_allowed'},405)}
