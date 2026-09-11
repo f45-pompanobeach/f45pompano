@@ -19,7 +19,7 @@ async function emailLead(lead){
     _subject:`PIER Lead - ${lead.first_name} ${lead.last_name}`,_template:'table',_captcha:'false',
     'Lead Source':'Pompano Beach Pier Cleanup - 2026-09-12','Event Coach':'Jonathan','First Name':lead.first_name,'Last Name':lead.last_name,
     Email:lead.email,Phone:lead.phone,ZIP:lead.zip,'Local ZIP':lead.is_local?'Yes':'No','Grand Prize Eligible':lead.is_local?'Yes':'No',
-    'Verification SMS':'Sent','Marketing SMS Opt-In':lead.marketing_opt_in?'Yes':'No','Submitted At':lead.submitted_at
+    'Confirmation SMS':'Sent','Marketing SMS Opt-In':lead.marketing_opt_in?'Yes':'No','Submitted At':lead.submitted_at
   });
   return fetch('https://formsubmit.co/ajax/pompanobeach@f45training.com',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded;charset=UTF-8',accept:'application/json'},body:body.toString()});
 }
@@ -33,14 +33,14 @@ export async function onRequestPost(context){
   if(!/^\S+@\S+\.\S+$/.test(e))return reply({ok:false,message:'Please enter a valid email address.'},400);
   if(!p)return reply({ok:false,message:'Please enter a valid U.S. mobile number.'},400);
   if(!z)return reply({ok:false,message:'Please enter a valid 5-digit ZIP code.'},400);
-  if(d.verification_consent!==true||d.terms_accepted!==true)return reply({ok:false,message:'Please accept the required terms and verification-text consent.'},400);
-  if(!env.TELNYX_API_KEY)return reply({ok:false,error:'sms_not_configured',message:'Verification texting is not configured yet. Please ask the F45 team for help.'},503);
+  if(d.verification_consent!==true||d.terms_accepted!==true)return reply({ok:false,message:'Please accept the required terms and confirmation-text consent.'},400);
+  if(!env.TELNYX_API_KEY)return reply({ok:false,error:'sms_not_configured',message:'Confirmation texting is not configured yet. Please ask the F45 team for help.'},503);
 
   const isLocal=LOCAL_ZIPS.has(z), t=await token(firstName,isLocal,env.PIER_TOKEN_SECRET||env.TELNYX_API_KEY);
-  const verifyUrl=`${new URL(request.url).origin}/pier/v/${t}`;
-  const text=`F45 Pompano: Tap to verify your Pier Spin to Win entry: ${verifyUrl}`;
-  let r; try{r=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify({from:env.TELNYX_FROM_NUMBER||'+17543463010',to:p,text})})}catch{return reply({ok:false,message:'We could not send the verification text. Please try again.'},502)}
-  if(!r.ok){let code=null;try{const j=await r.json();code=j?.errors?.[0]?.code||null}catch{}return reply({ok:false,error:'sms_rejected',provider_status:r.status,provider_code:code,message:'We could not send the verification text. Please check your mobile number or ask the F45 team for help.'},502)}
+  const confirmUrl=`${new URL(request.url).origin}/pier/v/${t}`;
+  const text=`F45 Pompano: Confirm your Spin to Win entry: ${confirmUrl}`;
+  let r; try{r=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify({from:env.TELNYX_FROM_NUMBER||'+17543463010',to:p,text})})}catch{return reply({ok:false,message:'We could not send the confirmation text. Please try again.'},502)}
+  if(!r.ok){let code=null;try{const j=await r.json();code=j?.errors?.[0]?.code||null}catch{}return reply({ok:false,error:'sms_rejected',provider_status:r.status,provider_code:code,message:'We could not send the confirmation text. Please check your mobile number or ask the F45 team for help.'},502)}
   const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:new Date().toISOString()};
   context.waitUntil(emailLead(lead).catch(()=>{}));
   return reply({ok:true,sent:true,first_name:firstName,local_zip:isLocal,expires_minutes:30});
