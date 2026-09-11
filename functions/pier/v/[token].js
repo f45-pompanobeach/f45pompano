@@ -10,7 +10,7 @@ function brand(){return `<img id="brandLogo" class="brand-logo" alt="F45 Trainin
 function page(o){
   if(!o.valid){
     const h=o.expired?'CONFIRMATION EXPIRED':'CONFIRMATION LINK INVALID';
-    const p=o.expired?'Your confirmation link is more than 30 minutes old. Return to the F45 table and scan the QR code again.':'This confirmation link could not be confirmed. Return to the F45 table and scan the QR code again.';
+    const p=o.expired?'Your confirmation link is more than 20 minutes old. Return to the F45 table and scan the QR code again.':'This confirmation link could not be confirmed. Return to the F45 table and scan the QR code again.';
     return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${h} | F45 Pompano</title><style>${css}</style></head><body><main class="shell"><section class="card invalid">${brand()}<div class="icon">!</div><h1>${h}</h1><p>${p}</p><a class="btn" href="/pier/">RETURN TO ENTRY</a></section></main>${logoScript}</body></html>`
   }
   const locality=o.local?'':`<div class="visitor-note">NON-LOCAL ZIP</div>`;
