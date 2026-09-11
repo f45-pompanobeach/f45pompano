@@ -13,7 +13,7 @@ export function json(data,status=200){return new Response(JSON.stringify(data),{
 export async function ensureSchema(env){
   const db=eventDb(env);
   if(!db||typeof db.prepare!=='function')return false;
-  await db.exec(`CREATE TABLE IF NOT EXISTS event_leads (
+  await db.prepare(`CREATE TABLE IF NOT EXISTS event_leads (
     id TEXT PRIMARY KEY,
     event_key TEXT NOT NULL,
     event_name TEXT,
@@ -43,9 +43,9 @@ export async function ensureSchema(env){
     prize_text_message_id TEXT,
     prize_text_error_code TEXT,
     metadata_json TEXT
-  );
-  CREATE INDEX IF NOT EXISTS idx_event_leads_event_created ON event_leads(event_key,created_at DESC);
-  CREATE INDEX IF NOT EXISTS idx_event_leads_token_nonce ON event_leads(token_nonce);`);
+  )`).run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_event_created ON event_leads(event_key,created_at DESC)').run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_token_nonce ON event_leads(token_nonce)').run();
   return true;
 }
 export async function insertLead(env,lead){
