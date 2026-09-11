@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Pier Prize Logger | F45 Pompano</title>
+<style>
+:root{--red:#E8272A;--navy:#1C1C2E;--bg:#EDF0F8;--line:#D7DCE4;--muted:#6B7280}*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#111}.wrap{max-width:720px;margin:auto;padding:18px}.card{background:#fff;border-radius:16px;box-shadow:0 12px 34px rgba(28,28,46,.13);overflow:hidden}.head{background:var(--navy);color:#fff;padding:22px}.head h1{margin:0;font-size:25px}.head p{margin:7px 0 0;color:#D7DBE5;font-size:13px;line-height:1.45}.body{padding:20px}.label{display:block;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--navy);margin-bottom:6px}.code{width:100%;font:700 24px/1 monospace;text-transform:uppercase;letter-spacing:3px;padding:14px;border:2px solid #B8C0CC;border-radius:9px}.code:focus{outline:none;border-color:var(--red)}.prizes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.prize{border:2px solid var(--line);background:#fff;border-radius:10px;padding:13px 10px;font-size:13px;font-weight:800;cursor:pointer;text-align:center}.prize:hover,.prize:focus{border-color:var(--red);outline:none}.msg{min-height:22px;margin:14px 0 0;font-size:13px;font-weight:700}.ok{color:#16723a}.warn{color:#9a6200}.tools{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}.tool{border:0;border-radius:8px;padding:11px 13px;font-weight:800;cursor:pointer}.export{background:var(--navy);color:#fff}.clear{background:#F3F4F6;color:#4B5563}.list{margin-top:20px}.row{display:grid;grid-template-columns:92px 1fr;gap:8px;padding:11px 0;border-top:1px solid #ECEEF2;font-size:12px}.row code{font-weight:900}.row b{display:block;font-size:12px}.row small{color:var(--muted)}.empty{color:var(--muted);font-size:13px;padding:14px 0}.fine{color:var(--muted);font-size:11px;line-height:1.45;margin:16px 0 0}@media(max-width:540px){.prizes{grid-template-columns:1fr}.wrap{padding:10px}.body{padding:16px}}
+</style>
+</head>
+<body><main class="wrap"><section class="card"><div class="head"><h1>F45 Pier Prize Logger</h1><p>Jonathan: enter the confirmation code shown on the lead's confirmed screen, then tap the prize they won.</p></div><div class="body">
+<label class="label" for="code">Confirmation Code</label><input id="code" class="code" maxlength="8" autocomplete="off" autocapitalize="characters" placeholder="ABC123">
+<div class="prizes" id="prizes"></div><div id="msg" class="msg"></div>
+<div class="tools"><button class="tool export" id="export">Export CSV</button><button class="tool clear" id="clear">Clear Log</button></div>
+<div class="list"><span class="label">Recorded Prizes</span><div id="rows"></div></div>
+<p class="fine">Records are saved on this phone immediately. The logger also sends a matching prize record to the studio email when internet access is available.</p>
+</div></section></main>
+<script>
+(()=>{
+const KEY='f45_pier_prize_log_2026_09_12';
+const PRIZES=['F45 Kettlebell Keychain','1 Free Class','3 Free Classes','1 Week Unlimited','2 Weeks Unlimited','You + a Friend — 1 Free Class Each','Double Grand-Prize Entry','Grand-Prize Entry — 1 Month Unlimited'];
+const code=document.getElementById('code'),box=document.getElementById('prizes'),msg=document.getElementById('msg'),rows=document.getElementById('rows');
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}};
+const save=a=>localStorage.setItem(KEY,JSON.stringify(a));
+function render(){const a=load();rows.innerHTML=a.length?a.slice().reverse().map(x=>`<div class="row"><code>${x.code}</code><div><b>${x.prize}</b><small>${new Date(x.at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}${x.synced?' · emailed':' · saved locally'}</small></div></div>`).join(''):'<div class="empty">No prizes recorded yet.</div>'}
+async function sync(x){try{const body=new URLSearchParams({_subject:`PIER PRIZE - ${x.code} - ${x.prize}`,_template:'table',_captcha:'false','Event':'Pompano Beach Pier Cleanup - 2026-09-12','Confirmation Code':x.code,'Prize':x.prize,'Recorded By':'Jonathan','Recorded At':x.at});const r=await fetch('https://formsubmit.co/ajax/pompanobeach@f45training.com',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded;charset=UTF-8',accept:'application/json'},body:body.toString()});return r.ok}catch{return false}}
+async function record(prize){const c=code.value.trim().toUpperCase();if(!/^[A-Z0-9_-]{4,8}$/.test(c)){msg.className='msg warn';msg.textContent='Enter the confirmation code first.';code.focus();return}const a=load();const x={code:c,prize,at:new Date().toISOString(),synced:false};a.push(x);save(a);code.value='';msg.className='msg ok';msg.textContent=`Saved: ${c} — ${prize}`;render();const synced=await sync(x);if(synced){const b=load();const hit=b.findLast?b.findLast(v=>v.code===c&&v.at===x.at):[...b].reverse().find(v=>v.code===c&&v.at===x.at);if(hit){hit.synced=true;save(b);render()}}}
+PRIZES.forEach(p=>{const b=document.createElement('button');b.className='prize';b.type='button';b.textContent=p;b.onclick=()=>record(p);box.appendChild(b)});
+document.getElementById('export').onclick=()=>{const a=load();if(!a.length){msg.className='msg warn';msg.textContent='Nothing to export yet.';return}const esc=v=>'"'+String(v).replace(/"/g,'""')+'"';const csv=['Confirmation Code,Prize,Recorded At,Synced',...a.map(x=>[x.code,x.prize,x.at,x.synced?'Yes':'No'].map(esc).join(','))].join('\n');const u=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),link=document.createElement('a');link.href=u;link.download='f45-pier-prizes-2026-09-12.csv';link.click();URL.revokeObjectURL(u)};
+document.getElementById('clear').onclick=()=>{if(confirm('Clear the entire prize log from this phone?')){localStorage.removeItem(KEY);render();msg.textContent=''}};
+render();code.focus();
+})();
+</script></body></html>
