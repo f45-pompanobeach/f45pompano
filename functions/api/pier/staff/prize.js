@@ -13,7 +13,7 @@ async function emailPrize(lead,prize,at){
 function prizeText(lead,prize,correction){
   const corrected=correction?'Correction — ':'';
   if(prize==='F45 Kettlebell Keychain'){
-    if(Number(lead.is_local)===1){
+    if(Number(lead.is_local)===1&&Number(lead.marketing_opt_in)===1){
       return `F45 Pompano: ${corrected}You won an F45 kettlebell keychain at the Pompano Pier event! Local residents: call 954-302-3889 and mention the Pompano Pier event to get our 3-class trial for $15 (normally $30). Reply STOP to opt out.`;
     }
     return `F45 Pompano: ${corrected}You won an F45 kettlebell keychain at the Pompano Pier event! Questions? Call 954-302-3889. Reply STOP to opt out.`;
