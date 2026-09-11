@@ -30,6 +30,7 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
 .checkrow input{width:auto;margin-top:3px;accent-color:var(--red);flex-shrink:0}.checkrow a{color:var(--red);font-weight:800;text-decoration:none}
 .submit{grid-column:1/-1;width:100%;border:0;border-radius:4px;background:var(--red);color:#fff;padding:16px 18px;font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.7px;cursor:pointer;box-shadow:0 4px 0 rgba(80,0,0,.24)}
 .submit:hover{background:var(--red-hover)}.submit:disabled{opacity:.55;cursor:default}
+.next-entry{margin:18px auto 0;display:block;border:0;border-radius:6px;background:var(--navy);color:#fff;padding:13px 17px;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;cursor:pointer}
 .fine{grid-column:1/-1;margin:-2px 0 0;text-align:center;color:var(--gray-text);font-size:11px;line-height:1.5}
 .trap{position:absolute;left:-10000px}
 .notice{display:none;margin:24px;padding:8px 0 30px;text-align:center}.notice.show{display:block}
@@ -81,7 +82,7 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
         <p class="fine">One entry per person. Home ZIP code is used to determine local-area status and grand-prize eligibility where applicable.</p>
       </form>
 
-      <div class="notice" id="ok"><div class="notice-icon">📱</div><h2>Check Your Phone</h2><p id="okp">We sent your F45 confirmation text.</p><div class="steps"><strong>Next step:</strong><br>Open the text from F45 Pompano Beach and tap the confirmation link. Then show the confirmed screen to the F45 coach or representative.</div></div>
+      <div class="notice" id="ok"><div class="notice-icon">📱</div><h2>Check Your Phone</h2><p id="okp">We sent your F45 confirmation text.</p><div class="steps"><strong>Next step:</strong><br>Open the text from F45 Pompano Beach and tap the confirmation link. Then show the confirmed screen to the F45 coach or representative.</div><button class="next-entry" id="nextEntry" type="button">Start Next Entry</button></div>
       <div class="notice error" id="err"><div class="notice-icon">!</div><h2 id="errh">Text Not Sent</h2><p id="errp">Please check your information and try again.</p></div>
     </section>
 
@@ -90,7 +91,7 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
 </main>
 <script>
 (()=>{
-  const f=document.getElementById('f'),b=document.getElementById('b'),ok=document.getElementById('ok'),err=document.getElementById('err'),errh=document.getElementById('errh'),errp=document.getElementById('errp');
+  const f=document.getElementById('f'),b=document.getElementById('b'),ok=document.getElementById('ok'),err=document.getElementById('err'),errh=document.getElementById('errh'),errp=document.getElementById('errp'),nextEntry=document.getElementById('nextEntry');
   const logo=document.getElementById('brandLogo');
   fetch('/',{cache:'force-cache'}).then(r=>r.ok?r.text():Promise.reject()).then(html=>{
     const doc=new DOMParser().parseFromString(html,'text/html');
@@ -98,6 +99,7 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
     const src=original&&original.getAttribute('src');
     if(src){logo.src=src;logo.classList.add('loaded')}
   }).catch(()=>{});
+  nextEntry.addEventListener('click',()=>{window.location.href='/pier/'});
   const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   function fail(m,title='Text Not Sent'){errh.textContent=title;errp.textContent=m||'Please check your information and try again.';err.classList.add('show');err.scrollIntoView({behavior:'smooth',block:'center'})}
   function success(name){f.style.display='none';document.getElementById('okp').textContent=`Thanks, ${name}. Your F45 confirmation text was delivered. The link expires in 30 minutes.`;ok.classList.add('show');ok.scrollIntoView({behavior:'smooth',block:'center'})}
