@@ -13,12 +13,9 @@ async function emailPrize(lead,prize,at){
 function prizeText(lead,prize,correction){
   const corrected=correction?'Correction — ':'';
   if(prize==='F45 Kettlebell Keychain'){
-    if(Number(lead.is_local)===1&&Number(lead.marketing_opt_in)===1){
-      return `F45 Pompano: ${corrected}You won an F45 kettlebell keychain at the Pompano Pier event! Local residents: call 954-302-3889 and mention the Pompano Pier event to get our 3-class trial for $15 (normally $30). Reply STOP to opt out.`;
-    }
-    return `F45 Pompano: ${corrected}You won an F45 kettlebell keychain at the Pompano Pier event! Questions? Call 954-302-3889. Reply STOP to opt out.`;
+    return `F45 Pompano: ${corrected}Thanks for visiting F45 Pompano Beach at the Pompano Pier event! You won an F45 kettlebell keychain. As a thank-you for visiting us, local residents can get our 3-class trial for 50% off — just $15 instead of $30. Questions? Call 954-302-3889. Reply STOP to opt out.`;
   }
-  return `F45 Pompano: ${corrected}You won ${prize} at the Pompano Pier event! We'll follow up with redemption details. Questions? Call 954-302-3889. Reply STOP to opt out.`;
+  return `F45 Pompano: ${corrected}You won ${prize} at the Pompano Pier event! Someone from F45 Pompano Beach will reach out soon to help get you set up. Questions? Call 954-302-3889. Reply STOP to opt out.`;
 }
 async function sendPrizeText(env,lead,prize,correction){
   if(!env.TELNYX_API_KEY)return {status:'not_configured',message_id:null,error_code:null};
