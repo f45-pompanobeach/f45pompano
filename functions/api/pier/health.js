@@ -1,10 +1,13 @@
+import {eventDb} from './_shared.js';
+
 export async function onRequestGet({ env }) {
   const sender = env.TELNYX_FROM_NUMBER || '+17543463010';
+  const db=eventDb(env);
   const result = {
     ok: true,
     service: 'pier-verification',
     telnyx_configured: Boolean(env.TELNYX_API_KEY),
-    d1_configured: Boolean(env.PIER_DB && typeof env.PIER_DB.prepare === 'function'),
+    d1_configured: Boolean(db && typeof db.prepare === 'function'),
     d1_ok: false,
     staff_dashboard: true,
     sender,
@@ -14,7 +17,7 @@ export async function onRequestGet({ env }) {
   };
 
   if (result.d1_configured) {
-    try { const q=await env.PIER_DB.prepare('SELECT 1 AS ok').first(); result.d1_ok=Number(q?.ok)===1; }
+    try { const q=await db.prepare('SELECT 1 AS ok').first(); result.d1_ok=Number(q?.ok)===1; }
     catch { result.d1_ok=false; }
   }
 
