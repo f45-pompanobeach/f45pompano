@@ -21,7 +21,7 @@ function smsState(data){
   return {status,error_code:error?.code||null,error_title:error?.title||null};
 }
 async function sign(value, secret){const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);const sig=new Uint8Array(await crypto.subtle.sign('HMAC',key,enc.encode(value)));return b64(sig.slice(0,12))}
-async function token(firstName,isLocal,secret){const p=`${b64text(firstName.slice(0,24))}.${isLocal?'1':'0'}.${Math.floor(Date.now()/1000+1800).toString(36)}.${nonce()}`;return `${p}.${await sign(p,secret)}`}
+async function token(firstName,isLocal,secret){const p=`${b64text(firstName.slice(0,24))}.${isLocal?'1':'0'}.${Math.floor(Date.now()/1000+1200).toString(36)}.${nonce()}`;return `${p}.${await sign(p,secret)}`}
 
 async function emailLead(lead){
   const body=new URLSearchParams({
@@ -84,6 +84,6 @@ export async function onRequestPost(context){
 
   const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:new Date().toISOString(),delivery_status:state.status||'accepted'};
   context.waitUntil(emailLead(lead).catch(()=>{}));
-  return reply({ok:true,sent:true,first_name:firstName,local_zip:isLocal,confirmation_code:confirmationCode,expires_minutes:30,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
+  return reply({ok:true,sent:true,first_name:firstName,local_zip:isLocal,confirmation_code:confirmationCode,expires_minutes:20,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
 }
 export function onRequest(){return reply({ok:false,error:'method_not_allowed'},405)}
