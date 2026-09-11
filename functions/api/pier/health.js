@@ -24,7 +24,14 @@ export async function onRequestGet({ env }) {
         phone_number: d.phone_number || null,
         messaging_profile_id: d.messaging_profile_id || null,
         type: d.type || null,
-        eligible_messaging_products: d.eligible_messaging_products || null
+        eligible_messaging_products: d.eligible_messaging_products || null,
+        traffic_type: d.traffic_type || d.messaging_product || null,
+        health: d.health ? {
+          message_count: d.health.message_count ?? null,
+          success_ratio: d.health.success_ratio ?? null,
+          spam_ratio: d.health.spam_ratio ?? null,
+          inbound_outbound_ratio: d.health.inbound_outbound_ratio ?? null
+        } : null
       };
       if (!r.ok) {
         result.messaging_number.error_code = j?.errors?.[0]?.code || null;
@@ -59,7 +66,7 @@ export async function onRequestGet({ env }) {
     headers: {
       'content-type': 'application/json; charset=utf-8',
       'cache-control': 'no-store',
-      'x-content-type-options': 'nosniff'
+      'x-content-type-options':'nosniff'
     }
   });
 }
