@@ -1,4 +1,4 @@
-import {EVENT_KEY,PRIZES,ensureSchema,hasDb,json,staffAuthorized} from '../_shared.js';
+import {EVENT_KEY,PRIZES,ensureSchema,eventDb,hasDb,json,staffAuthorized} from '../_shared.js';
 
 function smsState(data){
   const status=String(data?.to?.[0]?.status||data?.status||'').toLowerCase();
@@ -26,21 +26,22 @@ async function sendPrizeText(env,lead,prize,correction){
 export async function onRequestPost(context){
   const {request,env}=context;
   if(!await staffAuthorized(request,env))return json({ok:false,error:'unauthorized'},401);
-  if(!hasDb(env))return json({ok:false,error:'d1_not_configured',message:'Shared lead storage is not configured yet.'},503);
+  if(!hasDb(env))return json({ok:false,error:'d1_not_configured',message:'Shared event lead storage is not configured yet.'},503);
   let body;try{body=await request.json()}catch{return json({ok:false,error:'invalid_request'},400)}
   const id=String(body.id||'').trim(),prize=String(body.prize||'').trim();
   if(!id||!PRIZES.includes(prize))return json({ok:false,error:'invalid_prize'},400);
   try{
     await ensureSchema(env);
-    const lead=await env.PIER_DB.prepare(`SELECT * FROM pier_leads WHERE id=? AND event_key=? LIMIT 1`).bind(id,EVENT_KEY).first();
+    const db=eventDb(env);
+    const lead=await db.prepare(`SELECT * FROM event_leads WHERE id=? AND event_key=? LIMIT 1`).bind(id,EVENT_KEY).first();
     if(!lead)return json({ok:false,error:'lead_not_found'},404);
     if(lead.prize===prize)return json({ok:true,unchanged:true,lead_id:id,prize,prize_text_status:lead.prize_text_status||null});
     const now=new Date().toISOString(),correction=Boolean(lead.prize);
-    await env.PIER_DB.prepare(`UPDATE pier_leads SET prize=?,prize_saved_at=?,updated_at=? WHERE id=?`).bind(prize,now,now,id).run();
+    await db.prepare(`UPDATE event_leads SET prize=?,prize_saved_at=?,updated_at=? WHERE id=?`).bind(prize,now,now,id).run();
     let receipt={status:'not_needed',message_id:null,error_code:null};
     if(prize!=='F45 Kettlebell Keychain'&&lead.event_sms_consent){
       receipt=await sendPrizeText(env,lead,prize,correction);
-      await env.PIER_DB.prepare(`UPDATE pier_leads SET prize_text_status=?,prize_text_message_id=?,prize_text_error_code=?,updated_at=? WHERE id=?`).bind(receipt.status,receipt.message_id,receipt.error_code,new Date().toISOString(),id).run();
+      await db.prepare(`UPDATE event_leads SET prize_text_status=?,prize_text_message_id=?,prize_text_error_code=?,updated_at=? WHERE id=?`).bind(receipt.status,receipt.message_id,receipt.error_code,new Date().toISOString(),id).run();
     }
     context.waitUntil(emailPrize(lead,prize,now).catch(()=>{}));
     return json({ok:true,lead_id:id,prize,correction,prize_text_status:receipt.status,prize_text_message_id:receipt.message_id,prize_text_error_code:receipt.error_code});
