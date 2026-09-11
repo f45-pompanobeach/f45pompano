@@ -1,0 +1,12 @@
+{
+  "id": "/pier/staff/",
+  "name": "F45 Table Leads Staff",
+  "short_name": "Leads Staff",
+  "description": "F45 Pompano Beach event table lead dashboard",
+  "start_url": "/pier/staff/",
+  "scope": "/pier/staff/",
+  "display": "standalone",
+  "background_color": "#EDF0F8",
+  "theme_color": "#1C1C2E",
+  "icons": [{"src":"/pier/staff/table-leads-staff-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
