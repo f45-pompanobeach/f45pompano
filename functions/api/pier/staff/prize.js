@@ -16,9 +16,9 @@ function smsSafe(v){
 function prizeText(prize,correction){
   const corrected=correction?'Correction: ':'';
   if(prize==='F45 Kettlebell Keychain'){
-    return `F45 Pompano: ${corrected}You won a kettlebell keychain! We're also giving you 1 FREE class to try us out. We'll reach out to set it up. Take it by 9/18 to enter our bonus merch drawing. Questions? Call/text 954-302-3889. Reply STOP to opt out.`;
+    return `F45 Pompano: ${corrected}You won a kettlebell keychain! We're also giving you 1 FREE class to try us out. We'll reach out to set it up. Take it by 9/25 to enter our bonus merch drawing. Questions? Call/text 954-302-3889. Reply STOP to opt out.`;
   }
-  return `F45 Pompano: ${corrected}You won ${smsSafe(prize)}! We'll reach out to set up your access. Take your first class by 9/18 to enter our bonus merch drawing. Questions? Call/text 954-302-3889. Reply STOP to opt out.`;
+  return `F45 Pompano: ${corrected}You won ${smsSafe(prize)}! We'll reach out to set up your access. Take your first class by 9/25 to enter our bonus merch drawing. Questions? Call/text 954-302-3889. Reply STOP to opt out.`;
 }
 async function sendPrizeText(env,lead,prize,correction){
   if(!env.TELNYX_API_KEY)return {status:'not_configured',message_id:null,error_code:null};
