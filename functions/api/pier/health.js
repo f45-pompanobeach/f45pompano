@@ -1,14 +1,16 @@
-import {eventDb} from './_shared.js';
+import {eventDb,ensureSchema} from './_shared.js';
 
 export async function onRequestGet({ env }) {
   const sender = env.TELNYX_FROM_NUMBER || '+17543463010';
   const db=eventDb(env);
   const result = {
     ok: true,
-    service: 'pier-verification',
+    service: 'event-lead-verification',
     telnyx_configured: Boolean(env.TELNYX_API_KEY),
     d1_configured: Boolean(db && typeof db.prepare === 'function'),
     d1_ok: false,
+    schema_ready: false,
+    database_binding: env.EVENT_DB ? 'EVENT_DB' : (env.PIER_DB ? 'PIER_DB' : null),
     staff_dashboard: true,
     sender,
     commit: env.CF_PAGES_COMMIT_SHA || null,
@@ -17,8 +19,14 @@ export async function onRequestGet({ env }) {
   };
 
   if (result.d1_configured) {
-    try { const q=await db.prepare('SELECT 1 AS ok').first(); result.d1_ok=Number(q?.ok)===1; }
-    catch { result.d1_ok=false; }
+    try {
+      result.schema_ready=await ensureSchema(env);
+      const q=await db.prepare('SELECT 1 AS ok').first();
+      result.d1_ok=Number(q?.ok)===1;
+    } catch {
+      result.d1_ok=false;
+      result.schema_ready=false;
+    }
   }
 
   if (env.TELNYX_API_KEY) {
