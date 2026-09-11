@@ -56,7 +56,7 @@ export async function onRequestPost(context){
 
   const isLocal=LOCAL_ZIPS.has(z), t=await token(firstName,isLocal,env.PIER_TOKEN_SECRET||env.TELNYX_API_KEY);
   const confirmUrl=`${new URL(request.url).origin}/pier/v/${t}`;
-  const text=`F45 Pompano: Confirm your Spin to Win entry: ${confirmUrl}`;
+  const text=`F45 Pompano: Confirm entry: ${confirmUrl} Reply STOP to opt out.`;
   let r; try{r=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify({from:env.TELNYX_FROM_NUMBER||'+17543463010',to:p,text})})}catch{return reply({ok:false,message:'We could not send the confirmation text. Please try again.'},502)}
   let sendJson={}; try{sendJson=await r.json()}catch{}
   if(!r.ok){const code=sendJson?.errors?.[0]?.code||null;return reply({ok:false,error:'sms_rejected',provider_status:r.status,provider_code:code,message:'We could not send the confirmation text. Please check your mobile number or ask the F45 team for help.'},502)}
