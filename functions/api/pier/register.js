@@ -83,6 +83,6 @@ export async function onRequestPost(context){
 
   const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:new Date().toISOString(),delivery_status:state.status||'accepted'};
   context.waitUntil(emailLead(lead).catch(()=>{}));
-  return reply({ok:true,sent:true,first_name:firstName,local_zip:isLocal,expires_minutes:30,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
+  return reply({ok:true,sent:true,first_name:firstName,local_zip:isLocal,expires_minutes:30,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
 }
 export function onRequest(){return reply({ok:false,error:'method_not_allowed'},405)}
