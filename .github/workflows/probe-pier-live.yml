@@ -12,24 +12,38 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Compare custom domain and Pages production
+      - name: Verify live Pier staff controls
         shell: bash
         run: |
           set -euo pipefail
-          for URL in \
-            'https://f45pompano.com/pier/staff/?probe=cache-diagnostic-3' \
-            'https://f45pompano.pages.dev/pier/staff/?probe=cache-diagnostic-3' \
-            'https://main.f45pompano-test.pages.dev/pier/staff/?probe=cache-diagnostic-3'; do
-            echo "===== $URL ====="
-            BODY=$(mktemp); HDR=$(mktemp)
-            CODE=$(curl -L --max-time 30 -sS -D "$HDR" -o "$BODY" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$URL")
-            echo "HTTP=$CODE"
-            grep -Ei '^(server|cf-cache-status|age|cache-control|etag|last-modified):' "$HDR" || true
-            echo "DASHBOARD=$(grep -Foc 'F45 Event Lead Dashboard' "$BODY" || true)"
-            echo "NEW_FRIEND=$(grep -Foc 'You + Friend — 3 Free Classes Each' "$BODY" || true)"
-            echo "NONE_RESET=$(grep -Foc 'None / Reset' "$BODY" || true)"
-            echo "DELETE_LEAD=$(grep -Foc 'Delete Lead' "$BODY" || true)"
-            echo "DOUBLE_GRAND=$(grep -Foc 'Double Grand-Prize Entry' "$BODY" || true)"
-            echo "GRAND_PRIZE=$(grep -Foc 'Grand-Prize Entry — 1 Month Unlimited' "$BODY" || true)"
-            rm -f "$BODY" "$HDR"
-          done
+          STAFF=$(mktemp)
+          SCODE=$(curl -L --max-time 30 -sS -o "$STAFF" -w '%{http_code}' -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/staff/?probe=staff-output-synced')
+          echo "STAFF_HTTP: $SCODE"
+          echo "NEW_FRIEND=$(grep -Foc 'You + Friend — 3 Free Classes Each' "$STAFF" || true)"
+          echo "NONE_RESET=$(grep -Foc 'None / Reset' "$STAFF" || true)"
+          echo "DELETE_LEAD=$(grep -Foc 'Delete Lead' "$STAFF" || true)"
+          echo "DOUBLE_GRAND=$(grep -Foc 'Double Grand-Prize Entry' "$STAFF" || true)"
+          echo "GRAND_PRIZE=$(grep -Foc 'Grand-Prize Entry — 1 Month Unlimited' "$STAFF" || true)"
+          test "$SCODE" = '200'
+          test "$(grep -Foc 'You + Friend — 3 Free Classes Each' "$STAFF" || true)" -ge 1
+          test "$(grep -Foc 'None / Reset' "$STAFF" || true)" -ge 1
+          test "$(grep -Foc 'Delete Lead' "$STAFF" || true)" -ge 1
+          test "$(grep -Foc '/api/pier/staff/delete' "$STAFF" || true)" -ge 1
+          test "$(grep -Foc 'Double Grand-Prize Entry' "$STAFF" || true)" -eq 0
+          test "$(grep -Foc 'Grand-Prize Entry — 1 Month Unlimited' "$STAFF" || true)" -eq 0
+
+          HEALTH=$(mktemp)
+          HCODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=staff-output-synced')
+          echo "HEALTH_HTTP: $HCODE"
+          echo "HEALTH_BODY: $(cat "$HEALTH")"
+          test "$HCODE" = '200'
+          grep -q '"d1_configured":true' "$HEALTH"
+          grep -q '"d1_ok":true' "$HEALTH"
+          grep -q '"assignment_status":"ASSIGNED"' "$HEALTH"
+
+          AUTH=$(mktemp)
+          ACODE=$(curl -L --max-time 30 -sS -o "$AUTH" -w '%{http_code}' 'https://f45pompano.com/api/pier/staff/leads')
+          echo "UNAUTH_STAFF_HTTP: $ACODE"
+          test "$ACODE" = '401'
+
+          rm -f "$STAFF" "$HEALTH" "$AUTH"
