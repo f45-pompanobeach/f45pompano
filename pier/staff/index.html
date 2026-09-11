@@ -27,7 +27,7 @@
 <div id="toast" class="toast"></div>
 <script>
 (()=>{
-const PRIZES=['F45 Kettlebell Keychain','1 Free Class','3 Free Classes','1 Week Unlimited','2 Weeks Unlimited','You + a Friend — 1 Free Class Each','Double Grand-Prize Entry','Grand-Prize Entry — 1 Month Unlimited'];
+const PRIZES=['F45 Kettlebell Keychain','1 Free Class','3 Free Classes','1 Week Unlimited','2 Weeks Unlimited','You + a Friend — 3 Classes Each'];
 const $=id=>document.getElementById(id),login=$('login'),app=$('app'),pin=$('pin'),loginMsg=$('loginMsg'),list=$('list'),status=$('status'),sheet=$('sheetback'),details=$('details'),prizes=$('prizes');
 let leads=[],current=null,selectedPrize=null,timer=null,busy=false,lastOk=0;
 const fmt=t=>t?new Date(t).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'—';
