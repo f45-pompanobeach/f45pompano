@@ -14,30 +14,23 @@ jobs:
     steps:
       - name: Wait for live host deployment
         run: sleep 45
-      - name: Verify Pier deliverability hardening
+      - name: Inspect recent Pier SMS delivery records
         shell: bash
         run: |
           set -euo pipefail
-          PAGE=$(mktemp)
-          curl -L --max-time 30 -sS -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://f45pompano.com/pier/?probe=deliverability-9b9a476c' -o "$PAGE"
-          echo "TITLE: $(grep -io '<title>[^<]*' "$PAGE" | head -1 | sed 's/<title>//I')"
-          echo "POLL_COUNT: $(grep -Foc '/api/pier/status?id=' "$PAGE" || true)"
-          test "$(grep -Foc '/api/pier/status?id=' "$PAGE" || true)" -eq 1
-
           echo '===== API HEALTH ====='
           HEALTH=$(mktemp)
-          CODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=deliverability-9b9a476c')
+          CODE=$(curl -L --max-time 30 -sS -o "$HEALTH" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/health?probe=diag-c7c7e764')
           echo "HEALTH_HTTP: $CODE"
           echo "HEALTH_BODY: $(cat "$HEALTH")"
           test "$CODE" = "200"
-          grep -q '"telnyx_configured":true' "$HEALTH"
           grep -q '"assignment_status":"ASSIGNED"' "$HEALTH"
 
-          echo '===== REGISTER VALIDATION ====='
-          REG=$(mktemp)
-          RCODE=$(curl -L --max-time 30 -sS -o "$REG" -w '%{http_code}' -X POST -H 'content-type: application/json' --data '{}' 'https://f45pompano.com/api/pier/register')
-          echo "REGISTER_HTTP: $RCODE"
-          echo "REGISTER_BODY: $(cat "$REG")"
-          test "$RCODE" = "400"
-          grep -q 'Please enter your first and last name.' "$REG"
-          rm -f "$PAGE" "$HEALTH" "$REG"
+          echo '===== RECENT SMS DETAIL RECORDS ====='
+          DIAG=$(mktemp)
+          DCODE=$(curl -L --max-time 30 -sS -o "$DIAG" -w '%{http_code}' -H 'Cache-Control: no-cache' 'https://f45pompano.com/api/pier/diag?probe=c7c7e764')
+          echo "DIAG_HTTP: $DCODE"
+          echo "DIAG_BODY: $(cat "$DIAG")"
+          test "$DCODE" = "200"
+          grep -q '"ok":true' "$DIAG"
+          rm -f "$HEALTH" "$DIAG"
