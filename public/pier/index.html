@@ -102,7 +102,7 @@ input::placeholder{color:#9CA3AF}input:focus{outline:none;border-color:var(--red
   nextEntry.addEventListener('click',()=>{window.location.href='/pier/'});
   const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   function fail(m,title='Text Not Sent'){errh.textContent=title;errp.textContent=m||'Please check your information and try again.';err.classList.add('show');err.scrollIntoView({behavior:'smooth',block:'center'})}
-  function success(name){f.style.display='none';document.getElementById('okp').textContent=`Thanks, ${name}. Your F45 confirmation text was delivered. The link expires in 30 minutes.`;ok.classList.add('show');ok.scrollIntoView({behavior:'smooth',block:'center'})}
+  function success(name){f.style.display='none';document.getElementById('okp').textContent=`Thanks, ${name}. Your F45 confirmation text was delivered. The link expires in 20 minutes.`;ok.classList.add('show');ok.scrollIntoView({behavior:'smooth',block:'center'})}
   async function pollDelivery(id){
     if(!id)return {pending:true};
     for(let i=0;i<8;i++){
