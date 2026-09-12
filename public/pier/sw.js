@@ -1,5 +1,5 @@
-const CACHE='f45-table-leads-v1';
-const SHELL=['/pier/','/pier/staff/','/pier/manifest.webmanifest','/pier/staff/manifest.webmanifest','/pier/table-leads-icon.svg','/pier/staff/table-leads-staff-icon.svg'];
+const CACHE='f45-table-leads-v2';
+const SHELL=['/pier/','/pier/staff/','/pier/manifest.webmanifest','/pier/table-leads-icon.svg'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).catch(()=>{}));self.skipWaiting()});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
 self.addEventListener('fetch',event=>{
