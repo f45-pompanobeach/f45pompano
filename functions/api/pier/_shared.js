@@ -42,8 +42,15 @@ export async function ensureSchema(env){
     prize_text_status TEXT,
     prize_text_message_id TEXT,
     prize_text_error_code TEXT,
-    metadata_json TEXT
+    metadata_json TEXT,
+    notes TEXT
   )`).run();
+  try{
+    const cols=await db.prepare('PRAGMA table_info(event_leads)').all();
+    if(!(cols.results||[]).some(c=>c.name==='notes')){
+      try{await db.prepare('ALTER TABLE event_leads ADD COLUMN notes TEXT').run()}catch(e){if(!String(e?.message||e).toLowerCase().includes('duplicate column'))throw e}
+    }
+  }catch(e){throw e}
   await db.prepare(`CREATE TABLE IF NOT EXISTS event_settings (
     event_key TEXT NOT NULL,
     setting_key TEXT NOT NULL,
