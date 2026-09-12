@@ -88,6 +88,33 @@ export async function refreshLeadConfirmation(env,id,{confirmation_code,token_no
     .bind(now,confirmation_code||null,token_nonce||null,token_expires_at||null,EVENT_KEY,id).run();
   return true;
 }
+export async function dedupeEventLeads(env){
+  if(!await ensureSchema(env))return {groups:0,removed:0};
+  const db=eventDb(env);
+  const grouped=await db.prepare(`SELECT phone,LOWER(TRIM(first_name)) AS first_key,LOWER(TRIM(last_name)) AS last_key,COUNT(*) AS n FROM event_leads WHERE event_key=? GROUP BY phone,LOWER(TRIM(first_name)),LOWER(TRIM(last_name)) HAVING COUNT(*)>1`).bind(EVENT_KEY).all();
+  let groups=0,removed=0;
+  for(const g of grouped.results||[]){
+    const q=await db.prepare(`SELECT id,created_at,updated_at,marketing_opt_in,confirmation_code,token_nonce,token_expires_at,confirmed_at,sms_message_id,sms_delivery_status,sms_error_code,prize,prize_saved_at,prize_text_status,prize_text_message_id,prize_text_error_code,notes FROM event_leads WHERE event_key=? AND phone=? AND LOWER(TRIM(first_name))=? AND LOWER(TRIM(last_name))=? ORDER BY created_at ASC`).bind(EVENT_KEY,g.phone,g.first_key,g.last_key).all();
+    const rows=q.results||[];
+    if(rows.length<2)continue;
+    groups++;
+    const canonical=rows[0],newest=rows[rows.length-1];
+    const confirmations=rows.map(r=>r.confirmed_at).filter(Boolean).sort();
+    const prizeRow=rows.find(r=>String(r.prize||'').trim())||canonical;
+    const noteValues=[];
+    for(const r of rows){const n=String(r.notes||'').trim();if(n&&!noteValues.includes(n))noteValues.push(n)}
+    const mergedNotes=noteValues.join(' | ');
+    const marketing=rows.some(r=>Number(r.marketing_opt_in))?1:0;
+    const now=new Date().toISOString();
+    await db.prepare(`UPDATE event_leads SET updated_at=?,marketing_opt_in=?,confirmation_code=?,token_nonce=?,token_expires_at=?,confirmed_at=?,sms_message_id=?,sms_delivery_status=?,sms_error_code=?,prize=?,prize_saved_at=?,prize_text_status=?,prize_text_message_id=?,prize_text_error_code=?,notes=? WHERE event_key=? AND id=?`)
+      .bind(now,marketing,newest.confirmation_code||canonical.confirmation_code,newest.token_nonce||canonical.token_nonce,newest.token_expires_at||canonical.token_expires_at,confirmations[0]||null,newest.sms_message_id||canonical.sms_message_id,newest.sms_delivery_status||canonical.sms_delivery_status,newest.sms_error_code||canonical.sms_error_code,prizeRow.prize||null,prizeRow.prize_saved_at||null,prizeRow.prize_text_status||null,prizeRow.prize_text_message_id||null,prizeRow.prize_text_error_code||null,mergedNotes||null,EVENT_KEY,canonical.id).run();
+    for(const r of rows.slice(1)){
+      await db.prepare('DELETE FROM event_leads WHERE event_key=? AND id=?').bind(EVENT_KEY,r.id).run();
+      removed++;
+    }
+  }
+  return {groups,removed};
+}
 export async function insertLead(env,lead){
   if(!await ensureSchema(env))return false;
   const db=eventDb(env);
