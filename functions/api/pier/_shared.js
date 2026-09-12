@@ -44,10 +44,30 @@ export async function ensureSchema(env){
     prize_text_error_code TEXT,
     metadata_json TEXT
   )`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS event_settings (
+    event_key TEXT NOT NULL,
+    setting_key TEXT NOT NULL,
+    setting_value TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (event_key,setting_key)
+  )`).run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_event_created ON event_leads(event_key,created_at DESC)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_token_nonce ON event_leads(token_nonce)').run();
   return true;
 }
+export async function getEventSetting(env,key,defaultValue=null){
+  if(!await ensureSchema(env))return defaultValue;
+  const db=eventDb(env);
+  const row=await db.prepare('SELECT setting_value FROM event_settings WHERE event_key=? AND setting_key=? LIMIT 1').bind(EVENT_KEY,key).first();
+  return row?row.setting_value:defaultValue;
+}
+export async function setEventSetting(env,key,value){
+  if(!await ensureSchema(env))return false;
+  const db=eventDb(env),now=new Date().toISOString();
+  await db.prepare(`INSERT INTO event_settings (event_key,setting_key,setting_value,updated_at) VALUES (?,?,?,?) ON CONFLICT(event_key,setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=excluded.updated_at`).bind(EVENT_KEY,key,String(value),now).run();
+  return true;
+}
+export async function bonusDrawingEnabled(env){return (await getEventSetting(env,'bonus_drawing_enabled','1'))!=='0'}
 export async function insertLead(env,lead){
   if(!await ensureSchema(env))return false;
   const db=eventDb(env);
