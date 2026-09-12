@@ -1,4 +1,4 @@
-import {EVENT_KEY,PRIZES,ensureSchema,eventDb,hasDb,json,staffAuthorized} from '../_shared.js';
+import {EVENT_KEY,PRIZES,bonusDrawingEnabled,ensureSchema,eventDb,hasDb,json,staffAuthorized} from '../_shared.js';
 
 function smsState(data){
   const status=String(data?.to?.[0]?.status||data?.status||'').toLowerCase();
@@ -13,16 +13,18 @@ async function emailPrize(lead,prize,at){
 function smsSafe(v){
   return String(v||'').replace(/[–—]/g,'-').replace(/[’‘]/g,"'").replace(/[“”]/g,'"').normalize('NFKD').replace(/[^\x20-\x7E]/g,'').trim();
 }
-function prizeText(prize,correction){
+function prizeText(prize,correction,bonus){
   const corrected=correction?'Correction: ':'';
+  const bonusLine=bonus?' Take it by 9/25 to enter our bonus merch drawing.':'';
   if(prize==='F45 Kettlebell Keychain'){
-    return `F45 Pompano: ${corrected}You won a kettlebell keychain! We're also giving you 1 FREE class to try us out. We'll reach out to set it up. Take it by 9/25 to enter our bonus merch drawing. Questions? Call/text 954-302-3889. Reply STOP to opt out.`;
+    return `F45 Pompano: ${corrected}You won a kettlebell keychain! We're also giving you 1 FREE class to try us out. We'll reach out to set it up.${bonusLine} Questions? Call/text 954-302-3889. Reply STOP to opt out.`;
   }
-  return `F45 Pompano: ${corrected}You won ${smsSafe(prize)}! We'll reach out to set up your access. Take your first class by 9/25 to enter our bonus merch drawing. Questions? Call/text 954-302-3889. Reply STOP to opt out.`;
+  const classLine=bonus?' Take your first class by 9/25 to enter our bonus merch drawing.':'';
+  return `F45 Pompano: ${corrected}You won ${smsSafe(prize)}! We'll reach out to set up your access.${classLine} Questions? Call/text 954-302-3889. Reply STOP to opt out.`;
 }
-async function sendPrizeText(env,lead,prize,correction){
+async function sendPrizeText(env,lead,prize,correction,bonus){
   if(!env.TELNYX_API_KEY)return {status:'not_configured',message_id:null,error_code:null};
-  const text=prizeText(prize,correction);
+  const text=prizeText(prize,correction,bonus);
   try{
     const r=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify({from:env.TELNYX_FROM_NUMBER||'+17543463010',to:lead.phone,text})});
     let j={};try{j=await r.json()}catch{}
@@ -61,7 +63,8 @@ export async function onRequestPost(context){
     await db.prepare(`UPDATE event_leads SET prize=?,prize_saved_at=?,updated_at=? WHERE id=? AND event_key=?`).bind(prize,now,now,id,EVENT_KEY).run();
     let receipt={status:'not_needed',message_id:null,error_code:null};
     if(lead.event_sms_consent){
-      receipt=await sendPrizeText(env,lead,prize,correction);
+      let bonus=true;try{bonus=await bonusDrawingEnabled(env)}catch{}
+      receipt=await sendPrizeText(env,lead,prize,correction,bonus);
       await db.prepare(`UPDATE event_leads SET prize_text_status=?,prize_text_message_id=?,prize_text_error_code=?,updated_at=? WHERE id=? AND event_key=?`).bind(receipt.status,receipt.message_id,receipt.error_code,new Date().toISOString(),id,EVENT_KEY).run();
     }
     context.waitUntil(emailPrize(lead,prize,now).catch(()=>{}));
