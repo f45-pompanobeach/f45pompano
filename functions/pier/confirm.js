@@ -1,4 +1,4 @@
-import {markConfirmed} from '../api/pier/_shared.js';
+import {bonusDrawingEnabled,markConfirmed} from '../api/pier/_shared.js';
 
 const enc=new TextEncoder(),dec=new TextDecoder();
 function esc(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#039;')}
@@ -15,7 +15,9 @@ function page(o){
   }
   const locality=o.local?'':`<div class="visitor-note">NON-LOCAL ZIP</div>`;
   const monthDraw=`<div class="draw"><strong>1 Month Unlimited Drawing:</strong> Your confirmed event entry puts you in the drawing for 1 Month Unlimited at F45 Pompano Beach.</div>`;
-  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Entry Confirmed | F45 Pompano</title><style>${css}</style></head><body><main class="shell"><section class="card"><div class="check">✓</div><div class="eyebrow">ENTRY CONFIRMED</div><h1>${esc(o.name.toUpperCase())}, YOU'RE CONFIRMED!</h1><p class="lead">Your entry has been confirmed.</p>${locality}${monthDraw}<div class="draw bonus"><strong>Bonus Drawing:</strong> Complete your first F45 class by Friday, Sept. 25 to be entered to win the bonus prize package displayed at the event.</div><div class="show"><b>SHOW THIS SCREEN TO THE F45 TEAM</b><span>THEN YOU'RE READY TO SPIN</span></div><p class="reminder">After your spin, we’ll text your prize and remind you how to qualify for the bonus drawing.</p><p class="fine">Event and studio eligibility rules apply.</p></section></main></body></html>`
+  const bonus=o.bonus?`<div class="draw bonus"><strong>Bonus Drawing:</strong> Complete your first F45 class by Friday, Sept. 25 to be entered to win the bonus prize package displayed at the event.</div>`:'';
+  const reminder=o.bonus?`<p class="reminder">After your spin, we’ll text your prize and remind you how to qualify for the bonus drawing.</p>`:`<p class="reminder">After your spin, we’ll text your prize and redemption details.</p>`;
+  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Entry Confirmed | F45 Pompano</title><style>${css}</style></head><body><main class="shell"><section class="card"><div class="check">✓</div><div class="eyebrow">ENTRY CONFIRMED</div><h1>${esc(o.name.toUpperCase())}, YOU'RE CONFIRMED!</h1><p class="lead">Your entry has been confirmed.</p>${locality}${monthDraw}${bonus}<div class="show"><b>SHOW THIS SCREEN TO THE F45 TEAM</b><span>THEN YOU'RE READY TO SPIN</span></div>${reminder}<p class="fine">Event and studio eligibility rules apply.</p></section></main></body></html>`
 }
 function out(body,status=200){return new Response(body,{status,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store, max-age=0','x-robots-tag':'noindex, nofollow','x-content-type-options':'nosniff'}})}
 export async function onRequestGet(c){
@@ -26,6 +28,7 @@ export async function onRequestGet(c){
   const exp=parseInt(e,36);if(!Number.isFinite(exp)||exp<Math.floor(Date.now()/1000))return out(page({valid:false,expired:true}),410);
   let first;try{first=dec.decode(unb64(n)).slice(0,24)}catch{return out(page({valid:false}),400)}
   try{await markConfirmed(c.env,r)}catch{}
-  return out(page({valid:true,name:first,local:l==='1'}));
+  let bonus=true;try{bonus=await bonusDrawingEnabled(c.env)}catch{}
+  return out(page({valid:true,name:first,local:l==='1',bonus}));
 }
 export function onRequest(){return new Response('Method not allowed',{status:405})}
