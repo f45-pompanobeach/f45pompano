@@ -60,6 +60,7 @@ export async function ensureSchema(env){
   )`).run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_event_created ON event_leads(event_key,created_at DESC)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_token_nonce ON event_leads(token_nonce)').run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_event_phone ON event_leads(event_key,phone)').run();
   return true;
 }
 export async function getEventSetting(env,key,defaultValue=null){
@@ -75,6 +76,18 @@ export async function setEventSetting(env,key,value){
   return true;
 }
 export async function bonusDrawingEnabled(env){return (await getEventSetting(env,'bonus_drawing_enabled','1'))!=='0'}
+export async function findLeadByPhone(env,phone){
+  if(!await ensureSchema(env))return null;
+  const db=eventDb(env);
+  return await db.prepare(`SELECT id,first_name,last_name,email,phone,zip,is_local,marketing_opt_in,confirmed_at,prize,notes,created_at FROM event_leads WHERE event_key=? AND phone=? ORDER BY created_at ASC LIMIT 1`).bind(EVENT_KEY,phone).first();
+}
+export async function refreshLeadConfirmation(env,id,{confirmation_code,token_nonce,token_expires_at}={}){
+  if(!await ensureSchema(env)||!id)return false;
+  const db=eventDb(env),now=new Date().toISOString();
+  await db.prepare(`UPDATE event_leads SET updated_at=?,confirmation_code=?,token_nonce=?,token_expires_at=?,sms_message_id=NULL,sms_delivery_status='pending_send',sms_error_code=NULL WHERE event_key=? AND id=?`)
+    .bind(now,confirmation_code||null,token_nonce||null,token_expires_at||null,EVENT_KEY,id).run();
+  return true;
+}
 export async function insertLead(env,lead){
   if(!await ensureSchema(env))return false;
   const db=eventDb(env);
