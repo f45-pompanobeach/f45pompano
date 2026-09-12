@@ -1,4 +1,4 @@
-import {insertLead,updateLeadSms} from './_shared.js';
+import {findLeadByPhone,insertLead,refreshLeadConfirmation,updateLeadSms} from './_shared.js';
 
 const LOCAL_ZIPS = new Set(['33062','33060','33064','33069','33334','33308','33309','33441']);
 const enc = new TextEncoder();
@@ -56,11 +56,22 @@ export async function onRequestPost(context){
   if(d.verification_consent!==true||d.terms_accepted!==true)return reply({ok:false,message:'Please accept the required terms and entry-text consent.'},400);
   if(!env.TELNYX_API_KEY)return reply({ok:false,error:'sms_not_configured',message:'Confirmation texting is not configured yet. Please ask the F45 team for help.'},503);
 
-  const isLocal=LOCAL_ZIPS.has(z), t=await token(firstName,isLocal,env.PIER_TOKEN_SECRET||env.TELNYX_API_KEY);
+  let existing=null;
+  try{existing=await findLeadByPhone(env,p)}catch{}
+  const isRepeat=Boolean(existing);
+  const isLocal=isRepeat?Boolean(Number(existing.is_local)):LOCAL_ZIPS.has(z);
+  const tokenFirstName=isRepeat?String(existing.first_name||firstName):firstName;
+  const t=await token(tokenFirstName,isLocal,env.PIER_TOKEN_SECRET||env.TELNYX_API_KEY);
   const parts=t.split('.'), confirmationCode=String(parts[3]||'').slice(-6).toUpperCase(), tokenNonce=String(parts[3]||''), tokenExpiresAt=parseInt(parts[2],36);
-  const leadId=crypto.randomUUID(),createdAt=new Date().toISOString();
-  const leadBase={id:leadId,first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,created_at:createdAt,token_nonce:tokenNonce,token_expires_at:tokenExpiresAt,sms_delivery_status:'pending_send'};
-  try{await insertLead(env,leadBase)}catch{}
+  const createdAt=new Date().toISOString();
+  const leadId=isRepeat?existing.id:crypto.randomUUID();
+
+  if(isRepeat){
+    try{await refreshLeadConfirmation(env,leadId,{confirmation_code:confirmationCode,token_nonce:tokenNonce,token_expires_at:tokenExpiresAt})}catch{}
+  }else{
+    const leadBase={id:leadId,first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,created_at:createdAt,token_nonce:tokenNonce,token_expires_at:tokenExpiresAt,sms_delivery_status:'pending_send'};
+    try{await insertLead(env,leadBase)}catch{}
+  }
 
   const confirmUrl=`https://f45pompano.com/pier/confirm?t=${encodeURIComponent(t)}`;
   const text=`F45 Pompano: Confirm entry: ${confirmUrl} Reply STOP to opt out.`;
@@ -97,8 +108,10 @@ export async function onRequestPost(context){
     return reply({ok:false,error:'sms_delivery_failed',provider_code:state.error_code,provider_delivery_status:state.status,message:'The confirmation text could not be delivered. Please check your mobile number and try again.'},502);
   }
 
-  const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:createdAt,delivery_status:state.status||'accepted'};
-  context.waitUntil(emailLead(lead).catch(()=>{}));
-  return reply({ok:true,sent:true,lead_id:leadId,first_name:firstName,local_zip:isLocal,confirmation_code:confirmationCode,expires_minutes:20,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
+  if(!isRepeat){
+    const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:createdAt,delivery_status:state.status||'accepted'};
+    context.waitUntil(emailLead(lead).catch(()=>{}));
+  }
+  return reply({ok:true,sent:true,duplicate:isRepeat,reissued:isRepeat,lead_id:leadId,first_name:tokenFirstName,local_zip:isLocal,confirmation_code:confirmationCode,expires_minutes:20,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
 }
 export function onRequest(){return reply({ok:false,error:'method_not_allowed'},405)}
