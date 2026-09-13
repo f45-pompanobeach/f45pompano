@@ -1,0 +1,11 @@
+.notesave,.saveprize{
+  background:#F8D7D8!important;
+  color:#8F2426!important;
+  box-shadow:none!important;
+  transition:background-color .16s ease,color .16s ease,box-shadow .16s ease;
+}
+.notesave.dirty,.saveprize.dirty{
+  background:var(--red)!important;
+  color:#fff!important;
+  box-shadow:0 3px 0 rgba(80,0,0,.22)!important;
+}
