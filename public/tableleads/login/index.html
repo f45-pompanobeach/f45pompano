@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1C1C2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Table Leads">
+<title>Table Leads</title>
+<link rel="manifest" href="/tableleads/manifest.webmanifest">
+<link rel="icon" href="/tableleads/table-leads-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/tableleads/table-leads-icon.svg">
+<link rel="stylesheet" href="/tableleads/app.css">
+</head><body>
+<header class="top"><div class="topin"><div class="brand"><small>F45 POMPANO BEACH</small>TABLE LEADS</div>
+<div class="actions hidden" id="topActions"><button class="btn" id="formBtn">Entry Form</button><button class="btn" id="refreshBtn">Refresh</button><button class="btn" id="exportBtn">Export CSV</button><button class="btn" id="logoutBtn">Log Out</button></div></div></header>
+<main class="page">
+<section class="loginbox" id="loginBox"><h1>Table Leads Login</h1><p>Enter your 4-digit access code. Super Admin and event staff use this same login.</p><input class="code" id="accessCode" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code"><button class="btn red" id="loginBtn" style="width:100%;margin-top:12px">Continue</button><p id="loginError" style="color:#991B1B;font-weight:800"></p></section>
+<div id="staffApp" class="hidden"><section class="section"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h2 id="eventName" style="margin:0"></h2><div class="meta" id="eventMeta"></div><div id="kitWrap"></div></div><div class="pill count" id="leadCount"></div></div></section><section class="section"><div class="stats"><div class="stat"><b id="sTotal">0</b><span>Total Leads</span></div><div class="stat"><b id="sConfirmed">0</b><span>Confirmed</span></div><div class="stat"><b id="sNonlocal">0</b><span>Non-Local</span></div><div class="stat"><b id="sMarketing">0</b><span>Marketing Opt-In</span></div></div><div id="leadList" class="leadlist"></div></section></div>
+</main>
+<div id="sheetback" class="sheetback"><section class="sheet"><div class="sheethead"><div><h2 id="dname"></h2><div id="dsub" class="meta"></div></div><button id="closeSheet" class="close">×</button></div><div id="details" class="detailgrid"></div><div class="sectiontitle">Comments / Notes</div><textarea id="notes" class="notes" maxlength="1000" placeholder="e.g. Lives nearby, interested in strength classes, works mornings..."></textarea><p class="help">Private staff note · 1,000 characters max</p><button id="saveNotes" class="btn notesave">Save Notes</button><div id="prizeSection" class="hidden"><div class="sectiontitle">Prize</div><div id="prizes" class="prizes"></div><div id="custombox" class="custombox"><label for="customPrize">Write-In Prize</label><input id="customPrize" maxlength="60" autocomplete="off" placeholder="e.g. F45 T-Shirt + 3 Classes"></div><button id="savePrize" class="btn saveprize">Save Prize</button></div></section></div>
+<div id="toast" class="toast"></div>
+<script src="/tableleads/login/app.js"></script>
+</body></html>
