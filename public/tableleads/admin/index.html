@@ -10,7 +10,8 @@
 <link rel="manifest" href="/tableleads/manifest.webmanifest">
 <link rel="icon" href="/tableleads/table-leads-icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/tableleads/table-leads-icon.svg">
-<link rel="stylesheet" href="/tableleads/app.css">
+<link rel="stylesheet" href="/tableleads/app.css?v=2">
+<link rel="stylesheet" href="/tableleads/fixes.css?v=2">
 </head><body>
 <header class="top"><div class="topin"><div class="brand"><small>F45 POMPANO BEACH</small>TABLE LEADS — SUPER ADMIN</div><div class="actions"><button class="btn" id="generalBtn">General Leads</button><button class="btn" id="refreshBtn">Refresh</button><button class="btn" id="logoutBtn">Log Out</button></div></div></header>
 <main class="page">
@@ -23,5 +24,6 @@
 <div id="sheetback" class="sheetback"><section class="sheet"><div class="sheethead"><div><h2 id="dname"></h2><div id="dsub" class="meta"></div></div><button id="closeSheet" class="close">×</button></div><div id="details" class="detailgrid"></div><div class="sectiontitle">Comments / Notes</div><textarea id="notes" class="notes" maxlength="1000" placeholder="Private staff notes..."></textarea><p class="help">Private staff note · 1,000 characters max</p><button id="saveNotes" class="btn notesave">Save Notes</button><div id="leadPrizeSection" class="hidden"><div class="sectiontitle">Prize</div><div id="leadPrizes" class="prizes"></div><div id="leadCustombox" class="custombox"><label for="leadCustomPrize">Write-In Prize</label><input id="leadCustomPrize" maxlength="60" autocomplete="off" placeholder="e.g. F45 T-Shirt + 3 Classes"></div><button id="saveLeadPrize" class="btn saveprize">Save Prize</button></div></section></div>
 <div id="prizeConfigBack" class="sheetback"><section class="sheet"><div class="sheethead"><div><h2 id="prizeConfigTitle">Edit Prizes</h2><div class="meta">Turn prize selection on/off and edit the options shown to staff.</div></div><button id="closePrizeConfig" class="close">×</button></div><div class="field full" style="margin-top:16px"><label class="checkline"><input id="editPrizeEnabled" type="checkbox"><span>Enable prize selection for this event</span></label></div><div class="field full" style="margin-top:12px"><label>Prize Options — one per line</label><textarea id="editPrizeOptions" placeholder="1 Free Class&#10;3 Free Classes&#10;1 Week Unlimited"></textarea></div><button id="savePrizeConfig" class="btn red" style="width:100%;margin-top:12px">Save Prize Settings</button></section></div>
 <div id="toast" class="toast"></div>
+<script src="/tableleads/modal-scroll.js?v=2"></script>
 <script src="/tableleads/admin/app.js"></script>
 </body></html>
