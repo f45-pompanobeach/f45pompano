@@ -14,6 +14,13 @@ export function cleanEmail(v){return String(v||'').trim().toLowerCase().slice(0,
 export function cleanZip(v){const m=String(v||'').trim().match(/^\d{5}/);return m?m[0]:null}
 export function cleanKit(v){const k=String(v||'').trim().toUpperCase();return QR_KITS.includes(k)?k:null}
 export function cleanSlug(v){return String(v||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,64)}
+export function cleanPrizeList(v){
+  const a=Array.isArray(v)?v:String(v||'').split(/\r?\n/);
+  const out=[];
+  for(const item of a){const s=String(item||'').trim().replace(/\s+/g,' ').slice(0,60);if(s.length>=2&&!out.includes(s))out.push(s);if(out.length>=20)break}
+  return out;
+}
+export function eventPrizes(event){try{const a=JSON.parse(event?.prizes_json||'[]');return cleanPrizeList(a)}catch{return []}}
 export async function sha256Hex(value){const b=new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(String(value||''))));return [...b].map(x=>x.toString(16).padStart(2,'0')).join('')}
 function equal(a,b){if(a.length!==b.length)return false;let n=0;for(let i=0;i<a.length;i++)n|=a.charCodeAt(i)^b.charCodeAt(i);return n===0}
 
@@ -21,151 +28,61 @@ export async function ensureSchema(env){
   const db=eventDb(env);
   if(!db||typeof db.prepare!=='function')return false;
   await db.prepare(`CREATE TABLE IF NOT EXISTS event_leads (
-    id TEXT PRIMARY KEY,
-    event_key TEXT NOT NULL,
-    event_name TEXT,
-    event_type TEXT,
-    lead_source TEXT,
-    event_coach TEXT,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    zip TEXT NOT NULL,
-    is_local INTEGER NOT NULL DEFAULT 0,
-    marketing_opt_in INTEGER NOT NULL DEFAULT 0,
-    event_sms_consent INTEGER NOT NULL DEFAULT 0,
-    confirmation_code TEXT,
-    token_nonce TEXT,
-    token_expires_at INTEGER,
-    confirmed_at TEXT,
-    sms_message_id TEXT,
-    sms_delivery_status TEXT,
-    sms_error_code TEXT,
-    prize TEXT,
-    prize_saved_at TEXT,
-    prize_text_status TEXT,
-    prize_text_message_id TEXT,
-    prize_text_error_code TEXT,
-    metadata_json TEXT,
-    notes TEXT
+    id TEXT PRIMARY KEY,event_key TEXT NOT NULL,event_name TEXT,event_type TEXT,lead_source TEXT,event_coach TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,
+    first_name TEXT NOT NULL,last_name TEXT NOT NULL,email TEXT NOT NULL,phone TEXT NOT NULL,zip TEXT NOT NULL,is_local INTEGER NOT NULL DEFAULT 0,
+    marketing_opt_in INTEGER NOT NULL DEFAULT 0,event_sms_consent INTEGER NOT NULL DEFAULT 0,confirmation_code TEXT,token_nonce TEXT,token_expires_at INTEGER,
+    confirmed_at TEXT,sms_message_id TEXT,sms_delivery_status TEXT,sms_error_code TEXT,prize TEXT,prize_saved_at TEXT,prize_text_status TEXT,
+    prize_text_message_id TEXT,prize_text_error_code TEXT,metadata_json TEXT,notes TEXT
   )`).run();
   const leadCols=await db.prepare('PRAGMA table_info(event_leads)').all();
-  if(!(leadCols.results||[]).some(c=>c.name==='notes')){
-    try{await db.prepare('ALTER TABLE event_leads ADD COLUMN notes TEXT').run()}catch(e){if(!String(e?.message||e).toLowerCase().includes('duplicate column'))throw e}
-  }
+  if(!(leadCols.results||[]).some(c=>c.name==='notes')){try{await db.prepare('ALTER TABLE event_leads ADD COLUMN notes TEXT').run()}catch(e){if(!String(e?.message||e).toLowerCase().includes('duplicate column'))throw e}}
   await db.prepare(`CREATE TABLE IF NOT EXISTS lead_events (
-    event_key TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    slug TEXT NOT NULL UNIQUE,
-    event_date TEXT NOT NULL,
-    start_time TEXT NOT NULL,
-    end_time TEXT NOT NULL,
-    staff_code_hash TEXT,
-    qr_kit TEXT,
-    enabled INTEGER NOT NULL DEFAULT 1,
-    archived INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL
+    event_key TEXT PRIMARY KEY,name TEXT NOT NULL,slug TEXT NOT NULL UNIQUE,event_date TEXT NOT NULL,start_time TEXT NOT NULL,end_time TEXT NOT NULL,
+    staff_code_hash TEXT,qr_kit TEXT,enabled INTEGER NOT NULL DEFAULT 1,archived INTEGER NOT NULL DEFAULT 0,prize_enabled INTEGER NOT NULL DEFAULT 0,
+    prizes_json TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL
   )`).run();
-  await db.prepare(`CREATE TABLE IF NOT EXISTS lead_app_settings (
-    setting_key TEXT PRIMARY KEY,
-    setting_value TEXT NOT NULL,
-    updated_at TEXT NOT NULL
-  )`).run();
+  const eventCols=await db.prepare('PRAGMA table_info(lead_events)').all();
+  if(!(eventCols.results||[]).some(c=>c.name==='prize_enabled')){try{await db.prepare('ALTER TABLE lead_events ADD COLUMN prize_enabled INTEGER NOT NULL DEFAULT 0').run()}catch(e){if(!String(e?.message||e).toLowerCase().includes('duplicate column'))throw e}}
+  if(!(eventCols.results||[]).some(c=>c.name==='prizes_json')){try{await db.prepare('ALTER TABLE lead_events ADD COLUMN prizes_json TEXT').run()}catch(e){if(!String(e?.message||e).toLowerCase().includes('duplicate column'))throw e}}
+  await db.prepare(`CREATE TABLE IF NOT EXISTS lead_app_settings (setting_key TEXT PRIMARY KEY,setting_value TEXT NOT NULL,updated_at TEXT NOT NULL)`).run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_event_created ON event_leads(event_key,created_at DESC)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_event_phone ON event_leads(event_key,phone)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_lead_events_staff_code ON lead_events(staff_code_hash)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_lead_events_qr_kit ON lead_events(qr_kit)').run();
   const now=new Date().toISOString();
-  await db.prepare(`INSERT OR IGNORE INTO lead_events (event_key,name,slug,event_date,start_time,end_time,staff_code_hash,qr_kit,enabled,archived,created_at,updated_at)
-    VALUES ('2026-09-12-pier-cleanup','Pompano Beach Pier Cleanup','pier-cleanup-2026-09-12','2026-09-12','00:00','23:59',NULL,NULL,0,1,?,?)`).bind(now,now).run();
+  await db.prepare(`INSERT OR IGNORE INTO lead_events (event_key,name,slug,event_date,start_time,end_time,staff_code_hash,qr_kit,enabled,archived,prize_enabled,prizes_json,created_at,updated_at)
+    VALUES ('2026-09-12-pier-cleanup','Pompano Beach Pier Cleanup','pier-cleanup-2026-09-12','2026-09-12','00:00','23:59',NULL,NULL,0,1,1,?, ?,?)`).bind(JSON.stringify(['F45 Kettlebell Keychain','1 Free Class','3 Free Classes','1 Week Unlimited','2 Weeks Unlimited','You + Friend — 3 Free Classes Each']),now,now).run();
   return true;
 }
 
-export async function getAdminPinHash(env){
-  if(!await ensureSchema(env))return LEGACY_ADMIN_PIN_HASH;
-  const db=eventDb(env);
-  const row=await db.prepare(`SELECT setting_value FROM lead_app_settings WHERE setting_key='super_admin_pin_hash' LIMIT 1`).first();
-  return row?.setting_value||LEGACY_ADMIN_PIN_HASH;
-}
-export async function adminAuthorized(request,env){
-  const code=String(request.headers.get('x-table-code')||'').trim();
-  if(!/^\d{4}$/.test(code))return false;
-  return equal(await sha256Hex(code),await getAdminPinHash(env));
-}
-export async function setAdminPin(env,newCode){
-  if(!/^\d{4}$/.test(String(newCode||'')))throw new Error('invalid_pin');
-  await ensureSchema(env);
-  const db=eventDb(env),now=new Date().toISOString(),hash=await sha256Hex(newCode);
-  await db.prepare(`INSERT INTO lead_app_settings (setting_key,setting_value,updated_at) VALUES ('super_admin_pin_hash',?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=excluded.updated_at`).bind(hash,now).run();
-  return true;
-}
+export async function getAdminPinHash(env){if(!await ensureSchema(env))return LEGACY_ADMIN_PIN_HASH;const row=await eventDb(env).prepare(`SELECT setting_value FROM lead_app_settings WHERE setting_key='super_admin_pin_hash' LIMIT 1`).first();return row?.setting_value||LEGACY_ADMIN_PIN_HASH}
+export async function adminAuthorized(request,env){const code=String(request.headers.get('x-table-code')||'').trim();if(!/^\d{4}$/.test(code))return false;return equal(await sha256Hex(code),await getAdminPinHash(env))}
+export async function setAdminPin(env,newCode){if(!/^\d{4}$/.test(String(newCode||'')))throw new Error('invalid_pin');await ensureSchema(env);const db=eventDb(env),now=new Date().toISOString(),hash=await sha256Hex(newCode);await db.prepare(`INSERT INTO lead_app_settings (setting_key,setting_value,updated_at) VALUES ('super_admin_pin_hash',?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=excluded.updated_at`).bind(hash,now).run();return true}
 
 export async function eventForStaffCode(env,code){
-  if(!/^\d{4}$/.test(String(code||'')))return null;
-  if(!await ensureSchema(env))return null;
+  if(!/^\d{4}$/.test(String(code||''))||!await ensureSchema(env))return null;
   const db=eventDb(env),hash=await sha256Hex(code);
-  return await db.prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived FROM lead_events WHERE staff_code_hash=? AND archived=0 AND enabled=1 ORDER BY event_date DESC LIMIT 1`).bind(hash).first();
+  return db.prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived,prize_enabled,prizes_json FROM lead_events WHERE staff_code_hash=? AND archived=0 AND enabled=1 ORDER BY event_date DESC LIMIT 1`).bind(hash).first();
 }
 export async function staffEventFromRequest(request,env){return eventForStaffCode(env,String(request.headers.get('x-table-code')||'').trim())}
 
-function floridaParts(date=new Date()){
-  const parts=new Intl.DateTimeFormat('en-US',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date);
-  const o={};for(const p of parts)if(p.type!=='literal')o[p.type]=p.value;
-  return {date:`${o.year}-${o.month}-${o.day}`,time:`${o.hour}:${o.minute}`};
-}
+function floridaParts(date=new Date()){const parts=new Intl.DateTimeFormat('en-US',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date);const o={};for(const p of parts)if(p.type!=='literal')o[p.type]=p.value;return {date:`${o.year}-${o.month}-${o.day}`,time:`${o.hour}:${o.minute}`}}
 function mins(t){const m=String(t||'').match(/^(\d{2}):(\d{2})$/);return m?Number(m[1])*60+Number(m[2]):null}
-export function eventWindowIsActive(event,now=new Date()){
-  if(!event||Number(event.archived)||!Number(event.enabled))return false;
-  const p=floridaParts(now);if(p.date!==event.event_date)return false;
-  const n=mins(p.time),s=mins(event.start_time),e=mins(event.end_time);if(n===null||s===null||e===null)return false;
-  return n>=Math.max(0,s-60)&&n<=Math.min(1439,e+60);
-}
+export function eventWindowIsActive(event,now=new Date()){if(!event||Number(event.archived)||!Number(event.enabled))return false;const p=floridaParts(now);if(p.date!==event.event_date)return false;const n=mins(p.time),s=mins(event.start_time),e=mins(event.end_time);if(n===null||s===null||e===null)return false;return n>=Math.max(0,s-60)&&n<=Math.min(1439,e+60)}
 export async function resolveLeadEvent(env,{kit=null,eventSlug=null}={}){
   if(!await ensureSchema(env))return {event_key:GENERAL_EVENT_KEY,name:'General Leads',slug:null,source:'General Lead Form'};
-  const db=eventDb(env);
-  const slug=cleanSlug(eventSlug);
-  if(slug){
-    const event=await db.prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived FROM lead_events WHERE slug=? AND archived=0 AND enabled=1 LIMIT 1`).bind(slug).first();
-    if(event)return {...event,source:'Event Link'};
-  }
+  const db=eventDb(env),slug=cleanSlug(eventSlug);
+  if(slug){const event=await db.prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived,prize_enabled,prizes_json FROM lead_events WHERE slug=? AND archived=0 AND enabled=1 LIMIT 1`).bind(slug).first();if(event)return {...event,source:'Event Link'}}
   const k=cleanKit(kit);
-  if(k){
-    const event=await db.prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived FROM lead_events WHERE qr_kit=? AND archived=0 AND enabled=1 ORDER BY event_date DESC LIMIT 1`).bind(k).first();
-    if(event&&eventWindowIsActive(event))return {...event,source:`Event QR Kit ${k}`};
-  }
+  if(k){const event=await db.prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived,prize_enabled,prizes_json FROM lead_events WHERE qr_kit=? AND archived=0 AND enabled=1 ORDER BY event_date DESC LIMIT 1`).bind(k).first();if(event&&eventWindowIsActive(event))return {...event,source:`Event QR Kit ${k}`}}
   return {event_key:GENERAL_EVENT_KEY,name:'General Leads',slug:null,source:k?`Event QR Kit ${k} - Outside Event Window`:'General Lead Form'};
 }
 
-export async function findLeadByPhone(env,eventKey,phone){
-  if(!await ensureSchema(env))return null;
-  const db=eventDb(env);
-  return db.prepare(`SELECT * FROM event_leads WHERE event_key=? AND phone=? ORDER BY created_at ASC LIMIT 1`).bind(eventKey,phone).first();
-}
+export async function findLeadByPhone(env,eventKey,phone){if(!await ensureSchema(env))return null;return eventDb(env).prepare(`SELECT * FROM event_leads WHERE event_key=? AND phone=? ORDER BY created_at ASC LIMIT 1`).bind(eventKey,phone).first()}
 export async function saveLead(env,{event,first_name,last_name,email,phone,zip,is_local,marketing_opt_in,contact_consent}){
-  await ensureSchema(env);
-  const db=eventDb(env),now=new Date().toISOString();
-  const existing=await findLeadByPhone(env,event.event_key,phone);
-  if(existing){
-    await db.prepare(`UPDATE event_leads SET updated_at=?,first_name=?,last_name=?,email=?,zip=?,is_local=?,marketing_opt_in=CASE WHEN marketing_opt_in=1 OR ?=1 THEN 1 ELSE 0 END,event_sms_consent=CASE WHEN event_sms_consent=1 OR ?=1 THEN 1 ELSE 0 END,event_name=?,lead_source=? WHERE id=?`).bind(now,first_name,last_name,email,zip,is_local?1:0,marketing_opt_in?1:0,contact_consent?1:0,event.name,event.source,existing.id).run();
-    return {id:existing.id,duplicate:true,created_at:existing.created_at};
-  }
-  const id=crypto.randomUUID();
-  await db.prepare(`INSERT INTO event_leads (id,event_key,event_name,event_type,lead_source,event_coach,created_at,updated_at,first_name,last_name,email,phone,zip,is_local,marketing_opt_in,event_sms_consent,metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-    .bind(id,event.event_key,event.name,event.event_key===GENERAL_EVENT_KEY?'general':'community-event',event.source,null,now,now,first_name,last_name,email,phone,zip,is_local?1:0,marketing_opt_in?1:0,contact_consent?1:0,JSON.stringify({form:'table-leads-v2',event_slug:event.slug||null,qr_kit:event.qr_kit||null})).run();
-  return {id,duplicate:false,created_at:now};
+  await ensureSchema(env);const db=eventDb(env),now=new Date().toISOString(),existing=await findLeadByPhone(env,event.event_key,phone);
+  if(existing){await db.prepare(`UPDATE event_leads SET updated_at=?,first_name=?,last_name=?,email=?,zip=?,is_local=?,marketing_opt_in=CASE WHEN marketing_opt_in=1 OR ?=1 THEN 1 ELSE 0 END,event_sms_consent=CASE WHEN event_sms_consent=1 OR ?=1 THEN 1 ELSE 0 END,event_name=?,lead_source=? WHERE id=?`).bind(now,first_name,last_name,email,zip,is_local?1:0,marketing_opt_in?1:0,contact_consent?1:0,event.name,event.source,existing.id).run();return {id:existing.id,duplicate:true,created_at:existing.created_at}}
+  const id=crypto.randomUUID();await db.prepare(`INSERT INTO event_leads (id,event_key,event_name,event_type,lead_source,event_coach,created_at,updated_at,first_name,last_name,email,phone,zip,is_local,marketing_opt_in,event_sms_consent,metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(id,event.event_key,event.name,event.event_key===GENERAL_EVENT_KEY?'general':'community-event',event.source,null,now,now,first_name,last_name,email,phone,zip,is_local?1:0,marketing_opt_in?1:0,contact_consent?1:0,JSON.stringify({form:'table-leads-v2',event_slug:event.slug||null,qr_kit:event.qr_kit||null})).run();return {id,duplicate:false,created_at:now};
 }
 
-export async function createUniqueSlug(db,name,date){
-  const base=cleanSlug(`${name}-${date}`)||`event-${date}`;
-  let slug=base;
-  for(let i=0;i<20;i++){
-    const row=await db.prepare('SELECT event_key FROM lead_events WHERE slug=? LIMIT 1').bind(slug).first();
-    if(!row)return slug;
-    slug=`${base}-${String(Math.floor(1000+Math.random()*9000))}`;
-  }
-  return `${base}-${crypto.randomUUID().slice(0,8)}`;
-}
+export async function createUniqueSlug(db,name,date){const base=cleanSlug(`${name}-${date}`)||`event-${date}`;let slug=base;for(let i=0;i<20;i++){const row=await db.prepare('SELECT event_key FROM lead_events WHERE slug=? LIMIT 1').bind(slug).first();if(!row)return slug;slug=`${base}-${String(Math.floor(1000+Math.random()*9000))}`}return `${base}-${crypto.randomUUID().slice(0,8)}`}
