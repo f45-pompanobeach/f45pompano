@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1C1C2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Table Leads">
+<title>Connect with F45 Pompano Beach</title>
+<link rel="manifest" href="/tableleads/manifest.webmanifest">
+<link rel="icon" href="/tableleads/table-leads-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/tableleads/table-leads-icon.svg">
+<link rel="stylesheet" href="/tableleads/app.css">
+<style>
+.formpage{min-height:100vh;padding:20px 12px;display:flex;justify-content:center;align-items:flex-start}
+.formwrap{width:min(680px,100%)}
+.hero{background:var(--navy);color:#fff;border-radius:18px 18px 0 0;padding:28px 22px;text-align:center;border-bottom:5px solid #FFB800}
+.hero .eyebrow{font-size:12px;font-weight:900;letter-spacing:1.8px;color:var(--yellow)}
+.hero h1{font-size:clamp(28px,7vw,42px);margin:8px 0;line-height:1;font-weight:900;text-transform:uppercase}
+.hero p{margin:0;color:#D8DBEA;font-size:14px;line-height:1.5}
+.formcard{background:#fff;border-top:6px solid var(--red);border-radius:0 0 18px 18px;box-shadow:0 18px 50px rgba(28,28,46,.15)}
+#leadForm{padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.formfield{display:flex;flex-direction:column;gap:6px;min-width:0}
+.formfield.full{grid-column:1/-1}
+.formfield label{font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--navy)}
+.formfield input{width:100%;min-width:0;border:2px solid #B8C0CC;border-radius:8px;padding:13px 12px;font-size:16px}
+.consent{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid #D1D5DB;border-radius:8px;background:#F7F8FB;font-size:12px;line-height:1.5;color:#374151}
+.consent input{width:18px;height:18px;min-width:18px;margin:1px 0 0;accent-color:var(--red)}
+.submit{grid-column:1/-1;border:0;border-radius:8px;background:var(--red);color:#fff;padding:16px;font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.7px}
+.fine{grid-column:1/-1;color:var(--muted);font-size:11px;text-align:center;line-height:1.45;margin:0}
+.trap{position:absolute;left:-10000px}
+.message{display:none;padding:34px 24px 38px;text-align:center}
+.message.show{display:block}
+.message .icon{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;margin:0 auto 15px;background:#E9FBEF;color:var(--green);font-size:40px;font-weight:900}
+.message h2{margin:0 0 9px;font-size:30px;color:var(--navy)}
+.message p{margin:0 auto;max-width:430px;color:#4B5563;line-height:1.55}
+.error{display:none;margin:0 22px 22px;padding:12px 14px;background:#FFF1F1;border:1px solid #F3B1B1;color:#991B1B;border-radius:8px;font-size:13px;font-weight:700}
+.error.show{display:block}
+.footer{text-align:center;color:#7A8190;font-size:10px;margin-top:14px}
+@media(max-width:560px){#leadForm{grid-template-columns:1fr;padding:18px}.formfield{grid-column:1/-1}.formpage{padding:12px 8px}}
+</style></head>
+<body>
+<main class="formpage"><div class="formwrap">
+<section class="hero"><div class="eyebrow">F45 TRAINING POMPANO BEACH</div><h1>Stay Connected</h1><p>Share your info and our team can follow up with you.</p></section>
+<section class="formcard">
+<form id="leadForm" novalidate>
+<div class="formfield"><label for="fn">First Name</label><input id="fn" autocomplete="given-name" required maxlength="40"></div>
+<div class="formfield"><label for="ln">Last Name</label><input id="ln" autocomplete="family-name" required maxlength="40"></div>
+<div class="formfield full"><label for="em">Email</label><input id="em" type="email" autocomplete="email" required></div>
+<div class="formfield"><label for="ph">Mobile Number</label><input id="ph" type="tel" inputmode="tel" autocomplete="tel" required></div>
+<div class="formfield"><label for="zp">Home ZIP Code</label><input id="zp" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" required></div>
+<div class="trap"><input id="web" tabindex="-1" autocomplete="off"></div>
+<label class="consent"><input id="cc" type="checkbox" required><span>I agree that F45 Training Pompano Beach may contact me by call or text about this inquiry or event entry. Message and data rates may apply. Reply STOP to opt out.</span></label>
+<label class="consent"><input id="tc" type="checkbox" required><span>I agree to the <a href="/terms/" target="_blank">Terms &amp; Conditions</a> and acknowledge the <a href="/privacy/" target="_blank">Privacy Policy</a>.</span></label>
+<label class="consent"><input id="mk" type="checkbox"><span>I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach. Consent is not a condition of purchase. Reply STOP to opt out.</span></label>
+<button class="submit" id="submitBtn" type="submit">Submit</button>
+<p class="fine">Your information is kept with F45 Training Pompano Beach and organized by the event or source where you connected with us.</p>
+</form>
+<div class="error" id="error"></div>
+<div class="message" id="success"><div class="icon">✓</div><h2>You're All Set!</h2><p>Thanks for connecting with F45 Training Pompano Beach.</p><button class="btn navy" id="again" type="button" style="margin-top:20px">Start Next Entry</button></div>
+</section>
+<div class="footer">F45 Training Pompano Beach · 824 N Federal Hwy, Pompano Beach, FL</div>
+</div></main>
+<script src="/tableleads/form.js"></script>
+</body></html>
