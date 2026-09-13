@@ -5,6 +5,7 @@
 *{box-sizing:border-box}
 html,body{width:100%;max-width:100%;overflow-x:hidden}
 body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#111;-webkit-text-size-adjust:100%}
+body.modal-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 button,input,select,textarea{font:inherit}
 button{touch-action:manipulation}
 a{color:inherit}
@@ -26,15 +27,23 @@ a{color:inherit}
 .btn.yellow{background:#FFF6CC;color:#715500;border:1px solid #EED85B}
 .btn.danger{background:#FFF1F1;color:#991B1B;border:1px solid #EFB4B4}
 .btn:disabled{opacity:.55;cursor:default}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
-.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;width:100%;min-width:0;max-width:100%}
+.grid>*{min-width:0;max-width:100%}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0;width:100%;max-width:100%}
 .field.full{grid-column:1/-1}
 .field>label:not(.checkline){font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.7px;color:#475467}
 .field input:not([type=checkbox]),.field select,.field textarea{
   width:100%;max-width:100%;min-width:0;display:block;padding:11px;border:2px solid #C5CBD5;
   border-radius:8px;background:#fff;color:#111;font-size:16px;line-height:1.2
 }
-.field input[type=date],.field input[type=time]{min-width:0;width:100%;max-width:100%;overflow:hidden}
+.field input[type=date],.field input[type=time]{
+  -webkit-appearance:none;appearance:none;box-sizing:border-box;display:block;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  inline-size:100%!important;min-inline-size:0!important;max-inline-size:100%!important;
+  overflow:hidden;text-align:left
+}
+.field input[type=date]::-webkit-date-and-time-value,.field input[type=time]::-webkit-date-and-time-value{text-align:left;min-width:0}
+.field input[type=date]::-webkit-datetime-edit,.field input[type=time]::-webkit-datetime-edit{min-width:0;padding:0}
 .field textarea{min-height:112px;resize:vertical;line-height:1.4}
 .checkline{
   display:flex;align-items:center;gap:10px;width:100%;min-width:0;padding:12px;
@@ -79,9 +88,9 @@ a{color:inherit}
 .tag.prize{background:#FFF8D8;color:#765A00;border:1px solid #F0D54F}
 .tag.ok{background:#E8F8EE;color:#16833B}
 .empty{text-align:center;color:var(--muted);padding:28px}
-.sheetback{display:none;position:fixed;inset:0;background:rgba(12,14,25,.55);z-index:30;padding:18px;align-items:flex-end;justify-content:center}
+.sheetback{display:none;position:fixed;inset:0;background:rgba(12,14,25,.55);z-index:30;padding:18px;align-items:flex-end;justify-content:center;overflow:hidden;overscroll-behavior:contain;touch-action:none}
 .sheetback.show{display:flex}
-.sheet{background:#fff;width:min(620px,100%);max-height:90vh;overflow:auto;overflow-x:hidden;border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.sheet{background:#fff;width:min(620px,100%);max-height:90vh;overflow-y:auto;overflow-x:hidden;border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
 .sheethead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .sheet h2{margin:0;color:var(--navy);font-size:22px}
 .close{border:0;background:#F3F4F6;width:36px;height:36px;min-width:36px;border-radius:50%;font-size:20px}
@@ -115,16 +124,16 @@ a{color:inherit}
 @media(max-width:720px){
   .page{padding:12px 8px 56px}
   .topin{align-items:flex-start;flex-direction:column}
-  .grid{grid-template-columns:1fr}
+  .grid{grid-template-columns:minmax(0,1fr)}
   .field.full{grid-column:auto}
   .kits{grid-template-columns:1fr 1fr}
   .stats{grid-template-columns:1fr 1fr}
-  .eventgrid{grid-template-columns:1fr}
+  .eventgrid{grid-template-columns:minmax(0,1fr)}
   .leadrow{grid-template-columns:38px minmax(0,1fr)}
   .tags{grid-column:2;justify-content:flex-start;max-width:none}
   .detailgrid{grid-template-columns:1fr}
   .prizes{grid-template-columns:1fr}
   .sheetback{padding:0}
-  .sheet{border-radius:18px 18px 0 0;max-height:92vh}
-  .field input[type=date],.field input[type=time]{width:100%!important;max-width:100%!important;min-width:0!important}
+  .sheet{border-radius:18px 18px 0 0;max-height:92dvh;height:auto}
+  .field input[type=date],.field input[type=time]{width:100%!important;max-width:100%!important;min-width:0!important;inline-size:100%!important;min-inline-size:0!important;max-inline-size:100%!important}
 }
