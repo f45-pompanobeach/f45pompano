@@ -10,7 +10,7 @@ export async function onRequestGet({request,env}){
   if(!await adminAuthorized(request,env))return json({ok:false,error:'unauthorized'},401);
   if(!await ensureSchema(env))return json({ok:false,error:'db_unavailable'},503);
   const db=eventDb(env);
-  const q=await db.prepare(`SELECT e.event_key,e.name,e.slug,e.event_date,e.start_time,e.end_time,e.qr_kit,e.enabled,e.archived,e.prize_enabled,e.prizes_json,e.created_at,e.updated_at,
+  const q=await db.prepare(`SELECT e.event_key,e.name,e.slug,e.event_date,e.start_time,e.end_time,e.qr_kit,e.enabled,e.archived,e.prize_enabled,e.prizes_json,e.confirmation_enabled,e.created_at,e.updated_at,
     (SELECT COUNT(*) FROM event_leads l WHERE l.event_key=e.event_key) AS lead_count,
     CASE WHEN e.staff_code_hash IS NULL THEN 0 ELSE 1 END AS code_set
     FROM lead_events e ORDER BY e.event_date DESC,e.start_time DESC`).all();
@@ -25,14 +25,14 @@ export async function onRequestPost({request,env}){
   const db=eventDb(env),action=String(body.action||'create');
   if(action==='create'){
     const name=cleanName(body.name),date=String(body.event_date||''),start=String(body.start_time||''),end=String(body.end_time||''),code=String(body.staff_code||''),kit=cleanKit(body.qr_kit);
-    const prizeEnabled=body.prize_enabled===true||body.prize_enabled===1,prizes=cleanPrizeList(body.prizes||[]);
+    const prizeEnabled=body.prize_enabled===true||body.prize_enabled===1,prizes=cleanPrizeList(body.prizes||[]),confirmationEnabled=body.confirmation_enabled===true||body.confirmation_enabled===1;
     if(name.length<2||!validDate(date)||!validTime(start)||!validTime(end)||min(start)>=min(end)||!/^\d{4}$/.test(code))return json({ok:false,error:'invalid_event',message:'Enter an event name, date, valid start/end times, and a 4-digit event code.'},400);
     if(!await codeAvailable(env,code))return json({ok:false,error:'code_in_use',message:'That 4-digit code is already in use or matches the Super Admin code.'},409);
     const eventKey=`evt_${crypto.randomUUID()}`,slug=await createUniqueSlug(db,name,date),now=new Date().toISOString(),hash=await sha256Hex(code);
     if(kit)await db.prepare('UPDATE lead_events SET qr_kit=NULL,updated_at=? WHERE qr_kit=? AND archived=0').bind(now,kit).run();
-    await db.prepare(`INSERT INTO lead_events (event_key,name,slug,event_date,start_time,end_time,staff_code_hash,qr_kit,enabled,archived,prize_enabled,prizes_json,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,1,0,?,?,?,?)`)
-      .bind(eventKey,name,slug,date,start,end,hash,kit,prizeEnabled?1:0,JSON.stringify(prizes),now,now).run();
-    return json({ok:true,event:{event_key:eventKey,name,slug,event_date:date,start_time:start,end_time:end,qr_kit:kit,staff_code:code,prize_enabled:prizeEnabled,prizes}});
+    await db.prepare(`INSERT INTO lead_events (event_key,name,slug,event_date,start_time,end_time,staff_code_hash,qr_kit,enabled,archived,prize_enabled,prizes_json,confirmation_enabled,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,1,0,?,?,?,?,?)`)
+      .bind(eventKey,name,slug,date,start,end,hash,kit,prizeEnabled?1:0,JSON.stringify(prizes),confirmationEnabled?1:0,now,now).run();
+    return json({ok:true,event:{event_key:eventKey,name,slug,event_date:date,start_time:start,end_time:end,qr_kit:kit,staff_code:code,prize_enabled:prizeEnabled,prizes,confirmation_enabled:confirmationEnabled}});
   }
   const eventKey=String(body.event_key||'').trim();if(!eventKey)return json({ok:false,error:'missing_event'},400);
   const existing=await db.prepare('SELECT * FROM lead_events WHERE event_key=? LIMIT 1').bind(eventKey).first();if(!existing)return json({ok:false,error:'not_found'},404);
@@ -41,9 +41,10 @@ export async function onRequestPost({request,env}){
   if(action==='update'){
     const name=cleanName(body.name??existing.name),date=String(body.event_date??existing.event_date),start=String(body.start_time??existing.start_time),end=String(body.end_time??existing.end_time);
     const kit=body.qr_kit===undefined?existing.qr_kit:(body.qr_kit===null||body.qr_kit===''?null:cleanKit(body.qr_kit));
+    const confirmationEnabled=body.confirmation_enabled===undefined?Boolean(Number(existing.confirmation_enabled)):(body.confirmation_enabled===true||body.confirmation_enabled===1);
     if(name.length<2||!validDate(date)||!validTime(start)||!validTime(end)||min(start)>=min(end))return json({ok:false,error:'invalid_event',message:'Check the event name, date, and times.'},400);
     if(kit)await db.prepare('UPDATE lead_events SET qr_kit=NULL,updated_at=? WHERE qr_kit=? AND event_key<>? AND archived=0').bind(now,kit,eventKey).run();
-    await db.prepare('UPDATE lead_events SET name=?,event_date=?,start_time=?,end_time=?,qr_kit=?,updated_at=? WHERE event_key=?').bind(name,date,start,end,kit,now,eventKey).run();return json({ok:true});
+    await db.prepare('UPDATE lead_events SET name=?,event_date=?,start_time=?,end_time=?,qr_kit=?,confirmation_enabled=?,updated_at=? WHERE event_key=?').bind(name,date,start,end,kit,confirmationEnabled?1:0,now,eventKey).run();return json({ok:true,confirmation_enabled:confirmationEnabled});
   }
   if(action==='update_prizes'){
     const enabled=body.prize_enabled===true||body.prize_enabled===1,prizes=cleanPrizeList(body.prizes||[]);
