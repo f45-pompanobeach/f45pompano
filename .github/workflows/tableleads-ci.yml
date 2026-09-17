@@ -1,0 +1,43 @@
+name: Table Leads CI
+
+on:
+  push:
+    branches: [main, tableleads-v3]
+    paths:
+      - 'public/tableleads/**'
+      - 'functions/api/leads/**'
+      - 'functions/tableleads/**'
+      - '.github/workflows/tableleads-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check Table Leads JavaScript
+        run: |
+          set -euo pipefail
+          node --check public/tableleads/admin/app.js
+          node --check public/tableleads/login/app.js
+          node --check public/tableleads/form.js
+          node --check public/tableleads/modal-scroll.js
+          node --check public/tableleads/save-state.js
+          node --check public/tableleads/sw.js
+          node --check functions/api/leads/_shared.js
+          node --check functions/api/leads/auth.js
+          node --check functions/api/leads/register.js
+          node --check functions/api/leads/admin/events.js
+          node --check functions/api/leads/admin/leads.js
+          node --check functions/api/leads/admin/status.js
+          node --check functions/api/leads/staff/leads.js
+          node --check functions/api/leads/staff/status.js
+          node --check functions/tableleads/confirm.js
+      - name: Build site
+        run: npm run build
