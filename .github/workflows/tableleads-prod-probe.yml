@@ -1,0 +1,49 @@
+name: Table Leads Production Probe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/tableleads/**'
+      - 'functions/api/leads/**'
+      - 'functions/tableleads/**'
+      - '.github/workflows/tableleads-prod-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for production and verify Table Leads
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://f45pompano.com'
+          ok=0
+          for i in $(seq 1 24); do
+            login="$(curl -fsSL --max-time 15 "$base/tableleads/login/?probe=$GITHUB_SHA" || true)"
+            admin="$(curl -fsSL --max-time 15 "$base/tableleads/admin/?probe=$GITHUB_SHA" || true)"
+            form="$(curl -fsSL --max-time 15 "$base/tableleads/?probe=$GITHUB_SHA" || true)"
+            if grep -q 'id="statusFilter"' <<<"$login" && \
+               grep -q 'id="editEventBack"' <<<"$admin" && \
+               grep -q 'id="confirmationEnabled"' <<<"$admin" && \
+               grep -q '/tableleads/form.js?v=4' <<<"$form"; then
+              ok=1
+              echo "Production static assets converged on attempt $i."
+              break
+            fi
+            echo "Attempt $i: production has not converged yet."
+            sleep 10
+          done
+          test "$ok" -eq 1
+
+          staff_status="$(curl -sS -o /tmp/staff-status.txt -w '%{http_code}' --max-time 15 -X POST "$base/api/leads/staff/status" -H 'content-type: application/json' --data '{}')"
+          admin_status="$(curl -sS -o /tmp/admin-status.txt -w '%{http_code}' --max-time 15 -X POST "$base/api/leads/admin/status" -H 'content-type: application/json' --data '{}')"
+          test "$staff_status" = '401'
+          test "$admin_status" = '401'
+          grep -q 'unauthorized' /tmp/staff-status.txt
+          grep -q 'unauthorized' /tmp/admin-status.txt
+          echo "Production Functions routes verified."
