@@ -395,6 +395,52 @@ $('pageForm').addEventListener('submit',async e=>{
   finally{state.publishing=false;btn.textContent='Save Page';updateSaveStates()}
 });
 
+function openDeleteDialog(){
+  return new Promise(resolve=>{
+    const dialog=$('deleteDialog');
+    const input=$('deleteConfirmInput');
+    const confirmBtn=$('confirmDeleteBtn');
+    const cancelBtn=$('cancelDeleteBtn');
+    let settled=false;
+
+    function finish(ok){
+      if(settled)return;
+      settled=true;
+      dialog.classList.add('hidden');
+      input.value='';
+      confirmBtn.disabled=true;
+      input.removeEventListener('input',onInput);
+      input.removeEventListener('keydown',onKeydown);
+      confirmBtn.removeEventListener('click',onConfirm);
+      cancelBtn.removeEventListener('click',onCancel);
+      dialog.removeEventListener('click',onBackdrop);
+      resolve(ok);
+    }
+    function onInput(){
+      const upper=input.value.toUpperCase();
+      if(input.value!==upper)input.value=upper;
+      confirmBtn.disabled=upper!=='DELETE';
+    }
+    function onKeydown(e){
+      if(e.key==='Escape'){e.preventDefault();finish(false);}
+      if(e.key==='Enter'&&input.value==='DELETE'){e.preventDefault();finish(true);}
+    }
+    function onConfirm(){finish(input.value==='DELETE');}
+    function onCancel(){finish(false);}
+    function onBackdrop(e){if(e.target===dialog)finish(false);}
+
+    input.value='';
+    confirmBtn.disabled=true;
+    dialog.classList.remove('hidden');
+    input.addEventListener('input',onInput);
+    input.addEventListener('keydown',onKeydown);
+    confirmBtn.addEventListener('click',onConfirm);
+    cancelBtn.addEventListener('click',onCancel);
+    dialog.addEventListener('click',onBackdrop);
+    requestAnimationFrame(()=>input.focus());
+  });
+}
+
 $('resetPageBtn').onclick=async()=>{
   if(!state.selected)return;
   const name=state.selected.partner||state.selected.slug;
@@ -402,8 +448,8 @@ $('resetPageBtn').onclick=async()=>{
   if(isReset){
     if(!confirm('Reset this page back to its repository/global defaults?'))return;
   }else{
-    const typed=prompt('This will permanently delete this landing page. Confirm DELETE to continue.','DELETE');
-    if(typed!=='DELETE')return;
+    const confirmed=await openDeleteDialog();
+    if(!confirmed)return;
   }
   try{
     const deletedSlug=state.selected.slug;
