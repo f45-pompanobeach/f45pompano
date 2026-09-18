@@ -63,7 +63,7 @@ export async function setGlobal(env,value){const v=sanitizeGlobal(value);return 
 export async function getPage(env,slug){const s=cleanSlug(slug==='root'?'root':slug);if(!s)return null;return (await readSetting(env,PAGE_PREFIX+s))?.value||null}
 export async function setPage(env,input){const value=sanitizePage(input,input.slug);return {value,updated_at:await writeSetting(env,PAGE_PREFIX+value.slug,value)}}
 export async function deletePage(env,slug){
-  const s=cleanSlug(slug);if(!s||s==='root'||s==='social-trial')throw new Error('invalid_slug');
+  const s=cleanSlug(slug);if(!s||s==='social-trial')throw new Error('invalid_slug');
   await ensureSchema(env);await eventDb(env).prepare('DELETE FROM lead_app_settings WHERE setting_key=?').bind(PAGE_PREFIX+s).run();return true;
 }
 export async function listPages(env){
