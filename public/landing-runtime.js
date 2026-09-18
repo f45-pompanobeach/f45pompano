@@ -27,9 +27,10 @@
   }
   function apply(cfg){
     window.__LANDING_CONFIG__=cfg;
-    const page=cfg.page||{};
+    const storedPage=cfg.page||{};
     const global=cfg.global||{};
-    const isRoot=cfg.slug==='root'||page.pageKind==='root';
+    const page={...global,...storedPage};
+    const isRoot=cfg.slug==='root'||storedPage.pageKind==='root';
     if(page.enabled===false&&!isRoot){
       document.body.innerHTML='<main style="font-family:system-ui;padding:48px 20px;text-align:center"><h1>This offer is currently unavailable.</h1><p>Please contact F45 Training Pompano Beach for current options.</p></main>';
       return;
@@ -38,7 +39,7 @@
     const trialCost=page.trialCost||'';
     const offer=count&&trialCost?count+' for '+trialCost+' Trial':'Trial';
 
-    setVideo(page.videoUrl||global.defaultVideoUrl||'');
+    setVideo(storedPage.videoUrl||global.defaultVideoUrl||'');
 
     if(page.trialType&&page.trialCost){
       const hero=document.querySelector(isRoot?'.root-hero-copy h1':'.partner-hero-copy h1');
@@ -55,6 +56,8 @@
         if(success)success.textContent='Your '+page.trialType+' for '+page.trialCost+' offer is ready.';
         const cta=document.querySelector('#rootClaimSuccess .promo-claim-btn');
         if(cta&&page.mindbodyUrl)cta.href=page.mindbodyUrl;
+        const note=document.querySelector('.root-form-small-note');
+        if(note&&page.firstClassBookingText)note.textContent=page.firstClassBookingText;
       }else{
         const h=document.querySelector('.partner-exclusive-header h2');
         if(h)h.textContent=(page.partner||'Partner')+' Exclusive';
@@ -71,6 +74,8 @@
           cta.textContent='Continue to Mindbody — '+page.trialCost+' Trial';
           if(page.mindbodyUrl)cta.href=page.mindbodyUrl;
         }
+        const note=document.querySelector('.form-small-note');
+        if(note&&page.firstClassBookingText)note.textContent=page.firstClassBookingText;
         const banner=document.querySelector('.promo-code-box span');
         if(banner&&page.partner)banner.textContent=page.partner+' Exclusive Offer';
       }
