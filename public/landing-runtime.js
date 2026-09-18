@@ -42,6 +42,9 @@
     const count=countFromType(page.trialType);
     const trialCost=page.trialCost||'';
     const offer=count&&trialCost?count+' for '+trialCost+' Trial':'Trial';
+    const embeddedPartnerInput=document.querySelector('#partnerLeadForm input[name="Partner"]');
+    const embeddedPartner=embeddedPartnerInput&&embeddedPartnerInput.value?embeddedPartnerInput.value.trim():'';
+    const partnerName=storedPage.partner||embeddedPartner||'Partner';
 
     setVideo(storedPage.videoUrl||global.defaultVideoUrl||'/trial-video.mp4');
 
@@ -64,15 +67,15 @@
         if(note&&page.firstClassBookingText)note.textContent=page.firstClassBookingText;
       }else{
         const h=document.querySelector('.partner-exclusive-header h2');
-        if(h)h.textContent=(page.partner||'Partner')+' Exclusive';
+        if(h)h.textContent=partnerName+' Exclusive';
         const p=document.querySelector('.partner-exclusive-header p');
         if(p)p.textContent='Submit your info first. Then your exclusive '+page.trialType+' for '+page.trialCost+' offer will unlock.';
         const offerInput=document.querySelector('#partnerLeadForm input[name="Offer"]');
         if(offerInput)offerInput.value=page.trialType+' for '+page.trialCost;
         const partnerInput=document.querySelector('#partnerLeadForm input[name="Partner"]');
-        if(partnerInput&&page.partner)partnerInput.value=page.partner;
+        if(partnerInput)partnerInput.value=partnerName;
         const success=document.querySelector('#claimSuccess h3');
-        if(success&&page.partner)success.textContent='Your '+page.partner+' exclusive '+page.trialType+' for '+page.trialCost+' offer is ready.';
+        if(success)success.textContent='Your '+partnerName+' exclusive '+page.trialType+' for '+page.trialCost+' offer is ready.';
         const cta=document.querySelector('#claimSuccess .screenshot-cta');
         if(cta){
           cta.textContent='Continue to Mindbody — '+page.trialCost+' Trial';
@@ -81,7 +84,7 @@
         const note=document.querySelector('.form-small-note');
         if(note&&page.firstClassBookingText)note.textContent=page.firstClassBookingText;
         const banner=document.querySelector('.promo-code-box span');
-        if(banner&&page.partner)banner.textContent=page.partner+' Exclusive Offer';
+        if(banner)banner.textContent=partnerName+' Exclusive Offer';
       }
 
       const title='F45 Training Pompano Beach | '+page.trialType+' for '+page.trialCost;
