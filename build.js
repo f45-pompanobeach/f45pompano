@@ -482,12 +482,12 @@ const partnerRootFormCss = String.raw`
 .screenshot-hero{width:100% !important;max-width:none !important;min-height:clamp(760px,82vw,920px) !important;height:auto !important;margin:0 !important;padding:42px 20px !important;display:flex !important;align-items:center !important;justify-content:center !important;position:relative !important;overflow:hidden !important;background:#000 !important;background-image:none !important;line-height:normal !important;}
 .screenshot-hero-video{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;object-fit:cover !important;opacity:1 !important;filter:saturate(1.05) !important;z-index:1 !important;}
 .screenshot-hero::after{content:"" !important;position:absolute !important;inset:0 !important;z-index:2 !important;background:linear-gradient(90deg,rgba(0,0,0,.76),rgba(0,0,0,.42),rgba(0,0,0,.68)) !important;pointer-events:none !important;}
-.partner-hero-shell{position:relative !important;z-index:12 !important;width:min(1120px,100%) !important;display:grid !important;grid-template-columns:minmax(0,1fr) minmax(390px,500px) !important;gap:34px !important;align-items:center !important;margin:0 auto !important;}
+.partner-hero-shell{position:relative !important;z-index:12 !important;width:min(1120px,100%) !important;display:grid !important;grid-template-columns:minmax(0,1fr) minmax(360px,500px) !important;gap:34px !important;align-items:center !important;margin:0 auto !important;}
 .partner-hero-copy{color:#fff !important;text-shadow:0 3px 14px rgba(0,0,0,.58) !important;}
 .partner-hero-eyebrow{color:#FFCC00 !important;font-size:13px !important;font-weight:900 !important;letter-spacing:2.4px !important;text-transform:uppercase !important;margin-bottom:12px !important;}
-.partner-hero-copy h1{color:#fff !important;font-size:clamp(2.35rem,5.6vw,4.7rem) !important;line-height:.97 !important;font-weight:900 !important;text-transform:uppercase !important;margin:0 0 16px !important;}
+.partner-hero-copy h1{color:#fff !important;font-size:clamp(2.4rem,6vw,5rem) !important;line-height:.95 !important;font-weight:900 !important;text-transform:uppercase !important;margin:0 0 16px !important;}
 .partner-hero-copy h1 span{display:block !important;color:#E8272A !important;}
-.partner-hero-sub{max-width:560px !important;color:rgba(255,255,255,.92) !important;font-size:clamp(1rem,2vw,1.2rem) !important;line-height:1.55 !important;font-weight:700 !important;margin:0 0 20px !important;}
+.partner-hero-sub{max-width:560px !important;color:rgba(255,255,255,.9) !important;font-size:clamp(1rem,2vw,1.25rem) !important;line-height:1.55 !important;font-weight:700 !important;margin:0 0 20px !important;}
 .partner-hero-proof-row{display:flex !important;flex-wrap:wrap !important;gap:10px !important;margin-top:18px !important;}
 .partner-hero-proof-row span{background:rgba(255,255,255,.12) !important;border:1px solid rgba(255,255,255,.22) !important;border-radius:999px !important;color:#fff !important;padding:8px 12px !important;font-size:12px !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.7px !important;}
 .form-overlay-card{position:relative !important;inset:auto !important;left:auto !important;top:auto !important;transform:none !important;width:100% !important;min-height:0 !important;max-height:none !important;margin:0 !important;padding:0 !important;overflow:hidden !important;background:rgba(255,255,255,.98) !important;color:#111 !important;border:1px solid rgba(255,255,255,.78) !important;border-top:6px solid #E8272A !important;border-radius:18px !important;box-shadow:0 24px 70px rgba(0,0,0,.42) !important;backdrop-filter:blur(8px) !important;-webkit-backdrop-filter:blur(8px) !important;text-align:left !important;}
@@ -521,7 +521,7 @@ const partnerRootFormCss = String.raw`
 .claim-success .screenshot-cta{display:inline-flex !important;width:auto !important;min-width:260px !important;justify-content:center !important;text-align:center !important;color:#fff !important;font-size:16px !important;padding:15px 18px !important;}
 .mindbody-help-note{font-size:.76rem !important;color:#6B7280 !important;margin-top:13px !important;margin-bottom:0 !important;}
 @media(max-width:900px){.screenshot-hero{min-height:auto !important;padding:28px 16px 34px !important;}.partner-hero-shell{grid-template-columns:1fr !important;gap:20px !important;max-width:560px !important;}.partner-hero-copy{text-align:center !important;}.partner-hero-sub{margin-left:auto !important;margin-right:auto !important;}.partner-hero-proof-row{justify-content:center !important;}}
-@media(max-width:640px){.screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.35rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
+@media(max-width:640px){.screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.45rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
 </style>
 `;
 
@@ -540,7 +540,7 @@ function buildPartnerHero(partnerData, isSandsHarbor) {
   const trialCost = escapeHtml(partnerData.trialCost);
   const zipCodes = escapeHtml(shared.qualifiedZipCodes);
   const sourceUrl = `https://f45pompano.com/${encodeURIComponent(partnerData.slug)}/`;
-  const leftHeadline = `Reserve Your <span>Trial</span>`;
+  const leftHeadline = `Reserve Your <span>3 for $30 Trial</span>`;
   const leftSub = "Fill out the quick form to unlock your trial offer for F45 Training Pompano Beach.";
   const proofOne = "Strength + Cardio";
   const successHtml = isSandsHarbor
