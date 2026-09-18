@@ -447,16 +447,30 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     try {
-      const response = await fetch(form.action, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
+      const configuredRecipients = runtimeLandingConfig.global && Object.prototype.hasOwnProperty.call(runtimeLandingConfig.global, "leadNotificationEmails")
+        ? runtimeLandingConfig.global.leadNotificationEmails
+        : ["pompanobeach@f45training.com"];
+      const notificationEmails = Array.isArray(configuredRecipients)
+        ? configuredRecipients.map(function (email) { return String(email || "").trim().toLowerCase(); }).filter(function (email) { return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email); })
+        : [];
 
-      if (!response.ok) throw new Error("FormSubmit did not accept the submission");
+      if (notificationEmails.length) {
+        const primaryEmail = notificationEmails[0];
+        const ccEmails = notificationEmails.slice(1);
+        if (ccEmails.length) payload._cc = ccEmails.join(",");
+
+        const response = await fetch("https://formsubmit.co/ajax/" + primaryEmail, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error("FormSubmit did not accept the submission");
+      }
+
       showSuccessBox();
     } catch (error) {
       alert("Something went wrong submitting the form. Please call or text us at 954-302-3889 and we’ll help you activate the offer.");
@@ -532,11 +546,29 @@ const partnerRootFormCss = String.raw`
 .claim-success h3{color:#1C1C2E !important;font-size:1.35rem !important;line-height:1.15 !important;margin:0 0 10px !important;font-weight:900 !important;}
 .claim-success p{color:#4B5563 !important;font-size:.92rem !important;line-height:1.55 !important;max-width:420px !important;margin:0 auto 16px !important;}
 .success-unlocked-label{display:inline-block !important;background:#FFB800 !important;color:#1C1C2E !important;font-size:.72rem !important;font-weight:900 !important;letter-spacing:1.5px !important;text-transform:uppercase !important;padding:7px 11px !important;border-radius:999px !important;margin-bottom:12px !important;}
-.claim-success .screenshot-cta{display:inline-flex !important;width:auto !important;min-width:260px !important;justify-content:center !important;text-align:center !important;background:#1C1C2E !important;border-color:#1C1C2E !important;color:#fff !important;font-size:16px !important;padding:15px 18px !important;box-shadow:0 4px 0 rgba(0,0,0,.28),0 6px 16px rgba(0,0,0,.18) !important;}
-.claim-success .screenshot-cta:hover{background:#303047 !important;border-color:#303047 !important;}
+.claim-success .screenshot-cta{display:inline-flex !important;width:auto !important;min-width:260px !important;justify-content:center !important;text-align:center !important;background:#2D286F !important;border-color:#2D286F !important;color:#fff !important;font-size:16px !important;padding:15px 18px !important;box-shadow:0 4px 0 rgba(0,0,0,.28),0 6px 16px rgba(0,0,0,.18) !important;}
+.claim-success .screenshot-cta:hover{background:#3A3489 !important;border-color:#3A3489 !important;}
 .mindbody-help-note{font-size:.76rem !important;color:#6B7280 !important;margin-top:13px !important;margin-bottom:0 !important;}
+
+/* LANDING PAGE NAV LOGO - larger visible studio logo */
+.fixed-top-header .screenshot-nav{
+  min-height:88px !important;
+  height:88px !important;
+}
+.fixed-top-header .screenshot-logo-img{
+  height:76px !important;
+  width:auto !important;
+  max-width:235px !important;
+  object-fit:contain !important;
+}
+.fixed-header-spacer{height:152px !important;}
+
 @media(max-width:900px){.screenshot-hero{min-height:auto !important;padding:28px 16px 34px !important;}.partner-hero-shell{grid-template-columns:1fr !important;gap:20px !important;max-width:560px !important;}.partner-hero-copy{text-align:center !important;}.partner-hero-sub{margin-left:auto !important;margin-right:auto !important;}.partner-hero-proof-row{justify-content:center !important;}}
-@media(max-width:640px){.screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.45rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
+@media(max-width:640px){
+.fixed-top-header .screenshot-nav{min-height:74px !important;height:74px !important;padding:3px 8px !important;}
+.fixed-top-header .screenshot-logo-img{height:66px !important;max-width:195px !important;}
+.fixed-header-spacer{height:130px !important;}
+.screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.45rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
 </style>
 `;
 
@@ -666,7 +698,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const partnerName=runtimePage.partner||${partnerName};
     const runtimeOffer=(runtimePage.trialType&&runtimePage.trialCost)?(runtimePage.trialType+" for "+runtimePage.trialCost):${trialOffer};
     const payload={_subject:"New Partner Lead: "+fullName.trim()+" - "+partnerName,_template:"table",_captcha:"false","Lead Source":"Partner Website - "+partnerName,"Offer":runtimeOffer,"Partner":partnerName,"Full Name":fullName.trim(),"first_name":firstNameField?firstNameField.value.trim():"","last_name":lastNameField?lastNameField.value.trim():"","email":emailField?emailField.value.trim():"","phone":normalizedPhoneForPayload,"zip_code":zipValue,"local_residency_eligibility":true,"local_residency_eligibility_timestamp":timestamp,"terms_privacy_acknowledged":true,"terms_privacy_acknowledged_timestamp":timestamp,"terms_privacy_version":"${partnerTermsVersion}","terms_privacy_disclosure":"I agree to F45 Training Pompano Beach’s Terms & Conditions and acknowledge the Privacy Policy.","sms_opt_in":smsOptIn,"sms_consent_timestamp":timestamp,"source_url":window.location.origin+window.location.pathname,"consent_version":"${partnerConsentVersion}","consent_language":${consentLanguage}};
-    try{const response=await fetch(form.action,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});if(!response.ok)throw new Error("FormSubmit did not accept the submission");showSuccessBox();}catch(error){alert("Something went wrong submitting the form. Please call or text us at "+${phone}+" and we’ll help you activate the offer.");if(submitButton){submitButton.disabled=false;submitButton.textContent=${submitDefault};}}
+    try{const configuredRecipients=Object.prototype.hasOwnProperty.call(runtimeGlobal,"leadNotificationEmails")?runtimeGlobal.leadNotificationEmails:["pompanobeach@f45training.com"];const notificationEmails=Array.isArray(configuredRecipients)?configuredRecipients.map(function(email){return String(email||"").trim().toLowerCase();}).filter(function(email){return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);}):[];if(notificationEmails.length){const primaryEmail=notificationEmails[0],ccEmails=notificationEmails.slice(1);if(ccEmails.length)payload._cc=ccEmails.join(",");const response=await fetch("https://formsubmit.co/ajax/"+primaryEmail,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});if(!response.ok)throw new Error("FormSubmit did not accept the submission");}showSuccessBox();}catch(error){alert("Something went wrong submitting the form. Please call or text us at "+${phone}+" and we’ll help you activate the offer.");if(submitButton){submitButton.disabled=false;submitButton.textContent=${submitDefault};}}
   });
 });
 </script>
@@ -697,6 +729,7 @@ function addLandingRuntime(html) {
 const landingDefaults = {
   global: {
     qualifiedZipCodes: String(shared.qualifiedZipCodes || "").split(",").map((zip) => zip.trim()).filter(Boolean),
+    leadNotificationEmails: ["pompanobeach@f45training.com"],
     defaultVideoUrl: "/trial-video.mp4",
     trialType: generic.genericTrialType,
     trialCost: generic.genericTrialCost,
