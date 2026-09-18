@@ -573,7 +573,7 @@ function buildPartnerHero(partnerData, isSandsHarbor) {
   return `
 <section class="screenshot-hero" id="offer">
   <video class="screenshot-hero-video" autoplay muted loop playsinline id="offer-video">
-    <source src="trial-video.mp4" type="video/mp4">
+    <source src="/trial-video.mp4" type="video/mp4">
   </video>
   <div class="partner-hero-shell">
     <div class="partner-hero-copy">
