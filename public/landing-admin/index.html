@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#1C1C2E">
 <title>Landing Admin · F45 Pompano Beach</title>
-<link rel="stylesheet" href="/landing/admin/app.css?v=3">
+<link rel="stylesheet" href="/landing/admin/app.css?v=4">
 </head>
 <body>
 <div class="shell">
@@ -49,6 +49,17 @@
             <textarea id="globalZips" rows="3" placeholder="33060, 33062, 33064"></textarea>
             <span>Comma separated. The form and Q&amp;A eligibility copy use this same list.</span>
           </label>
+
+          <div class="full email-recipient-field">
+            <div class="field-title">Lead Email Recipients</div>
+            <div class="field-help">These addresses receive a copy when a lead submits the main or partner landing-page form. The first address is the primary FormSubmit recipient; additional addresses are CC'd. You can leave the list empty and the landing pages will still work.</div>
+            <div class="email-add-row">
+              <input id="leadEmailInput" type="email" autocomplete="email" placeholder="name@example.com">
+              <button id="addLeadEmailBtn" class="ghost" type="button">Add Email</button>
+            </div>
+            <div id="leadEmailList" class="email-recipient-list"></div>
+            <div class="field-help compact-help">If you change the first/primary FormSubmit address, FormSubmit may send that address a one-time activation email before notifications begin.</div>
+          </div>
 
           <label>Trial type<input id="globalTrialType" placeholder="3 Classes"></label>
           <label>Trial cost<input id="globalTrialCost" placeholder="$30"></label>
@@ -157,6 +168,6 @@
     </div>
   </main>
 </div>
-<script src="/landing/admin/app.js?v=3"></script>
+<script src="/landing/admin/app.js?v=4"></script>
 </body>
 </html>
