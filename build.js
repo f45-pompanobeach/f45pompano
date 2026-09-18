@@ -39,7 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
-const SITE_VERSION = "v2026.09.18.5";
+const SITE_VERSION = "v2026.09.18.6";
 
 const rootLeadCaptureCss = String.raw`
 
@@ -621,9 +621,9 @@ const partnerRootFormCss = String.raw`
 .fixed-top-header .promo-banner-inner{min-height:100px !important;height:100px !important;}
 .fixed-top-header .partner-top-brand{left:10px !important;top:50% !important;transform:translateY(-50%) !important;}
 .fixed-top-header .partner-top-logo-img{height:72px !important;width:auto !important;max-height:calc(100px - 20px) !important;max-width:38vw !important;}
-.fixed-top-header .topbar-cta-stack{right:10px !important;top:50% !important;transform:translateY(-50%) !important;max-width:56vw !important;}
-.fixed-top-header .topbar-cta-stack .promo-claim-btn{height:48px !important;min-height:48px !important;padding:0 14px !important;font-size:11px !important;}
-.fixed-top-header .topbar-mindbody-note{max-width:270px !important;text-align:right !important;font-size:10px !important;line-height:1.2 !important;}
+.fixed-top-header .topbar-cta-stack{right:8px !important;top:50% !important;transform:translateY(-50%) !important;width:min(54vw,250px) !important;max-width:none !important;align-items:stretch !important;}
+.fixed-top-header .topbar-cta-stack .promo-claim-btn{width:100% !important;height:48px !important;min-height:48px !important;padding:0 14px !important;font-size:11px !important;text-align:center !important;}
+.fixed-top-header .topbar-mindbody-note{width:100% !important;max-width:none !important;text-align:center !important;font-size:10px !important;line-height:1.2 !important;white-space:normal !important;overflow-wrap:normal !important;}
 .fixed-top-header .screenshot-nav{min-height:54px !important;height:54px !important;padding:2px 8px !important;}
 .fixed-header-spacer{height:146px !important;}
 .screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.45rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
