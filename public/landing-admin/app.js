@@ -315,6 +315,7 @@ $('globalTabBtn').addEventListener('click',()=>{closeMobileEditor();showAdminTab
 $('pagesTabBtn').addEventListener('click',()=>{closeMobileEditor();showAdminTab('pages');});
 
 $('editorBackdrop').addEventListener('click',closeMobileEditor);
+$('editorBackBtn').addEventListener('click',closeMobileEditor);
 window.addEventListener('resize',()=>{updateViewportVars();if(!isMobileEditor())closeMobileEditor();});
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize',updateViewportVars);
