@@ -1,4 +1,4 @@
-const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},selected:null,publishing:false,mediaConfigured:null,leadNotificationEmails:[]};
+const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},selected:null,publishing:false,mediaConfigured:null,leadNotificationEmails:[],globalBaseline:'',pageBaseline:''};
 const $=id=>document.getElementById(id);
 
 function api(path,opts={}){
@@ -14,6 +14,37 @@ function showStatus(el,msg,bad=false,busy=false){
 }
 function defaultsGlobal(){return state.defaults?.global||{}}
 function effectiveGlobal(){return {...defaultsGlobal(),...state.global}}
+
+function globalFormValue(){
+  return {
+    qualifiedZipCodes:$('globalZips').value.split(',').map(v=>v.trim()).filter(Boolean),
+    leadNotificationEmails:state.leadNotificationEmails.slice(),
+    defaultVideoUrl:$('globalVideo').value.trim(),
+    trialType:$('globalTrialType').value.trim(),
+    trialCost:$('globalTrialCost').value.trim(),
+    trialDuration:$('globalTrialDuration').value.trim(),
+    regularPrice:$('globalRegularPrice').value.trim(),
+    firstClassBookingText:$('globalFirstClassBookingText').value.trim(),
+    mindbodyUrl:$('globalMindbodyUrl').value.trim()
+  };
+}
+function stableValue(value){return JSON.stringify(value)}
+function currentPageValue(){return state.selected?formPage():null}
+function updateSaveStates(){
+  const globalDirty=state.globalBaseline!==''&&stableValue(globalFormValue())!==state.globalBaseline;
+  $('saveGlobalBtn').disabled=!globalDirty;
+
+  const pageValue=currentPageValue();
+  const isNew=!!(state.selected&&!state.selected.isDefault&&!state.selected.isStored);
+  const pageDirty=!!pageValue&&(isNew||state.pageBaseline===''||stableValue(pageValue)!==state.pageBaseline);
+  $('savePageBtn').disabled=state.publishing||!pageDirty;
+}
+function setGlobalBaseline(){state.globalBaseline=stableValue(globalFormValue());updateSaveStates();}
+function setPageBaseline(){
+  const value=currentPageValue();
+  state.pageBaseline=value?stableValue(value):'';
+  updateSaveStates();
+}
 
 function mergePages(){
   const by=new Map();
@@ -42,6 +73,7 @@ async function loadAdmin(){
   ]);
   state.defaults=defaults;state.stored=stored.pages||[];state.global=global.global||{};state.mediaConfigured=Boolean(media.configured);
   populateGlobal();
+  setGlobalBaseline();
   if(!state.mediaConfigured){
     $('uploadGlobalVideoBtn').disabled=true;$('uploadPageVideoBtn').disabled=true;
     showStatus($('globalVideoStatus'),'R2 video storage: NOT CONNECTED. Add the LANDING_MEDIA binding, then redeploy.',true);
@@ -100,7 +132,7 @@ function renderLeadEmailList(){
     remove.type='button';
     remove.className='email-remove-btn';
     remove.textContent='Remove';
-    remove.onclick=()=>{state.leadNotificationEmails.splice(index,1);renderLeadEmailList();};
+    remove.onclick=()=>{state.leadNotificationEmails.splice(index,1);renderLeadEmailList();updateSaveStates();};
     row.appendChild(main);
     row.appendChild(remove);
     list.appendChild(row);
@@ -114,6 +146,7 @@ function addLeadEmail(){
   state.leadNotificationEmails.push(email);
   input.value='';
   renderLeadEmailList();
+  updateSaveStates();
   input.focus();
 }
 
@@ -161,6 +194,7 @@ function selectPage(p){
     $('openPageLink').classList.toggle('hidden',!u);
     $('savePageBtn').classList.remove('hidden');
   }
+  setPageBaseline();
 }
 function formPage(){
   const base=state.selected||{};
@@ -177,7 +211,7 @@ async function uploadVideo(file,targetInput,statusEl,button){
     const r=await fetch('/api/landing/admin/media',{method:'POST',headers:{'x-table-code':state.pin},body:form});
     const d=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(d.message||d.error||'Video upload failed.');
-    targetInput.value=d.url;showStatus(statusEl,'Video uploaded and selected.');
+    targetInput.value=d.url;showStatus(statusEl,'Video uploaded and selected.');updateSaveStates();
     return d.url;
   }finally{button.disabled=false;button.textContent='Upload Video File'}
 }
@@ -206,6 +240,7 @@ $('inheritGlobalOffer').addEventListener('change',()=>{
     $('mindbodyUrl').value=g.mindbodyUrl||'';
   }
   syncOfferInheritanceFields();
+  updateSaveStates();
 });
 
 function showAdminTab(tab){
@@ -219,6 +254,7 @@ function showAdminTab(tab){
   $('openPageLink').classList.toggle('hidden',globalMode||!state.selected||!urlFor(state.selected));
   $('dockContext').textContent=globalMode?'Global Settings':(state.selected?(state.selected.slug==='root'?'Main / Root Page':state.selected.partner||state.selected.slug):'Landing Pages');
   $('dockStatus').textContent='';
+  updateSaveStates();
 }
 $('globalTabBtn').addEventListener('click',()=>showAdminTab('global'));
 $('pagesTabBtn').addEventListener('click',()=>showAdminTab('pages'));
@@ -228,10 +264,17 @@ $('logoutBtn').onclick=()=>{sessionStorage.removeItem('landingAdminPin');locatio
 $('addLeadEmailBtn').onclick=addLeadEmail;
 $('leadEmailInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addLeadEmail();}});
 
+for(const id of ['globalZips','globalVideo','globalTrialType','globalTrialCost','globalTrialDuration','globalRegularPrice','globalFirstClassBookingText','globalMindbodyUrl']){
+  $(id).addEventListener('input',updateSaveStates);
+  $(id).addEventListener('change',updateSaveStates);
+}
+$('pageForm').addEventListener('input',updateSaveStates);
+$('pageForm').addEventListener('change',updateSaveStates);
+
 $('uploadGlobalVideoBtn').onclick=async()=>{try{await uploadVideo($('globalVideoFile').files[0],$('globalVideo'),$('globalVideoStatus'),$('uploadGlobalVideoBtn'))}catch(e){showStatus($('globalVideoStatus'),e.message,true)}};
 $('uploadPageVideoBtn').onclick=async()=>{try{await uploadVideo($('pageVideoFile').files[0],$('videoUrl'),$('pageVideoStatus'),$('uploadPageVideoBtn'))}catch(e){showStatus($('pageVideoStatus'),e.message,true)}};
 
-$('saveGlobalBtn').onclick=async()=>{
+$('saveGlobalBtn').onclick=async()=>{if($('saveGlobalBtn').disabled)return;
   const body={
     qualifiedZipCodes:$('globalZips').value,
     leadNotificationEmails:state.leadNotificationEmails.slice(),
@@ -249,6 +292,7 @@ $('saveGlobalBtn').onclick=async()=>{
     const r=await api('/api/landing/admin/global',{method:'POST',body:JSON.stringify(body)});
     state.global=r.global||{};
     populateGlobal();
+    setGlobalBaseline();
     if(state.selected&&state.selected.offerOverrideEnabled!==true){
       const refreshed=mergePages().find(x=>x.slug===state.selected.slug)||state.selected;
       selectPage(refreshed);
@@ -257,7 +301,7 @@ $('saveGlobalBtn').onclick=async()=>{
     $('dockStatus').textContent='Global settings saved and synced to pages using Global.';
   }
   catch(e){showStatus($('globalStatus'),e.message,true)}
-  finally{btn.disabled=false;btn.textContent='Save Global Settings'}
+  finally{btn.textContent='Save Global Settings';updateSaveStates()}
 };
 
 $('newPageBtn').onclick=()=>{
@@ -268,7 +312,7 @@ $('newPageBtn').onclick=()=>{
 };
 
 $('pageForm').addEventListener('submit',async e=>{
-  e.preventDefault();if(state.publishing)return;
+  e.preventDefault();if(state.publishing||$('savePageBtn').disabled)return;
   const page=formPage();if(!page.slug){showStatus($('pageStatus'),'Enter a page slug.',true);return}if(page.slug==='social-trial'){showStatus($('pageStatus'),'social-trial cannot be edited here.',true);return}
   const isNew=!state.selected?.isDefault&&!state.selected?.isStored;
   const btn=$('savePageBtn');state.publishing=true;btn.disabled=true;btn.textContent=isNew?'Creating Page…':'Saving…';
@@ -283,7 +327,7 @@ $('pageForm').addEventListener('submit',async e=>{
     showStatus($('pageStatus'),isNew?'Page created and published successfully.':'Page settings saved.');
     $('dockContext').textContent=saved.partner||saved.slug;
   }catch(err){showStatus($('pageStatus'),err.message,true)}
-  finally{state.publishing=false;btn.disabled=false;btn.textContent='Save Page'}
+  finally{state.publishing=false;btn.textContent='Save Page';updateSaveStates()}
 });
 
 $('resetPageBtn').onclick=async()=>{
