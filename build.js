@@ -39,7 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
-const SITE_VERSION = "v2026.09.18.4";
+const SITE_VERSION = "v2026.09.18.5";
 
 const rootLeadCaptureCss = String.raw`
 
@@ -556,10 +556,12 @@ const partnerRootFormCss = String.raw`
   min-height:96px !important;
   height:96px !important;
   padding:0 !important;
+  overflow:visible !important;
 }
 .fixed-top-header .promo-banner-inner{
   position:relative !important;
   width:100% !important;
+  overflow:visible !important;
   max-width:none !important;
   min-height:96px !important;
   height:96px !important;
@@ -582,8 +584,9 @@ const partnerRootFormCss = String.raw`
 }
 .fixed-top-header .partner-top-logo-img{
   display:block !important;
-  width:260px !important;
-  height:auto !important;
+  height:78px !important;
+  width:auto !important;
+  max-height:calc(96px - 14px) !important;
   max-width:34vw !important;
   object-fit:contain !important;
   background:transparent !important;
@@ -617,7 +620,7 @@ const partnerRootFormCss = String.raw`
 .fixed-top-header .promo-banner-new{min-height:100px !important;height:100px !important;padding:0 !important;}
 .fixed-top-header .promo-banner-inner{min-height:100px !important;height:100px !important;}
 .fixed-top-header .partner-top-brand{left:10px !important;top:50% !important;transform:translateY(-50%) !important;}
-.fixed-top-header .partner-top-logo-img{width:190px !important;height:auto !important;max-width:38vw !important;}
+.fixed-top-header .partner-top-logo-img{height:72px !important;width:auto !important;max-height:calc(100px - 20px) !important;max-width:38vw !important;}
 .fixed-top-header .topbar-cta-stack{right:10px !important;top:50% !important;transform:translateY(-50%) !important;max-width:56vw !important;}
 .fixed-top-header .topbar-cta-stack .promo-claim-btn{height:48px !important;min-height:48px !important;padding:0 14px !important;font-size:11px !important;}
 .fixed-top-header .topbar-mindbody-note{max-width:270px !important;text-align:right !important;font-size:10px !important;line-height:1.2 !important;}
