@@ -1,4 +1,4 @@
-const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},selected:null,publishing:false};
+const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},selected:null,publishing:false,mediaConfigured:null};
 const $=id=>document.getElementById(id);
 
 function api(path,opts={}){
@@ -30,13 +30,19 @@ async function login(code){
   state.pin=code;sessionStorage.setItem('landingAdminPin',code);await loadAdmin();
 }
 async function loadAdmin(){
-  const [defaults,stored,global]=await Promise.all([
+  const [defaults,stored,global,media]=await Promise.all([
     fetch('/landing-defaults.json',{cache:'no-store'}).then(r=>r.json()),
     api('/api/landing/admin/pages'),
-    api('/api/landing/admin/global')
+    api('/api/landing/admin/global'),
+    api('/api/landing/admin/media').catch(()=>({configured:false}))
   ]);
-  state.defaults=defaults;state.stored=stored.pages||[];state.global=global.global||{};
+  state.defaults=defaults;state.stored=stored.pages||[];state.global=global.global||{};state.mediaConfigured=Boolean(media.configured);
   populateGlobal();
+  if(!state.mediaConfigured){
+    $('uploadGlobalVideoBtn').disabled=true;$('uploadPageVideoBtn').disabled=true;
+    showStatus($('globalVideoStatus'),'Video file uploads need the Cloudflare LANDING_MEDIA (R2) binding. URL/path video changes still work.',true);
+    showStatus($('pageVideoStatus'),'Video file uploads need the Cloudflare LANDING_MEDIA (R2) binding. URL/path video changes still work.',true);
+  }
   $('loginView').classList.add('hidden');$('adminView').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');
   renderList();
   if(!state.selected)selectPage(mergePages()[0]);
