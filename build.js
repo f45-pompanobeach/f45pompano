@@ -540,8 +540,8 @@ function buildPartnerHero(partnerData, isSandsHarbor) {
   const trialCost = escapeHtml(partnerData.trialCost);
   const zipCodes = escapeHtml(shared.qualifiedZipCodes);
   const sourceUrl = `https://f45pompano.com/${encodeURIComponent(partnerData.slug)}/`;
-  const leftHeadline = `Reserve Your <span>${trialType} for ${trialCost}</span>`;
-  const leftSub = `Fill out the quick form to unlock your exclusive ${partner} trial offer for F45 Training Pompano Beach.`;
+  const leftHeadline = `Reserve Your <span>Trial</span>`;
+  const leftSub = `Fill out the quick form to unlock your exclusive ${partner} offer for F45 Training Pompano Beach.`;
   const proofOne = "Strength + Cardio";
   const successHtml = isSandsHarbor
     ? `
