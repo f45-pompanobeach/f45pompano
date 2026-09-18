@@ -180,9 +180,17 @@ function globalOfferFields(){
   };
 }
 
+function updateViewportVars(){
+  const vv=window.visualViewport;
+  const top=vv?Math.max(0,vv.offsetTop):0;
+  const bottom=vv?Math.max(0,window.innerHeight-(vv.height+vv.offsetTop)):0;
+  document.documentElement.style.setProperty('--vv-top',top+'px');
+  document.documentElement.style.setProperty('--vv-bottom',bottom+'px');
+}
 function isMobileEditor(){return window.matchMedia('(max-width:620px)').matches;}
 function openMobileEditor(){
   if(!isMobileEditor())return;
+  updateViewportVars();
   document.body.classList.add('mobile-editor-open');
   $('editorBackdrop').classList.remove('hidden');
   setTimeout(()=>{$('editorTitle').focus?.();},0);
@@ -307,7 +315,12 @@ $('globalTabBtn').addEventListener('click',()=>{closeMobileEditor();showAdminTab
 $('pagesTabBtn').addEventListener('click',()=>{closeMobileEditor();showAdminTab('pages');});
 
 $('editorBackdrop').addEventListener('click',closeMobileEditor);
-window.addEventListener('resize',()=>{if(!isMobileEditor())closeMobileEditor();});
+window.addEventListener('resize',()=>{updateViewportVars();if(!isMobileEditor())closeMobileEditor();});
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',updateViewportVars);
+  window.visualViewport.addEventListener('scroll',updateViewportVars);
+}
+updateViewportVars();
 
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginError').textContent='';try{await login($('pin').value.trim())}catch(err){$('loginError').textContent=err.message}});
 $('logoutBtn').onclick=()=>{sessionStorage.removeItem('landingAdminPin');location.reload()};
