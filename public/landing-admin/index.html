@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#1C1C2E">
 <title>Landing Admin · F45 Pompano Beach</title>
-<link rel="stylesheet" href="/landing-admin/app.css?v=2">
+<link rel="stylesheet" href="/landing/admin/app.css?v=3">
 </head>
 <body>
 <div class="shell">
@@ -30,110 +30,133 @@
   </section>
 
   <main id="adminView" class="hidden">
-    <section class="card">
-      <div class="section-head">
-        <div><h2>Global Settings</h2><p>Default settings used by the main landing page and partner pages unless a page has its own override.</p></div>
-        <button id="saveGlobalBtn" class="primary" type="button">Save Global Settings</button>
-      </div>
+    <nav class="admin-tabs" aria-label="Landing admin sections">
+      <button id="globalTabBtn" class="admin-tab active" type="button">Global Settings</button>
+      <button id="pagesTabBtn" class="admin-tab" type="button">Landing Pages</button>
+    </nav>
 
-      <div class="grid two">
-        <label class="full">Allowed ZIP codes
-          <textarea id="globalZips" rows="3" placeholder="33060, 33062, 33064"></textarea>
-          <span>Comma separated. Partner eligibility and ZIP validation use this list.</span>
-        </label>
-
-        <label>Trial type<input id="globalTrialType" placeholder="3 Classes"></label>
-        <label>Trial cost<input id="globalTrialCost" placeholder="$30"></label>
-        <label>Trial duration<input id="globalTrialDuration" placeholder="7 days"></label>
-        <label>Regular price<input id="globalRegularPrice" placeholder="$30"></label>
-
-        <label class="full">First-class booking text
-          <textarea id="globalFirstClassBookingText" rows="3"></textarea>
-        </label>
-
-        <label class="full">Mindbody URL
-          <input id="globalMindbodyUrl" placeholder="https://clients.mindbodyonline.com/...">
-        </label>
-
-        <div class="full video-field">
-          <label>Default hero video URL / path
-            <input id="globalVideo" placeholder="/trial-video.mp4">
-            <span>This is the background video shown in the hero area.</span>
-          </label>
-          <div class="upload-row">
-            <input id="globalVideoFile" type="file" accept="video/mp4,video/webm,video/quicktime">
-            <button id="uploadGlobalVideoBtn" class="ghost" type="button">Upload Video File</button>
-          </div>
-          <div id="globalVideoStatus" class="status"></div>
-        </div>
-      </div>
-
-      <div id="globalStatus" class="status"></div>
-    </section>
-
-    <section class="workspace">
-      <aside class="card sidebar">
-        <div class="section-head compact">
-          <div><h2>Pages</h2><p>Main + current partners</p></div>
-          <button id="newPageBtn" class="small primary" type="button">+ New Partner</button>
-        </div>
-        <div id="pageList" class="page-list"></div>
-      </aside>
-
-      <section class="card editor">
+    <section id="globalPanel" class="admin-panel">
+      <section class="card panel-card">
         <div class="section-head">
           <div>
-            <div id="editorBadge" class="badge">PAGE</div>
-            <h2 id="editorTitle">Select a page</h2>
-            <p id="editorUrl"></p>
+            <h2>Global Settings</h2>
+            <p>These are the default values used by every landing page unless you intentionally turn on page-specific offer overrides.</p>
           </div>
-          <a id="openPageLink" class="ghost hidden" target="_blank" rel="noopener">Open Page</a>
         </div>
 
-        <form id="pageForm" class="hidden">
-          <div class="grid two">
-            <label>Partner / page name<input id="pagePartner" maxlength="100"></label>
-            <label>Slug<input id="pageSlug" maxlength="64"><span id="slugHelp"></span></label>
+        <div class="grid two">
+          <label class="full">Allowed ZIP codes
+            <textarea id="globalZips" rows="3" placeholder="33060, 33062, 33064"></textarea>
+            <span>Comma separated. The form and Q&amp;A eligibility copy use this same list.</span>
+          </label>
 
-            <label class="toggle full"><input id="inheritGlobalOffer" type="checkbox"><span>Use Global Offer Settings for trial type, cost, duration, regular price, first-class booking text, and Mindbody URL</span></label>
+          <label>Trial type<input id="globalTrialType" placeholder="3 Classes"></label>
+          <label>Trial cost<input id="globalTrialCost" placeholder="$30"></label>
+          <label>Trial duration<input id="globalTrialDuration" placeholder="7 days"></label>
+          <label>Regular price<input id="globalRegularPrice" placeholder="$30"></label>
 
-            <label>Trial type<input id="trialType" placeholder="3 Classes"></label>
-            <label>Trial cost<input id="trialCost" placeholder="$30"></label>
-            <label>Trial duration<input id="trialDuration" placeholder="7 days"></label>
-            <label>Promo code<input id="promoCode" placeholder="Optional"></label>
-            <label>Regular price<input id="regularPrice" placeholder="$30"></label>
-            <label>Percentage savings<input id="percentageSavings" placeholder="Optional"></label>
+          <label class="full">First-class booking text
+            <textarea id="globalFirstClassBookingText" rows="3"></textarea>
+          </label>
 
-            <label class="full">First-class booking text<textarea id="firstClassBookingText" rows="3"></textarea></label>
+          <label class="full">Mindbody URL
+            <input id="globalMindbodyUrl" placeholder="https://clients.mindbodyonline.com/...">
+          </label>
 
-            <div class="full video-field">
-              <label>Hero video override
-                <input id="videoUrl" placeholder="Leave blank to use Global Settings">
-                <span>Background hero video for this page only.</span>
-              </label>
-              <div class="upload-row">
-                <input id="pageVideoFile" type="file" accept="video/mp4,video/webm,video/quicktime">
-                <button id="uploadPageVideoBtn" class="ghost" type="button">Upload Video File</button>
-              </div>
-              <div id="pageVideoStatus" class="status"></div>
+          <div class="full video-field">
+            <label>Default hero video URL / path
+              <input id="globalVideo" placeholder="/trial-video.mp4">
+              <span>This is the background video shown in the hero area. New pages automatically use this unless they have a page-specific video.</span>
+            </label>
+            <div class="upload-row">
+              <input id="globalVideoFile" type="file" accept="video/mp4,video/webm,video/quicktime">
+              <button id="uploadGlobalVideoBtn" class="ghost" type="button">Upload Video File</button>
             </div>
-
-            <label class="full">Mindbody checkout URL override<input id="mindbodyUrl" placeholder="Leave blank to use Global Settings"></label>
-            <label class="toggle full"><input id="pageEnabled" type="checkbox" checked><span>Page enabled</span></label>
+            <div id="globalVideoStatus" class="status"></div>
           </div>
-
-          <div class="actions">
-            <button id="savePageBtn" class="primary" type="submit">Save Page</button>
-            <button id="resetPageBtn" class="ghost" type="button">Reset Override</button>
-          </div>
-          <div id="pageStatus" class="status"></div>
-        </form>
-
-        <div id="emptyEditor" class="empty">Choose a page on the left, or create a new partner landing page.</div>
+        </div>
+        <div id="globalStatus" class="status"></div>
       </section>
     </section>
+
+    <section id="pagesPanel" class="admin-panel hidden">
+      <section class="workspace">
+        <aside class="card sidebar">
+          <div class="section-head compact">
+            <div><h2>Pages</h2><p>Main + current partners</p></div>
+            <button id="newPageBtn" class="small primary" type="button">+ New Partner</button>
+          </div>
+          <div id="pageList" class="page-list"></div>
+        </aside>
+
+        <section class="card editor">
+          <div class="section-head editor-head">
+            <div>
+              <div id="editorBadge" class="badge">PAGE</div>
+              <h2 id="editorTitle">Select a page</h2>
+              <p id="editorUrl"></p>
+            </div>
+          </div>
+
+          <form id="pageForm" class="hidden">
+            <div class="grid two">
+              <label>Partner / page name<input id="pagePartner" maxlength="100"></label>
+              <label>Slug<input id="pageSlug" maxlength="64"><span id="slugHelp"></span></label>
+
+              <label class="toggle full global-toggle">
+                <input id="inheritGlobalOffer" type="checkbox">
+                <span><strong>Use Global Offer Settings</strong><small>Trial type, cost, duration, regular price, first-class booking text, and Mindbody URL will stay synced with Global Settings.</small></span>
+              </label>
+
+              <label>Trial type<input id="trialType" placeholder="3 Classes"></label>
+              <label>Trial cost<input id="trialCost" placeholder="$30"></label>
+              <label>Trial duration<input id="trialDuration" placeholder="7 days"></label>
+              <label>Promo code<input id="promoCode" placeholder="Optional"></label>
+              <label>Regular price<input id="regularPrice" placeholder="$30"></label>
+              <label>Percentage savings<input id="percentageSavings" placeholder="Optional"></label>
+
+              <label class="full">First-class booking text<textarea id="firstClassBookingText" rows="3"></textarea></label>
+
+              <div class="full video-field">
+                <label>Hero video override
+                  <input id="videoUrl" placeholder="Leave blank to use /trial-video.mp4 or the Global video">
+                  <span>Leave blank to use the Global hero video. The built-in fallback is the existing /trial-video.mp4.</span>
+                </label>
+                <div class="upload-row">
+                  <input id="pageVideoFile" type="file" accept="video/mp4,video/webm,video/quicktime">
+                  <button id="uploadPageVideoBtn" class="ghost" type="button">Upload Video File</button>
+                </div>
+                <div id="pageVideoStatus" class="status"></div>
+              </div>
+
+              <label class="full">Mindbody checkout URL override<input id="mindbodyUrl" placeholder="Leave blank to use Global Settings"></label>
+              <label class="toggle full"><input id="pageEnabled" type="checkbox" checked><span>Page enabled</span></label>
+            </div>
+
+            <div class="secondary-actions">
+              <button id="resetPageBtn" class="ghost" type="button">Reset Override</button>
+            </div>
+            <div id="pageStatus" class="status"></div>
+          </form>
+
+          <div id="emptyEditor" class="empty">Choose a page on the left, or create a new partner landing page.</div>
+        </section>
+      </section>
+    </section>
+
+    <div id="actionDock" class="action-dock">
+      <div class="dock-left">
+        <span id="dockContext">Global Settings</span>
+        <span id="dockStatus"></span>
+      </div>
+      <div class="dock-actions">
+        <a id="openPageLink" class="ghost hidden" target="_blank" rel="noopener">Open Page</a>
+        <button id="savePageBtn" class="primary hidden" type="submit" form="pageForm">Save Page</button>
+        <button id="saveGlobalBtn" class="primary" type="button">Save Global Settings</button>
+      </div>
+    </div>
   </main>
 </div>
-<script src="/landing-admin/app.js?v=2"></script>
+<script src="/landing/admin/app.js?v=3"></script>
 </body>
 </html>
