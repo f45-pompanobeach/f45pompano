@@ -29,7 +29,12 @@
     window.__LANDING_CONFIG__=cfg;
     const storedPage=cfg.page||{};
     const global=cfg.global||{};
-    const page={...global,...storedPage};
+    const isDynamic=/^\/landing\//.test(location.pathname);
+    const inheritGlobalOffer=storedPage.inheritGlobalOffer===true||(isDynamic&&storedPage.inheritGlobalOffer===undefined);
+    const offerKeys=['trialType','trialCost','trialDuration','regularPrice','firstClassBookingText','mindbodyUrl'];
+    const effectiveStored={...storedPage};
+    if(inheritGlobalOffer)for(const key of offerKeys)delete effectiveStored[key];
+    const page={...global,...effectiveStored};
     const isRoot=cfg.slug==='root'||storedPage.pageKind==='root';
     if(page.enabled===false&&!isRoot){
       document.body.innerHTML='<main style="font-family:system-ui;padding:48px 20px;text-align:center"><h1>This offer is currently unavailable.</h1><p>Please contact F45 Training Pompano Beach for current options.</p></main>';
@@ -39,7 +44,7 @@
     const trialCost=page.trialCost||'';
     const offer=count&&trialCost?count+' for '+trialCost+' Trial':'Trial';
 
-    setVideo(storedPage.videoUrl||global.defaultVideoUrl||'');
+    setVideo(storedPage.videoUrl||global.defaultVideoUrl||'/trial-video.mp4');
 
     if(page.trialType&&page.trialCost){
       const hero=document.querySelector(isRoot?'.root-hero-copy h1':'.partner-hero-copy h1');
@@ -90,6 +95,13 @@
     if(zips.length){
       const eligibility=document.querySelector('.eligibility-confirm-row span');
       if(eligibility)eligibility.textContent='I confirm that I am a first-time visitor and live in one of these ZIP codes ('+zips.join(', ')+'), and am able to verify residency for this offer.';
+
+      document.querySelectorAll('.faq-item').forEach(item=>{
+        const q=item.querySelector('.faq-q h4');
+        if(!q||!/who qualifies for this offer/i.test(q.textContent||''))return;
+        const strong=item.querySelector('.faq-a strong');
+        if(strong)strong.textContent=zips.join(', ');
+      });
     }
   }
 
