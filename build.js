@@ -550,24 +550,51 @@ const partnerRootFormCss = String.raw`
 .claim-success .screenshot-cta:hover{background:#3A3489 !important;border-color:#3A3489 !important;}
 .mindbody-help-note{font-size:.76rem !important;color:#6B7280 !important;margin-top:13px !important;margin-bottom:0 !important;}
 
-/* LANDING PAGE NAV LOGO - larger visible studio logo */
-.fixed-top-header .screenshot-nav{
-  min-height:88px !important;
+/* PARTNER HEADER: logo lives in the purple bar, leaving the white nav clean */
+.fixed-top-header .promo-banner-new{
+  min-height:96px !important;
+  height:96px !important;
+  padding:6px 20px !important;
+}
+.fixed-top-header .promo-banner-inner{
+  max-width:1180px !important;
+  min-height:84px !important;
+  height:84px !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+}
+.fixed-top-header .partner-top-brand{
+  display:flex !important;
+  align-items:center !important;
+  margin:0 !important;
+  min-width:0 !important;
+}
+.fixed-top-header .partner-top-brand .screenshot-logo-img{
   height:88px !important;
-}
-.fixed-top-header .screenshot-logo-img{
-  height:76px !important;
   width:auto !important;
-  max-width:235px !important;
+  max-width:280px !important;
   object-fit:contain !important;
+  display:block !important;
 }
-.fixed-header-spacer{height:152px !important;}
+.fixed-top-header .screenshot-nav{
+  min-height:64px !important;
+  height:64px !important;
+  justify-content:center !important;
+}
+.fixed-top-header .screenshot-nav .screenshot-nav-links{
+  margin:0 auto !important;
+}
+.fixed-header-spacer{height:160px !important;}
 
 @media(max-width:900px){.screenshot-hero{min-height:auto !important;padding:28px 16px 34px !important;}.partner-hero-shell{grid-template-columns:1fr !important;gap:20px !important;max-width:560px !important;}.partner-hero-copy{text-align:center !important;}.partner-hero-sub{margin-left:auto !important;margin-right:auto !important;}.partner-hero-proof-row{justify-content:center !important;}}
 @media(max-width:640px){
-.fixed-top-header .screenshot-nav{min-height:74px !important;height:74px !important;padding:3px 8px !important;}
-.fixed-top-header .screenshot-logo-img{height:66px !important;max-width:195px !important;}
-.fixed-header-spacer{height:130px !important;}
+.fixed-top-header .promo-banner-new{min-height:78px !important;height:78px !important;padding:4px 10px !important;}
+.fixed-top-header .promo-banner-inner{min-height:70px !important;height:70px !important;gap:10px !important;}
+.fixed-top-header .partner-top-brand .screenshot-logo-img{height:74px !important;max-width:210px !important;}
+.fixed-top-header .topbar-cta-stack{min-height:52px !important;height:52px !important;}
+.fixed-top-header .topbar-cta-stack .promo-claim-btn{height:48px !important;min-height:48px !important;padding:0 12px !important;font-size:11px !important;}
+.fixed-top-header .screenshot-nav{min-height:54px !important;height:54px !important;padding:2px 8px !important;}
+.fixed-header-spacer{height:132px !important;}
 .screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.45rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
 </style>
 `;
@@ -715,6 +742,14 @@ function upgradePartnerPage(html, partnerData, options = {}) {
   html=html.replace(/<script>\s*document\.addEventListener\("DOMContentLoaded", function \(\) \{\s*const form = document\.getElementById\("partnerLeadForm"\);[\s\S]*?<\/script>\s*(?=<\/body>)/,"");
   html=html.replaceAll(" · Save 50%", "");
   html=html.replaceAll("Save 50%", "");
+
+  // Move the studio logo into the purple top bar and remove the redundant partner-offer pill.
+  const navBrandMatch = html.match(/<div class="screenshot-brand">[\s\S]*?<\/div>/);
+  if (navBrandMatch) {
+    const topBrand = navBrandMatch[0].replace('class="screenshot-brand"', 'class="screenshot-brand partner-top-brand"');
+    html = html.replace(navBrandMatch[0], "");
+    html = html.replace(/<div class="promo-code-box">[\s\S]*?<\/div>/, topBrand);
+  }
   html=html.replace("</head>",`${partnerRootFormCss}\\n</head>`);
   html=html.replace("</body>",`${buildPartnerLeadScript(partnerData,isSandsHarbor)}\\n</body>`);
   return html;
