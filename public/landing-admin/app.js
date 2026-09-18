@@ -203,7 +203,7 @@ function closeMobileEditor(){
 function renderList(){
   const list=$('pageList');list.innerHTML='';
   for(const p of mergePages()){
-    const b=document.createElement('button');b.type='button';b.className='page-item'+(state.selected?.slug===p.slug?' active':'');
+    const b=document.createElement('button');b.type='button';b.className='page-item'+(!isMobileEditor()&&state.selected?.slug===p.slug?' active':'');
     b.innerHTML='<strong>'+escapeHtml(p.slug==='root'?'Main / Root':p.partner||p.slug)+'</strong><span>'+escapeHtml(urlFor(p))+'</span>';
     b.onclick=()=>{selectPage(p);openMobileEditor();};list.appendChild(b);
   }
