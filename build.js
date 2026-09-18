@@ -333,7 +333,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (parent && successBox.parentNode === parent) {
       parent.insertBefore(successBox, form);
     }
-    form.style.display = "none";
+    form.remove();
     successBox.style.setProperty("display", "block", "important");
     successBox.setAttribute("tabindex", "-1");
     requestAnimationFrame(function () {
@@ -532,7 +532,8 @@ const partnerRootFormCss = String.raw`
 .claim-success h3{color:#1C1C2E !important;font-size:1.35rem !important;line-height:1.15 !important;margin:0 0 10px !important;font-weight:900 !important;}
 .claim-success p{color:#4B5563 !important;font-size:.92rem !important;line-height:1.55 !important;max-width:420px !important;margin:0 auto 16px !important;}
 .success-unlocked-label{display:inline-block !important;background:#FFB800 !important;color:#1C1C2E !important;font-size:.72rem !important;font-weight:900 !important;letter-spacing:1.5px !important;text-transform:uppercase !important;padding:7px 11px !important;border-radius:999px !important;margin-bottom:12px !important;}
-.claim-success .screenshot-cta{display:inline-flex !important;width:auto !important;min-width:260px !important;justify-content:center !important;text-align:center !important;color:#fff !important;font-size:16px !important;padding:15px 18px !important;}
+.claim-success .screenshot-cta{display:inline-flex !important;width:auto !important;min-width:260px !important;justify-content:center !important;text-align:center !important;background:#1C1C2E !important;border-color:#1C1C2E !important;color:#fff !important;font-size:16px !important;padding:15px 18px !important;box-shadow:0 4px 0 rgba(0,0,0,.28),0 6px 16px rgba(0,0,0,.18) !important;}
+.claim-success .screenshot-cta:hover{background:#303047 !important;border-color:#303047 !important;}
 .mindbody-help-note{font-size:.76rem !important;color:#6B7280 !important;margin-top:13px !important;margin-bottom:0 !important;}
 @media(max-width:900px){.screenshot-hero{min-height:auto !important;padding:28px 16px 34px !important;}.partner-hero-shell{grid-template-columns:1fr !important;gap:20px !important;max-width:560px !important;}.partner-hero-copy{text-align:center !important;}.partner-hero-sub{margin-left:auto !important;margin-right:auto !important;}.partner-hero-proof-row{justify-content:center !important;}}
 @media(max-width:640px){.screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.45rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
@@ -646,7 +647,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("partnerLeadForm");
   const successBox = document.getElementById("claimSuccess");
   if (!form) return;
-  function showSuccessBox(){if(!successBox)return;const parent=form.parentNode;if(parent&&successBox.parentNode===parent){parent.insertBefore(successBox,form);}form.style.display="none";successBox.classList.add("is-visible");successBox.setAttribute("tabindex","-1");requestAnimationFrame(function(){successBox.focus({preventScroll:true});const rect=successBox.getBoundingClientRect();const fullyVisible=rect.top>=0&&rect.bottom<=window.innerHeight;if(!fullyVisible){const targetY=window.scrollY+rect.top-Math.max(20,(window.innerHeight-Math.min(rect.height,window.innerHeight-40))/2);window.scrollTo({top:Math.max(0,targetY),left:0,behavior:"smooth"});}});}
+  function showSuccessBox(){if(!successBox)return;const parent=form.parentNode;if(parent&&successBox.parentNode===parent){parent.insertBefore(successBox,form);}form.remove();successBox.classList.add("is-visible");successBox.setAttribute("tabindex","-1");requestAnimationFrame(function(){successBox.focus({preventScroll:true});const rect=successBox.getBoundingClientRect();const fullyVisible=rect.top>=0&&rect.bottom<=window.innerHeight;if(!fullyVisible){const targetY=window.scrollY+rect.top-Math.max(20,(window.innerHeight-Math.min(rect.height,window.innerHeight-40))/2);window.scrollTo({top:Math.max(0,targetY),left:0,behavior:"smooth"});}});}
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
     const firstNameField=form.querySelector("#firstName"),lastNameField=form.querySelector("#lastName"),emailField=form.querySelector("#email"),phoneField=form.querySelector("#phone"),zipField=form.querySelector("#zipCode"),termsCheckbox=form.querySelector("#partnerTermsPrivacy"),eligibilityCheckbox=form.querySelector("#partnerEligibilityConfirm"),smsCheckbox=form.querySelector("#partnerSmsConsent"),termsError=form.querySelector("#partnerTermsPrivacyError"),eligibilityError=form.querySelector("#partnerEligibilityError"),fullNameHidden=form.querySelector("#fullNameHidden"),smsOptInHidden=form.querySelector("#partnerSmsOptInHidden"),smsTimestampHidden=form.querySelector("#partnerSmsConsentTimestampHidden");
@@ -688,7 +689,7 @@ function upgradePartnerPage(html, partnerData, options = {}) {
 }
 
 function addLandingRuntime(html) {
-  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=3"></script>\\n</body>');
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=4"></script>\\n</body>');
 }
 
 // Landing Admin defaults are generated from the repository data files so the admin
