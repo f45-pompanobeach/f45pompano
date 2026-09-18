@@ -540,7 +540,9 @@ function buildPartnerHero(partnerData, isSandsHarbor) {
   const trialCost = escapeHtml(partnerData.trialCost);
   const zipCodes = escapeHtml(shared.qualifiedZipCodes);
   const sourceUrl = `https://f45pompano.com/${encodeURIComponent(partnerData.slug)}/`;
-  const leftHeadline = `Reserve Your <span>3 for $30 Trial</span>`;
+  const trialCountMatch = String(partnerData.trialType || "").match(/\d+/);
+  const trialCount = trialCountMatch ? trialCountMatch[0] : trialType;
+  const leftHeadline = `Reserve Your <span>${trialCount} for ${trialCost} Trial</span>`;
   const leftSub = "Fill out the quick form to unlock your trial offer for F45 Training Pompano Beach.";
   const proofOne = "Strength + Cardio";
   const successHtml = isSandsHarbor
