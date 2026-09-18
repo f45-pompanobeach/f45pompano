@@ -12,7 +12,7 @@
 <link rel="manifest" href="/landing/admin/manifest.webmanifest">
 <link rel="icon" href="/landing/admin/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/landing/admin/icon.svg">
-<link rel="stylesheet" href="/landing/admin/app.css?v=8">
+<link rel="stylesheet" href="/landing/admin/app.css?v=9">
 </head>
 <body>
 <div class="shell">
@@ -107,10 +107,13 @@
 
         <section class="card editor">
           <div class="section-head editor-head">
-            <div>
-              <div id="editorBadge" class="badge">PAGE</div>
-              <h2 id="editorTitle">Select a page</h2>
-              <p id="editorUrl"></p>
+            <div class="editor-title-wrap">
+              <button id="editorBackBtn" class="editor-back-btn" type="button" aria-label="Back to landing pages">← Back</button>
+              <div class="editor-title-copy">
+                <div id="editorBadge" class="badge">PAGE</div>
+                <h2 id="editorTitle">Select a page</h2>
+                <p id="editorUrl"></p>
+              </div>
             </div>
           </div>
 
@@ -174,7 +177,8 @@
       </div>
     </div>
   </main>
+  <div class="admin-version-badge" aria-label="Admin version">v2026.09.18.1</div>
 </div>
-<script src="/landing/admin/app.js?v=8"></script>
+<script src="/landing/admin/app.js?v=9"></script>
 </body>
 </html>
