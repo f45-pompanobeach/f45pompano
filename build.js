@@ -39,7 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
-const SITE_VERSION = "v2026.09.18.3";
+const SITE_VERSION = "v2026.09.18.4";
 
 const rootLeadCaptureCss = String.raw`
 
@@ -558,42 +558,49 @@ const partnerRootFormCss = String.raw`
   padding:0 !important;
 }
 .fixed-top-header .promo-banner-inner{
+  position:relative !important;
   width:100% !important;
   max-width:none !important;
   min-height:96px !important;
   height:96px !important;
-  align-items:stretch !important;
-  justify-content:flex-start !important;
-  gap:0 !important;
+  display:block !important;
 }
 .fixed-top-header .partner-top-brand{
+  position:absolute !important;
+  left:18px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
   display:flex !important;
   align-items:center !important;
   justify-content:flex-start !important;
-  flex:0 0 34% !important;
-  width:34% !important;
-  min-width:280px !important;
+  width:auto !important;
+  min-width:0 !important;
   margin:0 !important;
-  padding:2px 0 2px 18px !important;
+  padding:0 !important;
   background:transparent !important;
   overflow:visible !important;
 }
 .fixed-top-header .partner-top-logo-img{
   display:block !important;
-  width:auto !important;
-  height:88px !important;
-  max-width:100% !important;
+  width:260px !important;
+  height:auto !important;
+  max-width:34vw !important;
   object-fit:contain !important;
   background:transparent !important;
 }
 .fixed-top-header .topbar-cta-stack{
-  margin-left:auto !important;
-  margin-right:18px !important;
-  align-self:center !important;
+  position:absolute !important;
+  right:18px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  margin:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
   align-items:flex-end !important;
   justify-content:center !important;
   text-align:right !important;
-  flex:0 0 auto !important;
+  width:auto !important;
+  max-width:48vw !important;
 }
 .fixed-top-header .screenshot-nav{
   min-height:64px !important;
@@ -607,13 +614,13 @@ const partnerRootFormCss = String.raw`
 
 @media(max-width:900px){.screenshot-hero{min-height:auto !important;padding:28px 16px 34px !important;}.partner-hero-shell{grid-template-columns:1fr !important;gap:20px !important;max-width:560px !important;}.partner-hero-copy{text-align:center !important;}.partner-hero-sub{margin-left:auto !important;margin-right:auto !important;}.partner-hero-proof-row{justify-content:center !important;}}
 @media(max-width:640px){
-.fixed-top-header .promo-banner-new{min-height:92px !important;height:92px !important;padding:0 !important;}
-.fixed-top-header .promo-banner-inner{min-height:92px !important;height:92px !important;gap:0 !important;}
-.fixed-top-header .partner-top-brand{flex:0 0 42% !important;width:42% !important;min-width:0 !important;padding:2px 0 2px 8px !important;}
-.fixed-top-header .partner-top-logo-img{height:76px !important;max-width:100% !important;}
-.fixed-top-header .topbar-cta-stack{min-height:58px !important;height:auto !important;margin-left:auto !important;margin-right:10px !important;align-self:center !important;}
-.fixed-top-header .topbar-cta-stack .promo-claim-btn{height:48px !important;min-height:48px !important;padding:0 12px !important;font-size:11px !important;}
-.fixed-top-header .topbar-mindbody-note{max-width:250px !important;text-align:right !important;font-size:10px !important;line-height:1.2 !important;}
+.fixed-top-header .promo-banner-new{min-height:100px !important;height:100px !important;padding:0 !important;}
+.fixed-top-header .promo-banner-inner{min-height:100px !important;height:100px !important;}
+.fixed-top-header .partner-top-brand{left:10px !important;top:50% !important;transform:translateY(-50%) !important;}
+.fixed-top-header .partner-top-logo-img{width:190px !important;height:auto !important;max-width:38vw !important;}
+.fixed-top-header .topbar-cta-stack{right:10px !important;top:50% !important;transform:translateY(-50%) !important;max-width:56vw !important;}
+.fixed-top-header .topbar-cta-stack .promo-claim-btn{height:48px !important;min-height:48px !important;padding:0 14px !important;font-size:11px !important;}
+.fixed-top-header .topbar-mindbody-note{max-width:270px !important;text-align:right !important;font-size:10px !important;line-height:1.2 !important;}
 .fixed-top-header .screenshot-nav{min-height:54px !important;height:54px !important;padding:2px 8px !important;}
 .fixed-header-spacer{height:146px !important;}
 .screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.45rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
