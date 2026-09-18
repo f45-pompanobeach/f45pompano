@@ -1,8 +1,8 @@
-const CACHE='landing-admin-v4';
+const CACHE='landing-admin-v5';
 const CORE=[
   '/landing/admin/',
   '/landing/admin/app.css?v=9',
-  '/landing/admin/app.js?v=10',
+  '/landing/admin/app.js?v=11',
   '/landing/admin/manifest.webmanifest',
   '/landing/admin/icon.svg'
 ];
