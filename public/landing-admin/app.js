@@ -78,27 +78,31 @@ function selectPage(p){
   const g=effectiveGlobal();
   $('pagePartner').value=p.partner||'';
   $('pageSlug').value=p.slug||'';
-  $('trialType').value=p.trialType||g.trialType||'3 Classes';
-  $('trialCost').value=p.trialCost||g.trialCost||'$30';
-  $('trialDuration').value=p.trialDuration||g.trialDuration||'7 days';
+  const isDynamic=!p.isDefault&&p.slug!=='root';
+  const inherit=p.inheritGlobalOffer===true||(isDynamic&&p.inheritGlobalOffer===undefined);
+  $('inheritGlobalOffer').checked=inherit;
+  $('trialType').value=inherit?(g.trialType||'3 Classes'):(p.trialType||g.trialType||'3 Classes');
+  $('trialCost').value=inherit?(g.trialCost||'$30'):(p.trialCost||g.trialCost||'$30');
+  $('trialDuration').value=inherit?(g.trialDuration||'7 days'):(p.trialDuration||g.trialDuration||'7 days');
   $('promoCode').value=p.promoCode||'';
-  $('regularPrice').value=p.regularPrice||g.regularPrice||'';
+  $('regularPrice').value=inherit?(g.regularPrice||''):(p.regularPrice||g.regularPrice||'');
   $('percentageSavings').value=p.percentageSavings||'';
-  $('firstClassBookingText').value=p.firstClassBookingText||g.firstClassBookingText||'';
+  $('firstClassBookingText').value=inherit?(g.firstClassBookingText||''):(p.firstClassBookingText||g.firstClassBookingText||'');
   $('videoUrl').value=p.videoUrl||'';
-  $('mindbodyUrl').value=p.mindbodyUrl||'';
+  $('mindbodyUrl').value=inherit?(g.mindbodyUrl||''):(p.mindbodyUrl||'');
   $('pageEnabled').checked=p.enabled!==false;
 
   const locked=p.isDefault||p.slug==='root';
   $('pageSlug').disabled=locked;$('pagePartner').disabled=p.slug==='root';
   $('slugHelp').textContent=locked?'URL slug is fixed for existing pages.':'New page URL will use /landing/'+(p.slug||'your-slug')+'/';
   $('resetPageBtn').textContent=p.isDefault||p.slug==='root'?'Reset Override':'Delete Page';
+  syncOfferInheritanceFields();
   renderList();
 }
 function formPage(){
   const base=state.selected||{};
   const slug=base.isDefault||base.slug==='root'?base.slug:cleanSlug($('pageSlug').value);
-  return {slug,pageKind:slug==='root'?'root':'partner',partner:slug==='root'?'Main Website':$('pagePartner').value.trim(),trialType:$('trialType').value.trim(),trialCost:$('trialCost').value.trim(),trialDuration:$('trialDuration').value.trim(),promoCode:$('promoCode').value.trim(),regularPrice:$('regularPrice').value.trim(),percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:$('firstClassBookingText').value.trim(),videoUrl:$('videoUrl').value.trim(),mindbodyUrl:$('mindbodyUrl').value.trim(),enabled:$('pageEnabled').checked};
+  return {slug,pageKind:slug==='root'?'root':'partner',partner:slug==='root'?'Main Website':$('pagePartner').value.trim(),trialType:$('trialType').value.trim(),trialCost:$('trialCost').value.trim(),trialDuration:$('trialDuration').value.trim(),promoCode:$('promoCode').value.trim(),regularPrice:$('regularPrice').value.trim(),percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:$('firstClassBookingText').value.trim(),videoUrl:$('videoUrl').value.trim(),mindbodyUrl:$('mindbodyUrl').value.trim(),inheritGlobalOffer:$('inheritGlobalOffer').checked,enabled:$('pageEnabled').checked};
 }
 
 async function uploadVideo(file,targetInput,statusEl,button){
@@ -123,6 +127,23 @@ async function waitForPublished(url){
   }
   throw new Error('The settings were saved, but the page did not finish publishing. Last status: '+(last||'unavailable')+'.');
 }
+
+function syncOfferInheritanceFields(){
+  const inherit=$('inheritGlobalOffer').checked;
+  for(const id of ['trialType','trialCost','trialDuration','regularPrice','firstClassBookingText','mindbodyUrl'])$(id).disabled=inherit;
+}
+$('inheritGlobalOffer').addEventListener('change',()=>{
+  const g=effectiveGlobal();
+  if($('inheritGlobalOffer').checked){
+    $('trialType').value=g.trialType||'3 Classes';
+    $('trialCost').value=g.trialCost||'$30';
+    $('trialDuration').value=g.trialDuration||'7 days';
+    $('regularPrice').value=g.regularPrice||'';
+    $('firstClassBookingText').value=g.firstClassBookingText||'';
+    $('mindbodyUrl').value=g.mindbodyUrl||'';
+  }
+  syncOfferInheritanceFields();
+});
 
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginError').textContent='';try{await login($('pin').value.trim())}catch(err){$('loginError').textContent=err.message}});
 $('logoutBtn').onclick=()=>{sessionStorage.removeItem('landingAdminPin');location.reload()};
@@ -150,7 +171,7 @@ $('saveGlobalBtn').onclick=async()=>{
 
 $('newPageBtn').onclick=()=>{
   const g=effectiveGlobal();
-  selectPage({slug:'',partner:'',pageKind:'partner',trialType:g.trialType||'3 Classes',trialCost:g.trialCost||'$30',trialDuration:g.trialDuration||'7 days',firstClassBookingText:g.firstClassBookingText||'',regularPrice:g.regularPrice||g.trialCost||'$30',percentageSavings:'',promoCode:'',videoUrl:'',mindbodyUrl:'',enabled:true,isDefault:false,isStored:false});
+  selectPage({slug:'',partner:'',pageKind:'partner',trialType:g.trialType||'3 Classes',trialCost:g.trialCost||'$30',trialDuration:g.trialDuration||'7 days',firstClassBookingText:g.firstClassBookingText||'',regularPrice:g.regularPrice||g.trialCost||'$30',percentageSavings:'',promoCode:'',videoUrl:'',mindbodyUrl:g.mindbodyUrl||'',inheritGlobalOffer:true,enabled:true,isDefault:false,isStored:false});
   $('pageSlug').focus();
 };
 
