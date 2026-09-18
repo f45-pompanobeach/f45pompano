@@ -48,7 +48,7 @@ export function sanitizePage(input={},existingSlug=''){
     percentageSavings:cleanText(input.percentageSavings,40),
     videoUrl:cleanUrl(input.videoUrl),
     mindbodyUrl:cleanUrl(input.mindbodyUrl),
-    inheritGlobalOffer:input.inheritGlobalOffer===true,
+    offerOverrideEnabled:input.offerOverrideEnabled===true,
     enabled:bool(input.enabled,true)
   };
 }
