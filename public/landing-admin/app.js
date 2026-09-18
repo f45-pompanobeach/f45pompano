@@ -488,3 +488,12 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/landing/admin/sw.js',{scope:'/landing/admin/'}).catch(()=>{});
   });
 }
+
+
+function preventAdminZoomGestures(){
+  const prevent=e=>e.preventDefault();
+  document.addEventListener('gesturestart',prevent,{passive:false});
+  document.addEventListener('gesturechange',prevent,{passive:false});
+  document.addEventListener('gestureend',prevent,{passive:false});
+}
+preventAdminZoomGestures();
