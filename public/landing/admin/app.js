@@ -38,14 +38,17 @@ async function loadAdmin(){
     fetch('/landing-defaults.json',{cache:'no-store'}).then(r=>r.json()),
     api('/api/landing/admin/pages'),
     api('/api/landing/admin/global'),
-    api('/api/landing/admin/media').catch(()=>({configured:false}))
+    fetch('/api/landing/media-status',{cache:'no-store'}).then(r=>r.json()).catch(()=>({configured:false}))
   ]);
   state.defaults=defaults;state.stored=stored.pages||[];state.global=global.global||{};state.mediaConfigured=Boolean(media.configured);
   populateGlobal();
   if(!state.mediaConfigured){
     $('uploadGlobalVideoBtn').disabled=true;$('uploadPageVideoBtn').disabled=true;
-    showStatus($('globalVideoStatus'),'Video file uploads need the Cloudflare LANDING_MEDIA (R2) binding. URL/path video changes still work.',true);
-    showStatus($('pageVideoStatus'),'Video file uploads need the Cloudflare LANDING_MEDIA (R2) binding. URL/path video changes still work.',true);
+    showStatus($('globalVideoStatus'),'R2 video storage: NOT CONNECTED. Add the LANDING_MEDIA binding, then redeploy.',true);
+    showStatus($('pageVideoStatus'),'R2 video storage: NOT CONNECTED. URL/path video changes still work.',true);
+  }else{
+    $('uploadGlobalVideoBtn').disabled=false;$('uploadPageVideoBtn').disabled=false;
+    showStatus($('globalVideoStatus'),'R2 video storage: CONNECTED.');
   }
   $('loginView').classList.add('hidden');$('adminView').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');
   renderList();
