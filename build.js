@@ -410,7 +410,8 @@ document.addEventListener("DOMContentLoaded", function () {
       submitButton.textContent = "Unlocking Offer...";
     }
 
-    const runtimeLandingPage = (window.__LANDING_CONFIG__ && window.__LANDING_CONFIG__.page) || {};
+    const runtimeLandingConfig = window.__LANDING_CONFIG__ || {};
+    const runtimeLandingPage = {...(runtimeLandingConfig.global || {}), ...(runtimeLandingConfig.page || {})};
     const runtimeTrialType = runtimeLandingPage.trialType || "3 Classes";
     const runtimeTrialCost = runtimeLandingPage.trialCost || "$30";
     const runtimeOffer = runtimeTrialType + " for " + runtimeTrialCost;
@@ -645,7 +646,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const validName=function(value){return /^[A-Za-z][A-Za-z\\s\\-']{1,}$/.test((value||"").trim());};
     if(!validName(firstNameField&&firstNameField.value)){alert("Please enter your full first name with at least 2 letters.");if(firstNameField)firstNameField.focus();return;}
     if(!validName(lastNameField&&lastNameField.value)){alert("Please enter your full last name with at least 2 letters.");if(lastNameField)lastNameField.focus();return;}
-    const runtimeLanding=(window.__LANDING_CONFIG__||{}),runtimePage=(runtimeLanding.page||{}),runtimeGlobal=(runtimeLanding.global||{});
+    const runtimeLanding=(window.__LANDING_CONFIG__||{}),runtimeGlobal=(runtimeLanding.global||{}),runtimePage={...runtimeGlobal,...(runtimeLanding.page||{})};
     const zipValue=zipField?zipField.value.trim():"";const eligibleZipCodes=(Array.isArray(runtimeGlobal.qualifiedZipCodes)&&runtimeGlobal.qualifiedZipCodes.length)?runtimeGlobal.qualifiedZipCodes:${eligibleZipCodes};
     if(!/^\\d{5}$/.test(zipValue)||!eligibleZipCodes.includes(zipValue)){alert("This offer is available to first-time visitors living in one of these ZIP codes: "+eligibleZipCodes.join(", ")+".");if(zipField)zipField.focus();return;}
     if(!termsCheckbox||!termsCheckbox.checked){if(termsError)termsError.style.display="block";if(termsCheckbox)termsCheckbox.focus();return;}if(termsError)termsError.style.display="none";
@@ -680,7 +681,7 @@ function upgradePartnerPage(html, partnerData, options = {}) {
 }
 
 function addLandingRuntime(html) {
-  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=1"></script>\\n</body>');
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=2"></script>\\n</body>');
 }
 
 // Landing Admin defaults are generated from the repository data files so the admin
@@ -688,7 +689,13 @@ function addLandingRuntime(html) {
 const landingDefaults = {
   global: {
     qualifiedZipCodes: String(shared.qualifiedZipCodes || "").split(",").map((zip) => zip.trim()).filter(Boolean),
-    defaultVideoUrl: "/trial-video.mp4"
+    defaultVideoUrl: "/trial-video.mp4",
+    trialType: generic.genericTrialType,
+    trialCost: generic.genericTrialCost,
+    trialDuration: generic.genericTrialDuration,
+    regularPrice: generic.genericTrialCost,
+    firstClassBookingText: "Your first class must be booked within 14 days of purchasing the trial.",
+    mindbodyUrl: mindbodyTrialUrl
   },
   pages: [{
     slug: "root",
