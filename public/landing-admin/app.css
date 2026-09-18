@@ -62,21 +62,30 @@
     background:rgba(15,18,32,.52) !important;
     padding:0 !important;
   }
+  body.mobile-editor-open .admin-tabs{
+    position:fixed !important;
+    top:calc(var(--vv-top, 0px) + 8px) !important;
+    left:8px !important;
+    right:8px !important;
+    width:auto !important;
+    margin:0 !important;
+    z-index:110 !important;
+  }
   body.mobile-editor-open #pagesPanel .editor{
     display:block !important;
     position:fixed !important;
     z-index:75 !important;
-    top:72px !important;
-    left:8px !important;
-    right:8px !important;
-    bottom:90px !important;
+    top:calc(var(--vv-top, 0px) + 70px) !important;
+    left:12px !important;
+    right:12px !important;
+    bottom:calc(var(--vv-bottom, 0px) + 104px) !important;
     width:auto !important;
     max-width:none !important;
     margin:0 !important;
     padding:16px !important;
     overflow-y:auto !important;
     overscroll-behavior:contain !important;
-    border-radius:16px !important;
+    border-radius:18px !important;
     box-shadow:0 24px 70px rgba(0,0,0,.38) !important;
   }
   body.mobile-editor-open #pagesPanel .editor-head{
@@ -86,7 +95,24 @@
     margin:-16px -16px 14px !important;
     padding:14px 16px 12px !important;
     background:#fff !important;
+    border-radius:18px 18px 0 0 !important;
   }
-  body.mobile-editor-open .admin-tabs{z-index:90 !important}
-  body.mobile-editor-open .action-dock{z-index:100 !important}
+  body.mobile-editor-open .action-dock{
+    z-index:120 !important;
+    bottom:calc(var(--vv-bottom, 0px) + 10px) !important;
+    left:8px !important;
+    right:8px !important;
+    width:auto !important;
+    transform:none !important;
+    margin:0 !important;
+  }
+}
+
+@media(max-width:620px) and (display-mode:standalone){
+  body.mobile-editor-open .admin-tabs{top:calc(env(safe-area-inset-top) + 8px) !important;}
+  body.mobile-editor-open #pagesPanel .editor{
+    top:calc(env(safe-area-inset-top) + 70px) !important;
+    bottom:92px !important;
+  }
+  body.mobile-editor-open .action-dock{bottom:calc(env(safe-area-inset-bottom) + 8px) !important;}
 }
