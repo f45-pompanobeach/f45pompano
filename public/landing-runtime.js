@@ -29,11 +29,10 @@
     window.__LANDING_CONFIG__=cfg;
     const storedPage=cfg.page||{};
     const global=cfg.global||{};
-    const isDynamic=/^\/landing\//.test(location.pathname);
-    const inheritGlobalOffer=storedPage.inheritGlobalOffer===true||(isDynamic&&storedPage.inheritGlobalOffer===undefined);
+    const usePageOfferOverrides=storedPage.offerOverrideEnabled===true;
     const offerKeys=['trialType','trialCost','trialDuration','regularPrice','firstClassBookingText','mindbodyUrl'];
     const effectiveStored={...storedPage};
-    if(inheritGlobalOffer)for(const key of offerKeys)delete effectiveStored[key];
+    if(!usePageOfferOverrides)for(const key of offerKeys)delete effectiveStored[key];
     const page={...global,...effectiveStored};
     const isRoot=cfg.slug==='root'||storedPage.pageKind==='root';
     if(page.enabled===false&&!isRoot){
