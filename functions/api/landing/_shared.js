@@ -13,13 +13,20 @@ function cleanUrl(v){
   try{const u=new URL(s);return /^https?:$/.test(u.protocol)?u.toString():''}catch{return ''}
 }
 function cleanCost(v){return cleanText(v,40)}
+function cleanEmail(v){
+  const s=String(v??'').trim().toLowerCase().slice(0,254);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)?s:'';
+}
 function bool(v,def=true){return v===undefined?def:Boolean(v)}
 
 export function sanitizeGlobal(input={}){
   const raw=Array.isArray(input.qualifiedZipCodes)?input.qualifiedZipCodes:String(input.qualifiedZipCodes||'').split(',');
   const zips=[...new Set(raw.map(v=>String(v).trim()).filter(v=>/^\d{5}$/.test(v)))].slice(0,40);
+  const emailRaw=Array.isArray(input.leadNotificationEmails)?input.leadNotificationEmails:String(input.leadNotificationEmails||'').split(',');
+  const leadNotificationEmails=[...new Set(emailRaw.map(cleanEmail).filter(Boolean))].slice(0,20);
   return {
     qualifiedZipCodes:zips,
+    leadNotificationEmails,
     defaultVideoUrl:cleanUrl(input.defaultVideoUrl||'/trial-video.mp4')||'/trial-video.mp4',
     trialType:cleanText(input.trialType,80)||'3 Classes',
     trialCost:cleanCost(input.trialCost)||'$30',
