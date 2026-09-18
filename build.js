@@ -39,7 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
-const SITE_VERSION = "v2026.09.18.2";
+const SITE_VERSION = "v2026.09.18.3";
 
 const rootLeadCaptureCss = String.raw`
 
@@ -578,14 +578,13 @@ const partnerRootFormCss = String.raw`
   background:transparent !important;
   overflow:visible !important;
 }
-.fixed-top-header .partner-top-brand .screenshot-logo-img{
+.fixed-top-header .partner-top-logo-img{
   display:block !important;
   width:auto !important;
-  height:90px !important;
+  height:88px !important;
   max-width:100% !important;
   object-fit:contain !important;
-  filter:invert(1) grayscale(1) brightness(3) contrast(2) !important;
-  mix-blend-mode:screen !important;
+  background:transparent !important;
 }
 .fixed-top-header .topbar-cta-stack{
   margin-left:auto !important;
@@ -611,7 +610,7 @@ const partnerRootFormCss = String.raw`
 .fixed-top-header .promo-banner-new{min-height:92px !important;height:92px !important;padding:0 !important;}
 .fixed-top-header .promo-banner-inner{min-height:92px !important;height:92px !important;gap:0 !important;}
 .fixed-top-header .partner-top-brand{flex:0 0 42% !important;width:42% !important;min-width:0 !important;padding:2px 0 2px 8px !important;}
-.fixed-top-header .partner-top-brand .screenshot-logo-img{height:78px !important;max-width:100% !important;}
+.fixed-top-header .partner-top-logo-img{height:76px !important;max-width:100% !important;}
 .fixed-top-header .topbar-cta-stack{min-height:58px !important;height:auto !important;margin-left:auto !important;margin-right:10px !important;align-self:center !important;}
 .fixed-top-header .topbar-cta-stack .promo-claim-btn{height:48px !important;min-height:48px !important;padding:0 12px !important;font-size:11px !important;}
 .fixed-top-header .topbar-mindbody-note{max-width:250px !important;text-align:right !important;font-size:10px !important;line-height:1.2 !important;}
@@ -765,12 +764,12 @@ function upgradePartnerPage(html, partnerData, options = {}) {
   html=html.replaceAll(" · Save 50%", "");
   html=html.replaceAll("Save 50%", "");
 
-  // Move the exact embedded studio logo into the purple top-left bar.
-  // The original JPEG already contains the correct F45 Training Pompano Beach logo.
-  // CSS below visually removes its white background on purple and converts the mark to white.
+  // Use the transparent white F45 Training Pompano Beach logo directly on the purple top-left bar.
   const navBrandMatch = html.match(/<div class="screenshot-brand">[\s\S]*?<\/div>/);
   if (navBrandMatch) {
-    const topBrand = navBrandMatch[0].replace('class="screenshot-brand"', 'class="screenshot-brand partner-top-brand"');
+    const topBrand = `<div class="screenshot-brand partner-top-brand" aria-label="F45 Training Pompano Beach">
+      <img class="partner-top-logo-img" src="/f45-pompano-logo-white.svg" alt="F45 Training Pompano Beach">
+    </div>`;
     html = html.replace(navBrandMatch[0], "");
     html = html.replace(/<div class="promo-code-box">[\s\S]*?<\/div>/, topBrand);
   }
