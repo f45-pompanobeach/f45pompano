@@ -629,7 +629,6 @@ function buildPartnerLeadScript(partnerData, isSandsHarbor) {
   const partnerName = JSON.stringify(String(partnerData.partner));
   const trialOffer = JSON.stringify(`${partnerData.trialType} for ${partnerData.trialCost}`);
   const sourceUrl = JSON.stringify(`https://f45pompano.com/${partnerData.slug}/`);
-  const eligibleZipCodes = JSON.stringify(String(shared.qualifiedZipCodes).split(",").map((zip) => zip.trim()));
   const phone = JSON.stringify(String(shared.phone));
   const consentLanguage = JSON.stringify(partnerConsentLanguage);
   const submitDefault = JSON.stringify("Submit & Unlock Offer");
@@ -647,8 +646,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if(!validName(firstNameField&&firstNameField.value)){alert("Please enter your full first name with at least 2 letters.");if(firstNameField)firstNameField.focus();return;}
     if(!validName(lastNameField&&lastNameField.value)){alert("Please enter your full last name with at least 2 letters.");if(lastNameField)lastNameField.focus();return;}
     const runtimeLanding=(window.__LANDING_CONFIG__||{}),runtimeGlobal=(runtimeLanding.global||{}),runtimePage={...runtimeGlobal,...(runtimeLanding.page||{})};
-    const zipValue=zipField?zipField.value.trim():"";const eligibleZipCodes=(Array.isArray(runtimeGlobal.qualifiedZipCodes)&&runtimeGlobal.qualifiedZipCodes.length)?runtimeGlobal.qualifiedZipCodes:${eligibleZipCodes};
-    if(!/^\\d{5}$/.test(zipValue)||!eligibleZipCodes.includes(zipValue)){alert("This offer is available to first-time visitors living in one of these ZIP codes: "+eligibleZipCodes.join(", ")+".");if(zipField)zipField.focus();return;}
+    const zipValue=zipField?zipField.value.trim():"";
+    if(!/^\\d{5}$/.test(zipValue)){alert("Please enter your 5-digit ZIP code.");if(zipField)zipField.focus();return;}
     if(!termsCheckbox||!termsCheckbox.checked){if(termsError)termsError.style.display="block";if(termsCheckbox)termsCheckbox.focus();return;}if(termsError)termsError.style.display="none";
     if(!eligibilityCheckbox||!eligibilityCheckbox.checked){if(eligibilityError)eligibilityError.style.display="block";if(eligibilityCheckbox)eligibilityCheckbox.focus();return;}if(eligibilityError)eligibilityError.style.display="none";
     if(phoneField){const phoneDigits=phoneField.value.replace(/\\D/g,"");const valid=phoneDigits.length===10||(phoneDigits.length===11&&phoneDigits.charAt(0)==="1");if(!valid){alert("Please enter a valid U.S. phone number so we can contact you about your offer.");phoneField.focus();return;}const normalized=phoneDigits.length===11?phoneDigits.substring(1):phoneDigits;phoneField.value="("+normalized.substring(0,3)+") "+normalized.substring(3,6)+"-"+normalized.substring(6);}
