@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#1C1C2E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Landing Pages">
 <title>Landing Admin · F45 Pompano Beach</title>
-<link rel="stylesheet" href="/landing/admin/app.css?v=4">
+<link rel="manifest" href="/landing/admin/manifest.webmanifest">
+<link rel="icon" href="/landing/admin/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/landing/admin/app.css?v=7">
 </head>
 <body>
 <div class="shell">
@@ -14,7 +19,6 @@
     <div>
       <div class="eyebrow">F45 POMPANO BEACH</div>
       <h1>Landing Page Admin</h1>
-      <p>Create and update the main landing page and partner offers without editing code.</p>
     </div>
     <button id="logoutBtn" class="ghost hidden" type="button">Log Out</button>
   </header>
@@ -155,6 +159,8 @@
       </section>
     </section>
 
+    <button id="editorBackdrop" class="editor-backdrop hidden" type="button" aria-label="Close page editor"></button>
+
     <div id="actionDock" class="action-dock">
       <div class="dock-left">
         <span id="dockContext">Global Settings</span>
@@ -168,6 +174,6 @@
     </div>
   </main>
 </div>
-<script src="/landing/admin/app.js?v=6"></script>
+<script src="/landing/admin/app.js?v=7"></script>
 </body>
 </html>
