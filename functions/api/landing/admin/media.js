@@ -10,6 +10,11 @@ function extFor(type,name){
   return 'mp4';
 }
 
+export async function onRequestGet({request,env}){
+  if(!await adminAuthorized(request,env))return json({ok:false,error:'unauthorized'},401);
+  return json({ok:true,configured:Boolean(env?.LANDING_MEDIA&&typeof env.LANDING_MEDIA.put==='function'),max_bytes:MAX_BYTES,allowed:[...ALLOWED]});
+}
+
 export async function onRequestPost({request,env}){
   if(!await adminAuthorized(request,env))return json({ok:false,error:'unauthorized'},401);
   if(!env?.LANDING_MEDIA||typeof env.LANDING_MEDIA.put!=='function')return json({ok:false,error:'media_storage_unavailable',message:'Video storage is not configured for Landing Admin yet.'},503);
