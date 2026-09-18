@@ -402,14 +402,36 @@ $('resetPageBtn').onclick=async()=>{
   if(isReset){
     if(!confirm('Reset this page back to its repository/global defaults?'))return;
   }else{
-    const typed=prompt('This will permanently delete this landing page. Type DELETE to continue.');
+    const typed=prompt('This will permanently delete this landing page. Confirm DELETE to continue.','DELETE');
     if(typed!=='DELETE')return;
   }
   try{
-    await api('/api/landing/admin/pages',{method:'POST',body:JSON.stringify({action:'delete',slug:state.selected.slug})});
-    state.stored=state.stored.filter(x=>x.slug!==state.selected.slug);
-    const fallback=mergePages().find(x=>x.slug===state.selected.slug)||mergePages()[0];
-    state.selected=null;renderList();selectPage(fallback);showStatus($('pageStatus'),name+' reset.');
+    const deletedSlug=state.selected.slug;
+    await api('/api/landing/admin/pages',{method:'POST',body:JSON.stringify({action:'delete',slug:deletedSlug})});
+    state.stored=state.stored.filter(x=>x.slug!==deletedSlug);
+
+    if(isReset){
+      const fallback=mergePages().find(x=>x.slug===deletedSlug)||mergePages()[0];
+      state.selected=null;
+      renderList();
+      selectPage(fallback);
+      showStatus($('pageStatus'),name+' reset.');
+    }else{
+      state.selected=null;
+      state.pageOfferDraft=null;
+      renderList();
+      closeMobileEditor();
+      showAdminTab('pages');
+      $('pageForm').classList.add('hidden');
+      $('emptyEditor').classList.remove('hidden');
+      $('editorBadge').classList.add('hidden');
+      $('editorTitle').textContent='Select a page';
+      $('editorUrl').textContent='';
+      $('openPageLink').classList.add('hidden');
+      $('savePageBtn').classList.add('hidden');
+      $('dockContext').textContent='Landing Pages';
+      $('dockStatus').textContent=name+' deleted.';
+    }
   }catch(err){showStatus($('pageStatus'),err.message,true)}
 };
 
