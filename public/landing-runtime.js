@@ -82,6 +82,10 @@
 
   const slug=slugFromPath();
   if(slug==='social-trial')return;
+  if(window.__LANDING_PRELOADED__){
+    apply(window.__LANDING_PRELOADED__);
+    return;
+  }
   fetch('/api/landing/config?slug='+encodeURIComponent(slug),{headers:{'accept':'application/json'},cache:'no-store'})
     .then(r=>r.ok?r.json():null)
     .then(data=>{
