@@ -25,8 +25,8 @@ export async function onRequestGet({request,env,params,next}){
   let html=await templateResponse.text();
   const preload=JSON.stringify({slug,page,global}).replace(/</g,'\\u003c');
   html=html.replace(
-    '<script defer src="/landing-runtime.js?v=3"></script>',
-    `<script>window.__LANDING_PRELOADED__=${preload};</script><script defer src="/landing-runtime.js?v=3"></script>`
+    '<script defer src="/landing-runtime.js?v=4"></script>',
+    `<script>window.__LANDING_PRELOADED__=${preload};</script><script defer src="/landing-runtime.js?v=4"></script>`
   );
   return htmlResponse(html);
 }
