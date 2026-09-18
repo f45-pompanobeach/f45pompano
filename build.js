@@ -39,6 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
+const SITE_VERSION = "v2026.09.18.1";
 
 const rootLeadCaptureCss = String.raw`
 
@@ -568,20 +569,18 @@ const partnerRootFormCss = String.raw`
 .fixed-top-header .partner-top-brand{
   display:flex !important;
   align-items:center !important;
-  justify-content:center !important;
-  flex:0 0 25% !important;
-  width:25% !important;
-  min-width:220px !important;
+  justify-content:flex-start !important;
+  flex:0 0 30% !important;
+  width:30% !important;
+  min-width:260px !important;
   margin:0 !important;
-  padding:4px 18px !important;
-  background:#fff !important;
+  padding:4px 0 4px 22px !important;
+  background:transparent !important;
 }
-.fixed-top-header .partner-top-brand .screenshot-logo-img{
-  height:86px !important;
-  width:auto !important;
-  max-width:92% !important;
-  object-fit:contain !important;
+.fixed-top-header .partner-top-logo{
   display:block !important;
+  width:min(100%,340px) !important;
+  height:86px !important;
 }
 .fixed-top-header .topbar-cta-stack{
   margin-left:auto !important;
@@ -604,8 +603,8 @@ const partnerRootFormCss = String.raw`
 @media(max-width:640px){
 .fixed-top-header .promo-banner-new{min-height:92px !important;height:92px !important;padding:0 !important;}
 .fixed-top-header .promo-banner-inner{min-height:92px !important;height:92px !important;gap:0 !important;}
-.fixed-top-header .partner-top-brand{flex:0 0 31% !important;width:31% !important;min-width:0 !important;padding:5px 8px !important;}
-.fixed-top-header .partner-top-brand .screenshot-logo-img{height:76px !important;max-width:100% !important;}
+.fixed-top-header .partner-top-brand{flex:0 0 37% !important;width:37% !important;min-width:0 !important;padding:5px 0 5px 12px !important;}
+.fixed-top-header .partner-top-logo{width:100% !important;height:74px !important;}
 .fixed-top-header .topbar-cta-stack{min-height:58px !important;height:auto !important;margin-left:auto !important;margin-right:10px !important;align-self:center !important;}
 .fixed-top-header .topbar-cta-stack .promo-claim-btn{height:48px !important;min-height:48px !important;padding:0 12px !important;font-size:11px !important;}
 .fixed-top-header .topbar-mindbody-note{max-width:250px !important;text-align:right !important;font-size:10px !important;line-height:1.2 !important;}
@@ -762,7 +761,18 @@ function upgradePartnerPage(html, partnerData, options = {}) {
   // Move the studio logo into the purple top bar and remove the redundant partner-offer pill.
   const navBrandMatch = html.match(/<div class="screenshot-brand">[\s\S]*?<\/div>/);
   if (navBrandMatch) {
-    const topBrand = navBrandMatch[0].replace('class="screenshot-brand"', 'class="screenshot-brand partner-top-brand"');
+    const topBrand = `<div class="screenshot-brand partner-top-brand" aria-label="F45 Training Pompano Beach">
+      <svg class="partner-top-logo" viewBox="0 0 420 128" role="img" aria-label="F45 Training Pompano Beach">
+        <g fill="#fff">
+          <rect x="10" y="12" width="148" height="24" rx="2"/>
+          <rect x="10" y="36" width="32" height="70" rx="2"/>
+          <rect x="42" y="47" width="92" height="24" rx="2"/>
+          <path d="M182 12h52l55 94h-42l-10-19h-58l-10 19h-42zm26 29-16 31h31z"/>
+          <path d="M296 12h114v30h-78v16h68v28h-68v20h-36z"/>
+        </g>
+        <text x="210" y="124" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="900" text-anchor="middle" letter-spacing="2">TRAINING · POMPANO BEACH</text>
+      </svg>
+    </div>`;
     html = html.replace(navBrandMatch[0], "");
     html = html.replace(/<div class="promo-code-box">[\s\S]*?<\/div>/, topBrand);
   }
@@ -773,6 +783,15 @@ function upgradePartnerPage(html, partnerData, options = {}) {
 
 function addLandingRuntime(html) {
   return html.replace("</body>", '<script defer src="/landing-runtime.js?v=4"></script>\\n</body>');
+}
+
+function addSiteVersion(html) {
+  const badge = `<div class="site-version-badge" aria-label="Site version">${SITE_VERSION}</div>
+<style>
+.site-version-badge{position:fixed;right:8px;bottom:6px;z-index:20;padding:3px 6px;border-radius:6px;background:rgba(17,24,39,.72);color:rgba(255,255,255,.9);font:700 10px/1.2 Arial,Helvetica,sans-serif;letter-spacing:.2px;pointer-events:none}
+@media(max-width:640px){.site-version-badge{font-size:9px;right:5px;bottom:5px;opacity:.78}}
+</style>`;
+  return html.replace("</body>", badge + "\\n</body>");
 }
 
 // Landing Admin defaults are generated from the repository data files so the admin
@@ -829,7 +848,7 @@ fs.writeFileSync(path.join(distDir, "landing-defaults.json"), JSON.stringify(lan
 
 // Default homepage
 const genericData = { ...shared, ...generic };
-const renderedGenericPage = addLandingRuntime(addLocalComplianceLinks(addRootLeadCapture(render(genericTemplate, genericData))));
+const renderedGenericPage = addSiteVersion(addLandingRuntime(addLocalComplianceLinks(addRootLeadCapture(render(genericTemplate, genericData)))));
 fs.writeFileSync(path.join(distDir, "index.html"), renderedGenericPage);
 
 // Partner pages
@@ -855,6 +874,7 @@ for (const file of fs.readdirSync(dataDir)) {
     renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
   }
 
+  renderedPartnerPage = addSiteVersion(renderedPartnerPage);
   fs.writeFileSync(path.join(distDir, `${partnerData.slug}.html`), renderedPartnerPage);
 
   const partnerPageDir = path.join(distDir, partnerData.slug);
@@ -879,7 +899,7 @@ const dynamicPartnerData = {
   percentageSavings: ""
 };
 let dynamicPartnerPage = upgradePartnerPage(render(partnerTemplate, dynamicPartnerData), dynamicPartnerData);
-dynamicPartnerPage = addLandingRuntime(dynamicPartnerPage);
+dynamicPartnerPage = addSiteVersion(addLandingRuntime(dynamicPartnerPage));
 const dynamicPartnerDir = path.join(distDir, "_landing-template");
 fs.mkdirSync(dynamicPartnerDir, { recursive: true });
 fs.writeFileSync(path.join(dynamicPartnerDir, "index.html"), dynamicPartnerPage);
