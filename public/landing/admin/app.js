@@ -1,4 +1,4 @@
-const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},selected:null,publishing:false,mediaConfigured:null};
+const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},selected:null,publishing:false,mediaConfigured:null,leadNotificationEmails:[]};
 const $=id=>document.getElementById(id);
 
 function api(path,opts={}){
@@ -58,6 +58,8 @@ async function loadAdmin(){
 function populateGlobal(){
   const g=effectiveGlobal();
   $('globalZips').value=(g.qualifiedZipCodes||[]).join(', ');
+  state.leadNotificationEmails=Array.isArray(g.leadNotificationEmails)?g.leadNotificationEmails.slice():['pompanobeach@f45training.com'];
+  renderLeadEmailList();
   $('globalVideo').value=g.defaultVideoUrl||'/trial-video.mp4';
   $('globalTrialType').value=g.trialType||'3 Classes';
   $('globalTrialCost').value=g.trialCost||'$30';
@@ -66,6 +68,55 @@ function populateGlobal(){
   $('globalFirstClassBookingText').value=g.firstClassBookingText||'Your first class must be booked within 14 days of purchasing the trial.';
   $('globalMindbodyUrl').value=g.mindbodyUrl||'';
 }
+function validEmail(value){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value||'').trim());
+}
+function renderLeadEmailList(){
+  const list=$('leadEmailList');
+  if(!list)return;
+  list.innerHTML='';
+  if(!state.leadNotificationEmails.length){
+    const empty=document.createElement('div');
+    empty.className='email-empty';
+    empty.textContent='No notification emails configured. Forms will still unlock, but no lead email will be sent.';
+    list.appendChild(empty);
+    return;
+  }
+  state.leadNotificationEmails.forEach((email,index)=>{
+    const row=document.createElement('div');
+    row.className='email-recipient-item';
+    const main=document.createElement('div');
+    main.className='email-recipient-main';
+    const strong=document.createElement('strong');
+    strong.textContent=email;
+    main.appendChild(strong);
+    if(index===0){
+      const badge=document.createElement('span');
+      badge.className='email-primary-badge';
+      badge.textContent='Primary';
+      main.appendChild(badge);
+    }
+    const remove=document.createElement('button');
+    remove.type='button';
+    remove.className='email-remove-btn';
+    remove.textContent='Remove';
+    remove.onclick=()=>{state.leadNotificationEmails.splice(index,1);renderLeadEmailList();};
+    row.appendChild(main);
+    row.appendChild(remove);
+    list.appendChild(row);
+  });
+}
+function addLeadEmail(){
+  const input=$('leadEmailInput');
+  const email=String(input.value||'').trim().toLowerCase();
+  if(!validEmail(email)){alert('Enter a valid email address.');input.focus();return;}
+  if(state.leadNotificationEmails.includes(email)){alert('That email address is already in the list.');input.focus();return;}
+  state.leadNotificationEmails.push(email);
+  input.value='';
+  renderLeadEmailList();
+  input.focus();
+}
+
 function renderList(){
   const list=$('pageList');list.innerHTML='';
   for(const p of mergePages()){
@@ -174,6 +225,8 @@ $('pagesTabBtn').addEventListener('click',()=>showAdminTab('pages'));
 
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginError').textContent='';try{await login($('pin').value.trim())}catch(err){$('loginError').textContent=err.message}});
 $('logoutBtn').onclick=()=>{sessionStorage.removeItem('landingAdminPin');location.reload()};
+$('addLeadEmailBtn').onclick=addLeadEmail;
+$('leadEmailInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addLeadEmail();}});
 
 $('uploadGlobalVideoBtn').onclick=async()=>{try{await uploadVideo($('globalVideoFile').files[0],$('globalVideo'),$('globalVideoStatus'),$('uploadGlobalVideoBtn'))}catch(e){showStatus($('globalVideoStatus'),e.message,true)}};
 $('uploadPageVideoBtn').onclick=async()=>{try{await uploadVideo($('pageVideoFile').files[0],$('videoUrl'),$('pageVideoStatus'),$('uploadPageVideoBtn'))}catch(e){showStatus($('pageVideoStatus'),e.message,true)}};
@@ -181,6 +234,7 @@ $('uploadPageVideoBtn').onclick=async()=>{try{await uploadVideo($('pageVideoFile
 $('saveGlobalBtn').onclick=async()=>{
   const body={
     qualifiedZipCodes:$('globalZips').value,
+    leadNotificationEmails:state.leadNotificationEmails.slice(),
     defaultVideoUrl:$('globalVideo').value.trim(),
     trialType:$('globalTrialType').value.trim(),
     trialCost:$('globalTrialCost').value.trim(),
