@@ -20,7 +20,13 @@ export function sanitizeGlobal(input={}){
   const zips=[...new Set(raw.map(v=>String(v).trim()).filter(v=>/^\d{5}$/.test(v)))].slice(0,40);
   return {
     qualifiedZipCodes:zips,
-    defaultVideoUrl:cleanUrl(input.defaultVideoUrl||'/trial-video.mp4')||'/trial-video.mp4'
+    defaultVideoUrl:cleanUrl(input.defaultVideoUrl||'/trial-video.mp4')||'/trial-video.mp4',
+    trialType:cleanText(input.trialType,80)||'3 Classes',
+    trialCost:cleanCost(input.trialCost)||'$30',
+    trialDuration:cleanText(input.trialDuration,80)||'7 days',
+    regularPrice:cleanCost(input.regularPrice)||cleanCost(input.trialCost)||'$30',
+    firstClassBookingText:cleanText(input.firstClassBookingText,260)||'Your first class must be booked within 14 days of purchasing the trial.',
+    mindbodyUrl:cleanUrl(input.mindbodyUrl)
   };
 }
 
