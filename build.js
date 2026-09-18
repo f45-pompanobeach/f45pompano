@@ -329,13 +329,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function showSuccessBox() {
     if (!successBox) return;
+    const parent = form.parentNode;
+    if (parent && successBox.parentNode === parent) {
+      parent.insertBefore(successBox, form);
+    }
     form.style.display = "none";
     successBox.style.setProperty("display", "block", "important");
+    successBox.setAttribute("tabindex", "-1");
     requestAnimationFrame(function () {
       successBox.focus({ preventScroll: true });
       const rect = successBox.getBoundingClientRect();
-      const targetY = window.scrollY + rect.top - ((window.innerHeight - rect.height) / 2);
-      window.scrollTo({ top: Math.max(0, targetY), left: 0, behavior: "smooth" });
+      const fullyVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+      if (!fullyVisible) {
+        const targetY = window.scrollY + rect.top - Math.max(20, (window.innerHeight - Math.min(rect.height, window.innerHeight - 40)) / 2);
+        window.scrollTo({ top: Math.max(0, targetY), left: 0, behavior: "smooth" });
+      }
     });
   }
 
@@ -407,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const submitButton = form.querySelector("button[type='submit']");
     if (submitButton) {
       submitButton.disabled = true;
-      submitButton.textContent = "Unlocking Offer...";
+      submitButton.textContent = "Submitting...";
     }
 
     const runtimeLandingConfig = window.__LANDING_CONFIG__ || {};
@@ -638,7 +646,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("partnerLeadForm");
   const successBox = document.getElementById("claimSuccess");
   if (!form) return;
-  function showSuccessBox(){if(!successBox)return;form.style.display="none";successBox.classList.add("is-visible");requestAnimationFrame(function(){successBox.focus({preventScroll:true});const rect=successBox.getBoundingClientRect();const targetY=window.scrollY+rect.top-((window.innerHeight-rect.height)/2);window.scrollTo({top:Math.max(0,targetY),left:0,behavior:"smooth"});});}
+  function showSuccessBox(){if(!successBox)return;const parent=form.parentNode;if(parent&&successBox.parentNode===parent){parent.insertBefore(successBox,form);}form.style.display="none";successBox.classList.add("is-visible");successBox.setAttribute("tabindex","-1");requestAnimationFrame(function(){successBox.focus({preventScroll:true});const rect=successBox.getBoundingClientRect();const fullyVisible=rect.top>=0&&rect.bottom<=window.innerHeight;if(!fullyVisible){const targetY=window.scrollY+rect.top-Math.max(20,(window.innerHeight-Math.min(rect.height,window.innerHeight-40))/2);window.scrollTo({top:Math.max(0,targetY),left:0,behavior:"smooth"});}});}
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
     const firstNameField=form.querySelector("#firstName"),lastNameField=form.querySelector("#lastName"),emailField=form.querySelector("#email"),phoneField=form.querySelector("#phone"),zipField=form.querySelector("#zipCode"),termsCheckbox=form.querySelector("#partnerTermsPrivacy"),eligibilityCheckbox=form.querySelector("#partnerEligibilityConfirm"),smsCheckbox=form.querySelector("#partnerSmsConsent"),termsError=form.querySelector("#partnerTermsPrivacyError"),eligibilityError=form.querySelector("#partnerEligibilityError"),fullNameHidden=form.querySelector("#fullNameHidden"),smsOptInHidden=form.querySelector("#partnerSmsOptInHidden"),smsTimestampHidden=form.querySelector("#partnerSmsConsentTimestampHidden");
@@ -653,7 +661,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if(phoneField){const phoneDigits=phoneField.value.replace(/\\D/g,"");const valid=phoneDigits.length===10||(phoneDigits.length===11&&phoneDigits.charAt(0)==="1");if(!valid){alert("Please enter a valid U.S. phone number so we can contact you about your offer.");phoneField.focus();return;}const normalized=phoneDigits.length===11?phoneDigits.substring(1):phoneDigits;phoneField.value="("+normalized.substring(0,3)+") "+normalized.substring(3,6)+"-"+normalized.substring(6);}
     const fullName=((firstNameField&&firstNameField.value.trim())||"")+" "+((lastNameField&&lastNameField.value.trim())||"");const timestamp=new Date().toISOString();const smsOptIn=!!(smsCheckbox&&smsCheckbox.checked);const normalizedPhoneForPayload=phoneField?phoneField.value.replace(/\\D/g,"").replace(/^1(?=\\d{10}$)/,""):"";
     if(fullNameHidden)fullNameHidden.value=fullName.trim();if(smsOptInHidden)smsOptInHidden.value=smsOptIn?"true":"false";if(smsTimestampHidden)smsTimestampHidden.value=timestamp;
-    const submitButton=form.querySelector("button[type='submit']");if(submitButton){submitButton.disabled=true;submitButton.textContent="Unlocking Offer...";}
+    const submitButton=form.querySelector("button[type='submit']");if(submitButton){submitButton.disabled=true;submitButton.textContent="Submitting...";}
     const partnerName=runtimePage.partner||${partnerName};
     const runtimeOffer=(runtimePage.trialType&&runtimePage.trialCost)?(runtimePage.trialType+" for "+runtimePage.trialCost):${trialOffer};
     const payload={_subject:"New Partner Lead: "+fullName.trim()+" - "+partnerName,_template:"table",_captcha:"false","Lead Source":"Partner Website - "+partnerName,"Offer":runtimeOffer,"Partner":partnerName,"Full Name":fullName.trim(),"first_name":firstNameField?firstNameField.value.trim():"","last_name":lastNameField?lastNameField.value.trim():"","email":emailField?emailField.value.trim():"","phone":normalizedPhoneForPayload,"zip_code":zipValue,"local_residency_eligibility":true,"local_residency_eligibility_timestamp":timestamp,"terms_privacy_acknowledged":true,"terms_privacy_acknowledged_timestamp":timestamp,"terms_privacy_version":"${partnerTermsVersion}","terms_privacy_disclosure":"I agree to F45 Training Pompano Beach’s Terms & Conditions and acknowledge the Privacy Policy.","sms_opt_in":smsOptIn,"sms_consent_timestamp":timestamp,"source_url":window.location.origin+window.location.pathname,"consent_version":"${partnerConsentVersion}","consent_language":${consentLanguage}};
