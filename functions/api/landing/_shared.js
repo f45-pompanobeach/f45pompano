@@ -47,8 +47,15 @@ export function sanitizePage(input={},existingSlug=''){
 }
 
 async function readSetting(env,key){
-  if(!await ensureSchema(env))return null;
-  const row=await eventDb(env).prepare('SELECT setting_value,updated_at FROM lead_app_settings WHERE setting_key=? LIMIT 1').bind(key).first();
+  const db=eventDb(env);
+  if(!db||typeof db.prepare!=='function')return null;
+  let row=null;
+  try{
+    row=await db.prepare('SELECT setting_value,updated_at FROM lead_app_settings WHERE setting_key=? LIMIT 1').bind(key).first();
+  }catch{
+    if(!await ensureSchema(env))return null;
+    row=await db.prepare('SELECT setting_value,updated_at FROM lead_app_settings WHERE setting_key=? LIMIT 1').bind(key).first();
+  }
   if(!row)return null;
   try{return {value:JSON.parse(row.setting_value),updated_at:row.updated_at}}catch{return null}
 }
