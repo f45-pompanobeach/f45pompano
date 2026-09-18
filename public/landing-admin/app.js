@@ -1,4 +1,4 @@
-const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},selected:null,publishing:false,mediaConfigured:null,leadNotificationEmails:[],globalBaseline:'',pageBaseline:''};
+const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},selected:null,publishing:false,mediaConfigured:null,leadNotificationEmails:[],globalBaseline:'',pageBaseline:'',pageOfferDraft:null};
 const $=id=>document.getElementById(id);
 
 function api(path,opts={}){
@@ -150,6 +150,36 @@ function addLeadEmail(){
   input.focus();
 }
 
+function readOfferFields(){
+  return {
+    trialType:$('trialType').value.trim(),
+    trialCost:$('trialCost').value.trim(),
+    trialDuration:$('trialDuration').value.trim(),
+    regularPrice:$('regularPrice').value.trim(),
+    firstClassBookingText:$('firstClassBookingText').value.trim(),
+    mindbodyUrl:$('mindbodyUrl').value.trim()
+  };
+}
+function writeOfferFields(values={}){
+  $('trialType').value=values.trialType||'';
+  $('trialCost').value=values.trialCost||'';
+  $('trialDuration').value=values.trialDuration||'';
+  $('regularPrice').value=values.regularPrice||'';
+  $('firstClassBookingText').value=values.firstClassBookingText||'';
+  $('mindbodyUrl').value=values.mindbodyUrl||'';
+}
+function globalOfferFields(){
+  const g=effectiveGlobal();
+  return {
+    trialType:g.trialType||'3 Classes',
+    trialCost:g.trialCost||'$30',
+    trialDuration:g.trialDuration||'7 days',
+    regularPrice:g.regularPrice||'',
+    firstClassBookingText:g.firstClassBookingText||'',
+    mindbodyUrl:g.mindbodyUrl||''
+  };
+}
+
 function renderList(){
   const list=$('pageList');list.innerHTML='';
   for(const p of mergePages()){
@@ -162,7 +192,9 @@ function selectPage(p){
   if(!p)return;
   state.selected={...p};
   $('emptyEditor').classList.add('hidden');$('pageForm').classList.remove('hidden');
-  $('editorBadge').textContent=p.slug==='root'?'MAIN PAGE':(p.isDefault?'PARTNER PAGE':'NEW PARTNER');
+  const showBadge=p.slug==='root'||p.isDefault;
+  $('editorBadge').classList.toggle('hidden',!showBadge);
+  if(showBadge)$('editorBadge').textContent=p.slug==='root'?'MAIN PAGE':'PARTNER PAGE';
   $('editorTitle').textContent=p.slug==='root'?'Main / Root Page':(p.partner||p.slug||'New Partner');
   const u=urlFor(p);$('editorUrl').textContent=u;
   if(u){$('openPageLink').href=u;$('openPageLink').classList.remove('hidden')}else{$('openPageLink').classList.add('hidden')}
@@ -172,15 +204,18 @@ function selectPage(p){
   $('pageSlug').value=p.slug||'';
   const inherit=p.offerOverrideEnabled!==true;
   $('inheritGlobalOffer').checked=inherit;
-  $('trialType').value=inherit?(g.trialType||'3 Classes'):(p.trialType||g.trialType||'3 Classes');
-  $('trialCost').value=inherit?(g.trialCost||'$30'):(p.trialCost||g.trialCost||'$30');
-  $('trialDuration').value=inherit?(g.trialDuration||'7 days'):(p.trialDuration||g.trialDuration||'7 days');
+  state.pageOfferDraft={
+    trialType:p.trialType||g.trialType||'3 Classes',
+    trialCost:p.trialCost||g.trialCost||'$30',
+    trialDuration:p.trialDuration||g.trialDuration||'7 days',
+    regularPrice:p.regularPrice||g.regularPrice||'',
+    firstClassBookingText:p.firstClassBookingText||g.firstClassBookingText||'',
+    mindbodyUrl:p.mindbodyUrl||g.mindbodyUrl||''
+  };
+  writeOfferFields(inherit?globalOfferFields():state.pageOfferDraft);
   $('promoCode').value=p.promoCode||'';
-  $('regularPrice').value=inherit?(g.regularPrice||''):(p.regularPrice||g.regularPrice||'');
   $('percentageSavings').value=p.percentageSavings||'';
-  $('firstClassBookingText').value=inherit?(g.firstClassBookingText||''):(p.firstClassBookingText||g.firstClassBookingText||'');
   $('videoUrl').value=p.videoUrl||'';
-  $('mindbodyUrl').value=inherit?(g.mindbodyUrl||''):(p.mindbodyUrl||'');
   $('pageEnabled').checked=p.enabled!==false;
 
   const locked=p.isDefault||p.slug==='root';
@@ -199,7 +234,9 @@ function selectPage(p){
 function formPage(){
   const base=state.selected||{};
   const slug=base.isDefault||base.slug==='root'?base.slug:cleanSlug($('pageSlug').value);
-  return {slug,pageKind:slug==='root'?'root':'partner',partner:slug==='root'?'Main Website':$('pagePartner').value.trim(),trialType:$('trialType').value.trim(),trialCost:$('trialCost').value.trim(),trialDuration:$('trialDuration').value.trim(),promoCode:$('promoCode').value.trim(),regularPrice:$('regularPrice').value.trim(),percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:$('firstClassBookingText').value.trim(),videoUrl:$('videoUrl').value.trim(),mindbodyUrl:$('mindbodyUrl').value.trim(),offerOverrideEnabled:!$('inheritGlobalOffer').checked,enabled:$('pageEnabled').checked};
+  const inherit=$('inheritGlobalOffer').checked;
+  const offer=inherit?(state.pageOfferDraft||globalOfferFields()):readOfferFields();
+  return {slug,pageKind:slug==='root'?'root':'partner',partner:slug==='root'?'Main Website':$('pagePartner').value.trim(),trialType:offer.trialType,trialCost:offer.trialCost,trialDuration:offer.trialDuration,promoCode:$('promoCode').value.trim(),regularPrice:offer.regularPrice,percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:offer.firstClassBookingText,videoUrl:$('videoUrl').value.trim(),mindbodyUrl:offer.mindbodyUrl,offerOverrideEnabled:!inherit,enabled:$('pageEnabled').checked};
 }
 
 async function uploadVideo(file,targetInput,statusEl,button){
@@ -230,14 +267,12 @@ function syncOfferInheritanceFields(){
   for(const id of ['trialType','trialCost','trialDuration','regularPrice','firstClassBookingText','mindbodyUrl'])$(id).disabled=inherit;
 }
 $('inheritGlobalOffer').addEventListener('change',()=>{
-  const g=effectiveGlobal();
-  if($('inheritGlobalOffer').checked){
-    $('trialType').value=g.trialType||'3 Classes';
-    $('trialCost').value=g.trialCost||'$30';
-    $('trialDuration').value=g.trialDuration||'7 days';
-    $('regularPrice').value=g.regularPrice||'';
-    $('firstClassBookingText').value=g.firstClassBookingText||'';
-    $('mindbodyUrl').value=g.mindbodyUrl||'';
+  const inherit=$('inheritGlobalOffer').checked;
+  if(inherit){
+    state.pageOfferDraft=readOfferFields();
+    writeOfferFields(globalOfferFields());
+  }else{
+    writeOfferFields(state.pageOfferDraft||globalOfferFields());
   }
   syncOfferInheritanceFields();
   updateSaveStates();
@@ -333,8 +368,13 @@ $('pageForm').addEventListener('submit',async e=>{
 $('resetPageBtn').onclick=async()=>{
   if(!state.selected)return;
   const name=state.selected.partner||state.selected.slug;
-  const msg=state.selected.isDefault||state.selected.slug==='root'?'Reset this page back to its repository/global defaults?':'Delete this landing page?';
-  if(!confirm(msg))return;
+  const isReset=state.selected.isDefault||state.selected.slug==='root';
+  if(isReset){
+    if(!confirm('Reset this page back to its repository/global defaults?'))return;
+  }else{
+    const typed=prompt('This will permanently delete this landing page. Type DELETE to continue.');
+    if(typed!=='DELETE')return;
+  }
   try{
     await api('/api/landing/admin/pages',{method:'POST',body:JSON.stringify({action:'delete',slug:state.selected.slug})});
     state.stored=state.stored.filter(x=>x.slug!==state.selected.slug);
