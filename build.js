@@ -39,7 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
-const SITE_VERSION = "v2026.09.18.1";
+const SITE_VERSION = "v2026.09.18.2";
 
 const rootLeadCaptureCss = String.raw`
 
@@ -570,24 +570,31 @@ const partnerRootFormCss = String.raw`
   display:flex !important;
   align-items:center !important;
   justify-content:flex-start !important;
-  flex:0 0 30% !important;
-  width:30% !important;
-  min-width:260px !important;
+  flex:0 0 34% !important;
+  width:34% !important;
+  min-width:280px !important;
   margin:0 !important;
-  padding:4px 0 4px 22px !important;
+  padding:2px 0 2px 18px !important;
   background:transparent !important;
+  overflow:visible !important;
 }
-.fixed-top-header .partner-top-logo{
+.fixed-top-header .partner-top-brand .screenshot-logo-img{
   display:block !important;
-  width:min(100%,340px) !important;
-  height:86px !important;
+  width:auto !important;
+  height:90px !important;
+  max-width:100% !important;
+  object-fit:contain !important;
+  filter:invert(1) grayscale(1) brightness(3) contrast(2) !important;
+  mix-blend-mode:screen !important;
 }
 .fixed-top-header .topbar-cta-stack{
   margin-left:auto !important;
-  margin-right:22px !important;
+  margin-right:18px !important;
   align-self:center !important;
   align-items:flex-end !important;
+  justify-content:center !important;
   text-align:right !important;
+  flex:0 0 auto !important;
 }
 .fixed-top-header .screenshot-nav{
   min-height:64px !important;
@@ -603,8 +610,8 @@ const partnerRootFormCss = String.raw`
 @media(max-width:640px){
 .fixed-top-header .promo-banner-new{min-height:92px !important;height:92px !important;padding:0 !important;}
 .fixed-top-header .promo-banner-inner{min-height:92px !important;height:92px !important;gap:0 !important;}
-.fixed-top-header .partner-top-brand{flex:0 0 37% !important;width:37% !important;min-width:0 !important;padding:5px 0 5px 12px !important;}
-.fixed-top-header .partner-top-logo{width:100% !important;height:74px !important;}
+.fixed-top-header .partner-top-brand{flex:0 0 42% !important;width:42% !important;min-width:0 !important;padding:2px 0 2px 8px !important;}
+.fixed-top-header .partner-top-brand .screenshot-logo-img{height:78px !important;max-width:100% !important;}
 .fixed-top-header .topbar-cta-stack{min-height:58px !important;height:auto !important;margin-left:auto !important;margin-right:10px !important;align-self:center !important;}
 .fixed-top-header .topbar-cta-stack .promo-claim-btn{height:48px !important;min-height:48px !important;padding:0 12px !important;font-size:11px !important;}
 .fixed-top-header .topbar-mindbody-note{max-width:250px !important;text-align:right !important;font-size:10px !important;line-height:1.2 !important;}
@@ -758,21 +765,12 @@ function upgradePartnerPage(html, partnerData, options = {}) {
   html=html.replaceAll(" · Save 50%", "");
   html=html.replaceAll("Save 50%", "");
 
-  // Move the studio logo into the purple top bar and remove the redundant partner-offer pill.
+  // Move the exact embedded studio logo into the purple top-left bar.
+  // The original JPEG already contains the correct F45 Training Pompano Beach logo.
+  // CSS below visually removes its white background on purple and converts the mark to white.
   const navBrandMatch = html.match(/<div class="screenshot-brand">[\s\S]*?<\/div>/);
   if (navBrandMatch) {
-    const topBrand = `<div class="screenshot-brand partner-top-brand" aria-label="F45 Training Pompano Beach">
-      <svg class="partner-top-logo" viewBox="0 0 420 128" role="img" aria-label="F45 Training Pompano Beach">
-        <g fill="#fff">
-          <rect x="10" y="12" width="148" height="24" rx="2"/>
-          <rect x="10" y="36" width="32" height="70" rx="2"/>
-          <rect x="42" y="47" width="92" height="24" rx="2"/>
-          <path d="M182 12h52l55 94h-42l-10-19h-58l-10 19h-42zm26 29-16 31h31z"/>
-          <path d="M296 12h114v30h-78v16h68v28h-68v20h-36z"/>
-        </g>
-        <text x="210" y="124" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="900" text-anchor="middle" letter-spacing="2">TRAINING · POMPANO BEACH</text>
-      </svg>
-    </div>`;
+    const topBrand = navBrandMatch[0].replace('class="screenshot-brand"', 'class="screenshot-brand partner-top-brand"');
     html = html.replace(navBrandMatch[0], "");
     html = html.replace(/<div class="promo-code-box">[\s\S]*?<\/div>/, topBrand);
   }
