@@ -5,6 +5,7 @@ function htmlResponse(body,status=200){
 }
 export async function onRequestGet({request,env,params,next}){
   const slug=String(params.slug||'').toLowerCase().trim();
+  if(slug==='admin')return next(request);
   if(!slug||slug==='social-trial')return htmlResponse('Not found',404);
 
   const page=await getPage(env,slug);
