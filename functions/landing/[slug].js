@@ -3,7 +3,7 @@ import {getGlobal,getPage} from '../api/landing/_shared.js';
 function htmlResponse(body,status=200){
   return new Response(body,{status,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'}});
 }
-export async function onRequestGet({request,env,params}){
+export async function onRequestGet({request,env,params,next}){
   const slug=String(params.slug||'').toLowerCase().trim();
   if(!slug||slug==='social-trial')return htmlResponse('Not found',404);
 
@@ -18,7 +18,7 @@ export async function onRequestGet({request,env,params}){
   templateUrl.pathname='/_landing-template/';
   templateUrl.search='';
   const templateRequest=new Request(templateUrl.toString(),request);
-  const templateResponse=await env.ASSETS.fetch(templateRequest);
+  const templateResponse=await next(templateRequest);
   if(!templateResponse||!templateResponse.ok)return htmlResponse('Landing template unavailable',503);
 
   let html=await templateResponse.text();
