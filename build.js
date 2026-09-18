@@ -471,7 +471,7 @@ function addRootLeadCapture(html) {
 }
 
 
-const partnerTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=110702";
+const partnerTrialUrl = mindbodyTrialUrl;
 const partnerConsentVersion = "2026-08-29-v1";
 const partnerTermsVersion = "2026-09-01-v1";
 const partnerConsentLanguage = "I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. Privacy Policy | Terms & Conditions. Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes.";
@@ -492,9 +492,9 @@ const partnerRootFormCss = String.raw`
 .partner-hero-proof-row span{background:rgba(255,255,255,.12) !important;border:1px solid rgba(255,255,255,.22) !important;border-radius:999px !important;color:#fff !important;padding:8px 12px !important;font-size:12px !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.7px !important;}
 .form-overlay-card{position:relative !important;inset:auto !important;left:auto !important;top:auto !important;transform:none !important;width:100% !important;min-height:0 !important;max-height:none !important;margin:0 !important;padding:0 !important;overflow:hidden !important;background:rgba(255,255,255,.98) !important;color:#111 !important;border:1px solid rgba(255,255,255,.78) !important;border-top:6px solid #E8272A !important;border-radius:18px !important;box-shadow:0 24px 70px rgba(0,0,0,.42) !important;backdrop-filter:blur(8px) !important;-webkit-backdrop-filter:blur(8px) !important;text-align:left !important;}
 .form-overlay-card::before{display:none !important;}
-.partner-exclusive-header{background:#FFB800 !important;color:#1C1C2E !important;text-align:center !important;padding:22px 22px 18px !important;border-bottom:1px solid rgba(28,28,46,.15) !important;}
-.partner-exclusive-header h2{color:#1C1C2E !important;font-size:clamp(1.35rem,3vw,1.9rem) !important;line-height:1.08 !important;font-weight:900 !important;text-transform:uppercase !important;margin:0 0 7px !important;text-shadow:none !important;}
-.partner-exclusive-header p{max-width:430px !important;margin:0 auto !important;color:#1C1C2E !important;font-size:.88rem !important;line-height:1.45 !important;font-weight:700 !important;}
+.partner-exclusive-header{background:#1C1C2E !important;color:#FFFFFF !important;text-align:center !important;padding:0 !important;border-bottom:1px solid rgba(28,28,46,.15) !important;}
+.partner-exclusive-header h2{background:#FFB800 !important;color:#1C1C2E !important;font-size:clamp(1.35rem,3vw,1.9rem) !important;line-height:1.08 !important;font-weight:900 !important;text-transform:uppercase !important;margin:0 !important;padding:18px 22px 16px !important;text-shadow:none !important;}
+.partner-exclusive-header p{max-width:none !important;margin:0 !important;background:#1C1C2E !important;color:#FFFFFF !important;font-size:.88rem !important;line-height:1.45 !important;font-weight:700 !important;padding:14px 20px 16px !important;}
 .partner-lead-form{padding:22px !important;display:grid !important;grid-template-columns:1fr 1fr !important;gap:13px !important;background:#fff !important;}
 .partner-lead-form .form-row{display:flex !important;flex-direction:column !important;gap:6px !important;}
 .partner-lead-form .form-row.full{grid-column:1/-1 !important;}
@@ -521,7 +521,7 @@ const partnerRootFormCss = String.raw`
 .claim-success .screenshot-cta{display:inline-flex !important;width:auto !important;min-width:260px !important;justify-content:center !important;text-align:center !important;color:#fff !important;font-size:16px !important;padding:15px 18px !important;}
 .mindbody-help-note{font-size:.76rem !important;color:#6B7280 !important;margin-top:13px !important;margin-bottom:0 !important;}
 @media(max-width:900px){.screenshot-hero{min-height:auto !important;padding:28px 16px 34px !important;}.partner-hero-shell{grid-template-columns:1fr !important;gap:20px !important;max-width:560px !important;}.partner-hero-copy{text-align:center !important;}.partner-hero-sub{margin-left:auto !important;margin-right:auto !important;}.partner-hero-proof-row{justify-content:center !important;}}
-@media(max-width:640px){.screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.35rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:19px 16px 16px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
+@media(max-width:640px){.screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.35rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
 </style>
 `;
 
@@ -540,18 +540,14 @@ function buildPartnerHero(partnerData, isSandsHarbor) {
   const trialCost = escapeHtml(partnerData.trialCost);
   const zipCodes = escapeHtml(shared.qualifiedZipCodes);
   const sourceUrl = `https://f45pompano.com/${encodeURIComponent(partnerData.slug)}/`;
-  const leftHeadline = isSandsHarbor
-    ? `${partner} <span>Exclusive Offer</span>`
-    : `Reserve Your <span>${trialType} for ${trialCost}</span>`;
-  const leftSub = isSandsHarbor
-    ? `Fill out the quick form to unlock exclusive ${partner} guest pricing at F45 Training Pompano Beach.`
-    : `Fill out the quick form to unlock your exclusive ${partner} trial offer for F45 Training Pompano Beach.`;
-  const proofOne = isSandsHarbor ? "Guest Pricing" : "Strength + Cardio";
+  const leftHeadline = `Reserve Your <span>${trialType} for ${trialCost}</span>`;
+  const leftSub = `Fill out the quick form to unlock your exclusive ${partner} trial offer for F45 Training Pompano Beach.`;
+  const proofOne = "Strength + Cardio";
   const successHtml = isSandsHarbor
     ? `
       <div id="claimSuccess" class="claim-success" tabindex="-1">
         <div class="success-unlocked-label">Offer unlocked!</div>
-        <h3>Your ${partner} guest offer is unlocked.</h3>
+        <h3>Your ${partner} exclusive ${trialType} for ${trialCost} offer is unlocked.</h3>
         <p>Thanks — we received your info. Our team will reach out to get you set up, answer any questions, and help book your first class.</p>
         <p class="mindbody-help-note">You can also call/text us at <strong>${escapeHtml(shared.phone)}</strong>.</p>
       </div>`
@@ -583,7 +579,7 @@ function buildPartnerHero(partnerData, isSandsHarbor) {
     <div class="screenshot-offer-card form-overlay-card" id="claim-form">
       <div class="partner-exclusive-header">
         <h2>${partner} Exclusive</h2>
-        <p>Submit your info first. Then your exclusive offer will unlock.</p>
+        <p>Submit your info first. Then your exclusive ${trialType} for ${trialCost} offer will unlock.</p>
       </div>
       <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/ajax/pompanobeach@f45training.com" method="POST">
         <input type="hidden" name="_subject" value="New Partner Lead: ${partner}">
@@ -610,7 +606,7 @@ function buildPartnerHero(partnerData, isSandsHarbor) {
         <p id="partnerEligibilityError" class="partner-form-error">Please confirm first-time visitor and local residency eligibility before continuing.</p>
         <label class="sms-consent-row"><input id="partnerSmsConsent" type="checkbox" name="sms_consent_checkbox" value="yes"><span>I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> | <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span></label>
         <p class="sms-no-share-note">Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes.</p>
-        <button type="submit" class="claim-submit">${isSandsHarbor ? "Unlock Guest Offer" : "Submit &amp; Unlock Offer"}</button>
+        <button type="submit" class="claim-submit">Submit &amp; Unlock Offer</button>
         <p class="form-small-note">First-time local residents only. Eligibility will be verified before your first class.</p>
       </form>
       ${successHtml}
@@ -628,7 +624,7 @@ function buildPartnerLeadScript(partnerData, isSandsHarbor) {
   const eligibleZipCodes = JSON.stringify(String(shared.qualifiedZipCodes).split(",").map((zip) => zip.trim()));
   const phone = JSON.stringify(String(shared.phone));
   const consentLanguage = JSON.stringify(partnerConsentLanguage);
-  const submitDefault = JSON.stringify(isSandsHarbor ? "Unlock Guest Offer" : "Submit & Unlock Offer");
+  const submitDefault = JSON.stringify("Submit & Unlock Offer");
   return `
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -667,6 +663,8 @@ function upgradePartnerPage(html, partnerData, options = {}) {
   html=html.slice(0,heroStart)+buildPartnerHero(partnerData,isSandsHarbor)+html.slice(heroEnd);
   html=html.replace(/<style>\s*\/\* Preview-only: use uploaded og-image as fallback background because trial-video\.mp4 was not uploaded here \*\/[\s\S]*?<\/style>\s*/g,"");
   html=html.replace(/<script>\s*document\.addEventListener\("DOMContentLoaded", function \(\) \{\s*const form = document\.getElementById\("partnerLeadForm"\);[\s\S]*?<\/script>\s*(?=<\/body>)/,"");
+  html=html.replaceAll(" · Save 50%", "");
+  html=html.replaceAll("Save 50%", "");
   html=html.replace("</head>",`${partnerRootFormCss}\\n</head>`);
   html=html.replace("</body>",`${buildPartnerLeadScript(partnerData,isSandsHarbor)}\\n</body>`);
   return html;
