@@ -7,7 +7,11 @@ function api(path,opts={}){
 }
 function cleanSlug(v){return String(v||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,64)}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function showStatus(el,msg,bad=false,busy=false){el.textContent=msg;el.classList.toggle('error',bad);el.classList.toggle('busy',busy);if(msg&&!busy)setTimeout(()=>{if(el.textContent===msg)el.textContent=''},5000)}
+function showStatus(el,msg,bad=false,busy=false){
+  el.textContent=msg;el.classList.toggle('error',bad);el.classList.toggle('busy',busy);
+  if(el=== $('globalStatus')||el=== $('pageStatus'))$('dockStatus').textContent=msg||'';
+  if(msg&&!busy)setTimeout(()=>{if(el.textContent===msg)el.textContent='';if($('dockStatus').textContent===msg)$('dockStatus').textContent=''},5000);
+}
 function defaultsGlobal(){return state.defaults?.global||{}}
 function effectiveGlobal(){return {...defaultsGlobal(),...state.global}}
 
@@ -46,6 +50,7 @@ async function loadAdmin(){
   $('loginView').classList.add('hidden');$('adminView').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');
   renderList();
   if(!state.selected)selectPage(mergePages()[0]);
+  showAdminTab('global');
 }
 function populateGlobal(){
   const g=effectiveGlobal();
@@ -78,8 +83,7 @@ function selectPage(p){
   const g=effectiveGlobal();
   $('pagePartner').value=p.partner||'';
   $('pageSlug').value=p.slug||'';
-  const isDynamic=!p.isDefault&&p.slug!=='root';
-  const inherit=p.inheritGlobalOffer===true||(isDynamic&&p.inheritGlobalOffer===undefined);
+  const inherit=p.offerOverrideEnabled!==true;
   $('inheritGlobalOffer').checked=inherit;
   $('trialType').value=inherit?(g.trialType||'3 Classes'):(p.trialType||g.trialType||'3 Classes');
   $('trialCost').value=inherit?(g.trialCost||'$30'):(p.trialCost||g.trialCost||'$30');
@@ -98,11 +102,16 @@ function selectPage(p){
   $('resetPageBtn').textContent=p.isDefault||p.slug==='root'?'Reset Override':'Delete Page';
   syncOfferInheritanceFields();
   renderList();
+  if(!$('pagesPanel').classList.contains('hidden')){
+    $('dockContext').textContent=p.slug==='root'?'Main / Root Page':(p.partner||p.slug||'Landing Page');
+    $('openPageLink').classList.toggle('hidden',!u);
+    $('savePageBtn').classList.remove('hidden');
+  }
 }
 function formPage(){
   const base=state.selected||{};
   const slug=base.isDefault||base.slug==='root'?base.slug:cleanSlug($('pageSlug').value);
-  return {slug,pageKind:slug==='root'?'root':'partner',partner:slug==='root'?'Main Website':$('pagePartner').value.trim(),trialType:$('trialType').value.trim(),trialCost:$('trialCost').value.trim(),trialDuration:$('trialDuration').value.trim(),promoCode:$('promoCode').value.trim(),regularPrice:$('regularPrice').value.trim(),percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:$('firstClassBookingText').value.trim(),videoUrl:$('videoUrl').value.trim(),mindbodyUrl:$('mindbodyUrl').value.trim(),inheritGlobalOffer:$('inheritGlobalOffer').checked,enabled:$('pageEnabled').checked};
+  return {slug,pageKind:slug==='root'?'root':'partner',partner:slug==='root'?'Main Website':$('pagePartner').value.trim(),trialType:$('trialType').value.trim(),trialCost:$('trialCost').value.trim(),trialDuration:$('trialDuration').value.trim(),promoCode:$('promoCode').value.trim(),regularPrice:$('regularPrice').value.trim(),percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:$('firstClassBookingText').value.trim(),videoUrl:$('videoUrl').value.trim(),mindbodyUrl:$('mindbodyUrl').value.trim(),offerOverrideEnabled:!$('inheritGlobalOffer').checked,enabled:$('pageEnabled').checked};
 }
 
 async function uploadVideo(file,targetInput,statusEl,button){
@@ -145,6 +154,21 @@ $('inheritGlobalOffer').addEventListener('change',()=>{
   syncOfferInheritanceFields();
 });
 
+function showAdminTab(tab){
+  const globalMode=tab==='global';
+  $('globalPanel').classList.toggle('hidden',!globalMode);
+  $('pagesPanel').classList.toggle('hidden',globalMode);
+  $('globalTabBtn').classList.toggle('active',globalMode);
+  $('pagesTabBtn').classList.toggle('active',!globalMode);
+  $('saveGlobalBtn').classList.toggle('hidden',!globalMode);
+  $('savePageBtn').classList.toggle('hidden',globalMode||!state.selected);
+  $('openPageLink').classList.toggle('hidden',globalMode||!state.selected||!urlFor(state.selected));
+  $('dockContext').textContent=globalMode?'Global Settings':(state.selected?(state.selected.slug==='root'?'Main / Root Page':state.selected.partner||state.selected.slug):'Landing Pages');
+  $('dockStatus').textContent='';
+}
+$('globalTabBtn').addEventListener('click',()=>showAdminTab('global'));
+$('pagesTabBtn').addEventListener('click',()=>showAdminTab('pages'));
+
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginError').textContent='';try{await login($('pin').value.trim())}catch(err){$('loginError').textContent=err.message}});
 $('logoutBtn').onclick=()=>{sessionStorage.removeItem('landingAdminPin');location.reload()};
 
@@ -164,14 +188,25 @@ $('saveGlobalBtn').onclick=async()=>{
   };
   if(!confirm('Save these Global Settings? They can affect the main landing page and partner pages that use global defaults.'))return;
   const btn=$('saveGlobalBtn');btn.disabled=true;btn.textContent='Saving…';showStatus($('globalStatus'),'Saving global settings…',false,true);
-  try{const r=await api('/api/landing/admin/global',{method:'POST',body:JSON.stringify(body)});state.global=r.global||{};populateGlobal();showStatus($('globalStatus'),'Global settings saved.')}
+  try{
+    const r=await api('/api/landing/admin/global',{method:'POST',body:JSON.stringify(body)});
+    state.global=r.global||{};
+    populateGlobal();
+    if(state.selected&&state.selected.offerOverrideEnabled!==true){
+      const refreshed=mergePages().find(x=>x.slug===state.selected.slug)||state.selected;
+      selectPage(refreshed);
+    }
+    showStatus($('globalStatus'),'Global settings saved.');
+    $('dockStatus').textContent='Global settings saved and synced to pages using Global.';
+  }
   catch(e){showStatus($('globalStatus'),e.message,true)}
   finally{btn.disabled=false;btn.textContent='Save Global Settings'}
 };
 
 $('newPageBtn').onclick=()=>{
+  showAdminTab('pages');
   const g=effectiveGlobal();
-  selectPage({slug:'',partner:'',pageKind:'partner',trialType:g.trialType||'3 Classes',trialCost:g.trialCost||'$30',trialDuration:g.trialDuration||'7 days',firstClassBookingText:g.firstClassBookingText||'',regularPrice:g.regularPrice||g.trialCost||'$30',percentageSavings:'',promoCode:'',videoUrl:'',mindbodyUrl:g.mindbodyUrl||'',inheritGlobalOffer:true,enabled:true,isDefault:false,isStored:false});
+  selectPage({slug:'',partner:'',pageKind:'partner',trialType:g.trialType||'3 Classes',trialCost:g.trialCost||'$30',trialDuration:g.trialDuration||'7 days',firstClassBookingText:g.firstClassBookingText||'',regularPrice:g.regularPrice||g.trialCost||'$30',percentageSavings:'',promoCode:'',videoUrl:'',mindbodyUrl:g.mindbodyUrl||'',offerOverrideEnabled:false,enabled:true,isDefault:false,isStored:false});
   $('pageSlug').focus();
 };
 
@@ -189,6 +224,7 @@ $('pageForm').addEventListener('submit',async e=>{
     state.stored=state.stored.filter(x=>x.slug!==saved.slug);state.stored.push(saved);
     const merged=mergePages().find(x=>x.slug===saved.slug)||saved;selectPage(merged);
     showStatus($('pageStatus'),isNew?'Page created and published successfully.':'Page settings saved.');
+    $('dockContext').textContent=saved.partner||saved.slug;
   }catch(err){showStatus($('pageStatus'),err.message,true)}
   finally{state.publishing=false;btn.disabled=false;btn.textContent='Save Page'}
 });
