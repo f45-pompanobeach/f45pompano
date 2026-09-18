@@ -550,31 +550,45 @@ const partnerRootFormCss = String.raw`
 .claim-success .screenshot-cta:hover{background:#3A3489 !important;border-color:#3A3489 !important;}
 .mindbody-help-note{font-size:.76rem !important;color:#6B7280 !important;margin-top:13px !important;margin-bottom:0 !important;}
 
-/* PARTNER HEADER: logo lives in the purple bar, leaving the white nav clean */
+/* PARTNER HEADER: large white logo block on the left, CTA pinned right */
 .fixed-top-header .promo-banner-new{
   min-height:96px !important;
   height:96px !important;
-  padding:6px 20px !important;
+  padding:0 !important;
 }
 .fixed-top-header .promo-banner-inner{
-  max-width:1180px !important;
-  min-height:84px !important;
-  height:84px !important;
-  align-items:center !important;
-  justify-content:space-between !important;
+  width:100% !important;
+  max-width:none !important;
+  min-height:96px !important;
+  height:96px !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  gap:0 !important;
 }
 .fixed-top-header .partner-top-brand{
   display:flex !important;
   align-items:center !important;
+  justify-content:center !important;
+  flex:0 0 25% !important;
+  width:25% !important;
+  min-width:220px !important;
   margin:0 !important;
-  min-width:0 !important;
+  padding:4px 18px !important;
+  background:#fff !important;
 }
 .fixed-top-header .partner-top-brand .screenshot-logo-img{
-  height:88px !important;
+  height:86px !important;
   width:auto !important;
-  max-width:280px !important;
+  max-width:92% !important;
   object-fit:contain !important;
   display:block !important;
+}
+.fixed-top-header .topbar-cta-stack{
+  margin-left:auto !important;
+  margin-right:22px !important;
+  align-self:center !important;
+  align-items:flex-end !important;
+  text-align:right !important;
 }
 .fixed-top-header .screenshot-nav{
   min-height:64px !important;
@@ -588,13 +602,15 @@ const partnerRootFormCss = String.raw`
 
 @media(max-width:900px){.screenshot-hero{min-height:auto !important;padding:28px 16px 34px !important;}.partner-hero-shell{grid-template-columns:1fr !important;gap:20px !important;max-width:560px !important;}.partner-hero-copy{text-align:center !important;}.partner-hero-sub{margin-left:auto !important;margin-right:auto !important;}.partner-hero-proof-row{justify-content:center !important;}}
 @media(max-width:640px){
-.fixed-top-header .promo-banner-new{min-height:78px !important;height:78px !important;padding:4px 10px !important;}
-.fixed-top-header .promo-banner-inner{min-height:70px !important;height:70px !important;gap:10px !important;}
-.fixed-top-header .partner-top-brand .screenshot-logo-img{height:74px !important;max-width:210px !important;}
-.fixed-top-header .topbar-cta-stack{min-height:52px !important;height:52px !important;}
+.fixed-top-header .promo-banner-new{min-height:92px !important;height:92px !important;padding:0 !important;}
+.fixed-top-header .promo-banner-inner{min-height:92px !important;height:92px !important;gap:0 !important;}
+.fixed-top-header .partner-top-brand{flex:0 0 31% !important;width:31% !important;min-width:0 !important;padding:5px 8px !important;}
+.fixed-top-header .partner-top-brand .screenshot-logo-img{height:76px !important;max-width:100% !important;}
+.fixed-top-header .topbar-cta-stack{min-height:58px !important;height:auto !important;margin-left:auto !important;margin-right:10px !important;align-self:center !important;}
 .fixed-top-header .topbar-cta-stack .promo-claim-btn{height:48px !important;min-height:48px !important;padding:0 12px !important;font-size:11px !important;}
+.fixed-top-header .topbar-mindbody-note{max-width:250px !important;text-align:right !important;font-size:10px !important;line-height:1.2 !important;}
 .fixed-top-header .screenshot-nav{min-height:54px !important;height:54px !important;padding:2px 8px !important;}
-.fixed-header-spacer{height:132px !important;}
+.fixed-header-spacer{height:146px !important;}
 .screenshot-hero{padding:20px 14px 26px !important;}.partner-hero-copy h1{font-size:2.45rem !important;}.partner-hero-sub{font-size:.94rem !important;}.partner-hero-proof-row{display:none !important;}.partner-exclusive-header{padding:0 !important;}.partner-exclusive-header h2{padding:17px 16px 15px !important;}.partner-exclusive-header p{padding:13px 16px 15px !important;}.partner-lead-form{grid-template-columns:1fr !important;padding:18px !important;gap:12px !important;}.claim-success{margin:18px !important;}.claim-success .screenshot-cta{white-space:normal !important;min-width:0 !important;width:100% !important;}}
 </style>
 `;
