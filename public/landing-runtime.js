@@ -30,6 +30,10 @@
     const page=cfg.page||{};
     const global=cfg.global||{};
     const isRoot=cfg.slug==='root'||page.pageKind==='root';
+    if(page.enabled===false&&!isRoot){
+      document.body.innerHTML='<main style="font-family:system-ui;padding:48px 20px;text-align:center"><h1>This offer is currently unavailable.</h1><p>Please contact F45 Training Pompano Beach for current options.</p></main>';
+      return;
+    }
     const count=countFromType(page.trialType);
     const trialCost=page.trialCost||'';
     const offer=count&&trialCost?count+' for '+trialCost+' Trial':'Trial';
@@ -47,6 +51,10 @@
         if(h)h.textContent='Reserve '+count+' for '+page.trialCost+' Trial';
         const offerInput=document.querySelector('#rootLeadForm input[name="Offer"]');
         if(offerInput)offerInput.value=page.trialType+' for '+page.trialCost;
+        const success=document.querySelector('#rootClaimSuccess h3');
+        if(success)success.textContent='Your '+page.trialType+' for '+page.trialCost+' offer is ready.';
+        const cta=document.querySelector('#rootClaimSuccess .promo-claim-btn');
+        if(cta&&page.mindbodyUrl)cta.href=page.mindbodyUrl;
       }else{
         const h=document.querySelector('.partner-exclusive-header h2');
         if(h)h.textContent=(page.partner||'Partner')+' Exclusive';
