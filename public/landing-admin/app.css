@@ -128,3 +128,14 @@
   body.mobile-editor-open .editor-title-copy{flex:1 1 auto !important}
   .admin-version-badge{font-size:9px;right:5px;bottom:5px;opacity:.78}
 }
+
+.delete-dialog{position:fixed;inset:0;z-index:220;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,18,32,.58)}
+.delete-dialog.hidden{display:none!important}
+.delete-dialog-card{width:min(430px,100%);background:#fff;border-radius:16px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.delete-dialog-card h3{margin:0 0 8px;font-size:22px;color:#1c1c2e}
+.delete-dialog-card p{margin:0 0 16px;color:#667085;font-size:14px;line-height:1.45}
+.delete-dialog-card input{text-transform:uppercase;font-weight:900;letter-spacing:1.5px}
+.delete-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+button.danger{background:#c62828;color:#fff;border-color:#c62828}
+button.danger:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:620px){.delete-dialog{padding:14px}.delete-dialog-card{padding:18px}.delete-dialog-actions{display:grid;grid-template-columns:1fr 1fr}.delete-dialog-actions button{width:100%}}
