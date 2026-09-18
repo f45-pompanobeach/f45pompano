@@ -39,7 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
-const SITE_VERSION = "v2026.09.18.6";
+const SITE_VERSION = "v2026.09.18.7";
 
 const rootLeadCaptureCss = String.raw`
 
