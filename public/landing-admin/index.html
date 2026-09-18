@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1C1C2E">
+<title>Landing Admin · F45 Pompano Beach</title>
+<link rel="stylesheet" href="/landing-admin/app.css?v=1">
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">F45 POMPANO BEACH</div>
+      <h1>Landing Page Admin</h1>
+      <p>Create and update the main landing page and partner offers without editing code.</p>
+    </div>
+    <button id="logoutBtn" class="ghost hidden" type="button">Log Out</button>
+  </header>
+
+  <section id="loginView" class="card login-card">
+    <h2>Super Admin</h2>
+    <p>Use the same 4-digit Super Admin PIN used by Table Leads.</p>
+    <form id="loginForm">
+      <label>4-digit PIN<input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="4" pattern="[0-9]{4}" required></label>
+      <button class="primary" type="submit">Open Landing Admin</button>
+      <div id="loginError" class="error"></div>
+    </form>
+  </section>
+
+  <main id="adminView" class="hidden">
+    <section class="card">
+      <div class="section-head">
+        <div><h2>Global Settings</h2><p>These apply across landing pages unless a page has its own video override.</p></div>
+        <button id="saveGlobalBtn" class="primary" type="button">Save Global Settings</button>
+      </div>
+      <div class="grid two">
+        <label>Allowed ZIP codes<textarea id="globalZips" rows="4" placeholder="33060, 33062, 33064"></textarea><span>Comma separated. Partner eligibility and validation use this list.</span></label>
+        <label>Default hero video URL / path<input id="globalVideo" placeholder="/trial-video.mp4"><span>Use a site path or full HTTPS URL.</span></label>
+      </div>
+      <div id="globalStatus" class="status"></div>
+    </section>
+
+    <section class="workspace">
+      <aside class="card sidebar">
+        <div class="section-head compact">
+          <div><h2>Pages</h2><p>Main + current partners</p></div>
+          <button id="newPageBtn" class="small primary" type="button">+ New Partner</button>
+        </div>
+        <div id="pageList" class="page-list"></div>
+      </aside>
+
+      <section class="card editor">
+        <div class="section-head">
+          <div>
+            <div id="editorBadge" class="badge">PAGE</div>
+            <h2 id="editorTitle">Select a page</h2>
+            <p id="editorUrl"></p>
+          </div>
+          <a id="openPageLink" class="ghost hidden" target="_blank" rel="noopener">Open Page</a>
+        </div>
+
+        <form id="pageForm" class="hidden">
+          <div class="grid two">
+            <label>Partner / page name<input id="pagePartner" maxlength="100"></label>
+            <label>Slug<input id="pageSlug" maxlength="64"><span id="slugHelp"></span></label>
+
+            <label>Trial type<input id="trialType" placeholder="3 Classes"></label>
+            <label>Trial cost<input id="trialCost" placeholder="$30"></label>
+
+            <label>Trial duration<input id="trialDuration" placeholder="7 days"></label>
+            <label>Promo code<input id="promoCode" placeholder="Optional"></label>
+
+            <label>Regular price<input id="regularPrice" placeholder="$30"></label>
+            <label>Percentage savings<input id="percentageSavings" placeholder="Optional"></label>
+
+            <label class="full">First-class booking text<textarea id="firstClassBookingText" rows="3"></textarea></label>
+            <label class="full">Hero video override<input id="videoUrl" placeholder="Leave blank to use Global Settings"><span>Site path or full HTTPS URL.</span></label>
+            <label class="full">Mindbody checkout URL override<input id="mindbodyUrl" placeholder="Leave blank to use the page's current checkout link"></label>
+
+            <label class="toggle full"><input id="pageEnabled" type="checkbox" checked><span>Page enabled</span></label>
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="submit">Save Page</button>
+            <button id="resetPageBtn" class="ghost" type="button">Reset Override</button>
+          </div>
+          <div id="pageStatus" class="status"></div>
+        </form>
+
+        <div id="emptyEditor" class="empty">Choose a page on the left, or create a new partner landing page.</div>
+      </section>
+    </section>
+
+    <section class="card note">
+      <h2>How changes work</h2>
+      <p>Saved settings are stored in Cloudflare and apply immediately on page load. Existing partner URLs stay the same. New partner pages created here use <strong>/landing/&lt;slug&gt;/</strong>.</p>
+      <p><strong>social-trial is intentionally excluded</strong> from this admin.</p>
+    </section>
+  </main>
+</div>
+<script src="/landing-admin/app.js?v=1"></script>
+</body>
+</html>
