@@ -410,12 +410,17 @@ document.addEventListener("DOMContentLoaded", function () {
       submitButton.textContent = "Unlocking Offer...";
     }
 
+    const runtimeLandingPage = (window.__LANDING_CONFIG__ && window.__LANDING_CONFIG__.page) || {};
+    const runtimeTrialType = runtimeLandingPage.trialType || "3 Classes";
+    const runtimeTrialCost = runtimeLandingPage.trialCost || "$30";
+    const runtimeOffer = runtimeTrialType + " for " + runtimeTrialCost;
+
     const payload = {
-      _subject: "New Root Website Lead: " + fullName.trim() + " - 3 Classes for $30",
+      _subject: "New Root Website Lead: " + fullName.trim() + " - " + runtimeOffer,
       _template: "table",
       _captcha: "false",
       "Lead Source": "Root Website - f45pompano.com",
-      "Offer": "3 Classes for $30",
+      "Offer": runtimeOffer,
       "Full Name": fullName.trim(),
       "first_name": firstNameField ? firstNameField.value.trim() : "",
       "last_name": lastNameField ? lastNameField.value.trim() : "",
@@ -640,7 +645,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const validName=function(value){return /^[A-Za-z][A-Za-z\\s\\-']{1,}$/.test((value||"").trim());};
     if(!validName(firstNameField&&firstNameField.value)){alert("Please enter your full first name with at least 2 letters.");if(firstNameField)firstNameField.focus();return;}
     if(!validName(lastNameField&&lastNameField.value)){alert("Please enter your full last name with at least 2 letters.");if(lastNameField)lastNameField.focus();return;}
-    const zipValue=zipField?zipField.value.trim():"";const eligibleZipCodes=${eligibleZipCodes};
+    const runtimeLanding=(window.__LANDING_CONFIG__||{}),runtimePage=(runtimeLanding.page||{}),runtimeGlobal=(runtimeLanding.global||{});
+    const zipValue=zipField?zipField.value.trim():"";const eligibleZipCodes=(Array.isArray(runtimeGlobal.qualifiedZipCodes)&&runtimeGlobal.qualifiedZipCodes.length)?runtimeGlobal.qualifiedZipCodes:${eligibleZipCodes};
     if(!/^\\d{5}$/.test(zipValue)||!eligibleZipCodes.includes(zipValue)){alert("This offer is available to first-time visitors living in one of these ZIP codes: "+eligibleZipCodes.join(", ")+".");if(zipField)zipField.focus();return;}
     if(!termsCheckbox||!termsCheckbox.checked){if(termsError)termsError.style.display="block";if(termsCheckbox)termsCheckbox.focus();return;}if(termsError)termsError.style.display="none";
     if(!eligibilityCheckbox||!eligibilityCheckbox.checked){if(eligibilityError)eligibilityError.style.display="block";if(eligibilityCheckbox)eligibilityCheckbox.focus();return;}if(eligibilityError)eligibilityError.style.display="none";
@@ -648,8 +654,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const fullName=((firstNameField&&firstNameField.value.trim())||"")+" "+((lastNameField&&lastNameField.value.trim())||"");const timestamp=new Date().toISOString();const smsOptIn=!!(smsCheckbox&&smsCheckbox.checked);const normalizedPhoneForPayload=phoneField?phoneField.value.replace(/\\D/g,"").replace(/^1(?=\\d{10}$)/,""):"";
     if(fullNameHidden)fullNameHidden.value=fullName.trim();if(smsOptInHidden)smsOptInHidden.value=smsOptIn?"true":"false";if(smsTimestampHidden)smsTimestampHidden.value=timestamp;
     const submitButton=form.querySelector("button[type='submit']");if(submitButton){submitButton.disabled=true;submitButton.textContent="Unlocking Offer...";}
-    const partnerName=${partnerName};
-    const payload={_subject:"New Partner Lead: "+fullName.trim()+" - "+partnerName,_template:"table",_captcha:"false","Lead Source":"Partner Website - "+partnerName,"Offer":${trialOffer},"Partner":partnerName,"Full Name":fullName.trim(),"first_name":firstNameField?firstNameField.value.trim():"","last_name":lastNameField?lastNameField.value.trim():"","email":emailField?emailField.value.trim():"","phone":normalizedPhoneForPayload,"zip_code":zipValue,"local_residency_eligibility":true,"local_residency_eligibility_timestamp":timestamp,"terms_privacy_acknowledged":true,"terms_privacy_acknowledged_timestamp":timestamp,"terms_privacy_version":"${partnerTermsVersion}","terms_privacy_disclosure":"I agree to F45 Training Pompano Beach’s Terms & Conditions and acknowledge the Privacy Policy.","sms_opt_in":smsOptIn,"sms_consent_timestamp":timestamp,"source_url":${sourceUrl},"consent_version":"${partnerConsentVersion}","consent_language":${consentLanguage}};
+    const partnerName=runtimePage.partner||${partnerName};
+    const runtimeOffer=(runtimePage.trialType&&runtimePage.trialCost)?(runtimePage.trialType+" for "+runtimePage.trialCost):${trialOffer};
+    const payload={_subject:"New Partner Lead: "+fullName.trim()+" - "+partnerName,_template:"table",_captcha:"false","Lead Source":"Partner Website - "+partnerName,"Offer":runtimeOffer,"Partner":partnerName,"Full Name":fullName.trim(),"first_name":firstNameField?firstNameField.value.trim():"","last_name":lastNameField?lastNameField.value.trim():"","email":emailField?emailField.value.trim():"","phone":normalizedPhoneForPayload,"zip_code":zipValue,"local_residency_eligibility":true,"local_residency_eligibility_timestamp":timestamp,"terms_privacy_acknowledged":true,"terms_privacy_acknowledged_timestamp":timestamp,"terms_privacy_version":"${partnerTermsVersion}","terms_privacy_disclosure":"I agree to F45 Training Pompano Beach’s Terms & Conditions and acknowledge the Privacy Policy.","sms_opt_in":smsOptIn,"sms_consent_timestamp":timestamp,"source_url":window.location.origin+window.location.pathname,"consent_version":"${partnerConsentVersion}","consent_language":${consentLanguage}};
     try{const response=await fetch(form.action,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});if(!response.ok)throw new Error("FormSubmit did not accept the submission");showSuccessBox();}catch(error){alert("Something went wrong submitting the form. Please call or text us at "+${phone}+" and we’ll help you activate the offer.");if(submitButton){submitButton.disabled=false;submitButton.textContent=${submitDefault};}}
   });
 });
@@ -672,9 +679,58 @@ function upgradePartnerPage(html, partnerData, options = {}) {
   return html;
 }
 
+function addLandingRuntime(html) {
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=1"></script>\\n</body>');
+}
+
+// Landing Admin defaults are generated from the repository data files so the admin
+// always starts from the same values as the deployed static pages.
+const landingDefaults = {
+  global: {
+    qualifiedZipCodes: String(shared.qualifiedZipCodes || "").split(",").map((zip) => zip.trim()).filter(Boolean),
+    defaultVideoUrl: "/trial-video.mp4"
+  },
+  pages: [{
+    slug: "root",
+    pageKind: "root",
+    partner: "Main Website",
+    promoCode: "",
+    trialType: generic.genericTrialType,
+    trialCost: generic.genericTrialCost,
+    trialDuration: generic.genericTrialDuration,
+    firstClassBookingText: "Your first class must be booked within 14 days of purchasing the trial.",
+    regularPrice: generic.genericTrialCost,
+    percentageSavings: "",
+    videoUrl: "",
+    mindbodyUrl: mindbodyTrialUrl,
+    enabled: true
+  }]
+};
+
+for (const file of fs.readdirSync(dataDir)) {
+  if (!file.endsWith(".json") || file === "shared.json" || file === "generic.json" || file === "meta.json") continue;
+  const page = JSON.parse(fs.readFileSync(path.join(dataDir, file), "utf8"));
+  landingDefaults.pages.push({
+    slug: page.slug,
+    pageKind: "partner",
+    partner: page.partner,
+    promoCode: page.promoCode || "",
+    trialType: page.trialType || "",
+    trialCost: page.trialCost || "",
+    trialDuration: page.trialDuration || "",
+    firstClassBookingText: page.firstClassBookingText || "",
+    regularPrice: page.regularPrice || "",
+    percentageSavings: page.percentageSavings || "",
+    videoUrl: "",
+    mindbodyUrl: page.slug === "sands-harbor" ? "" : partnerTrialUrl,
+    enabled: true
+  });
+}
+fs.writeFileSync(path.join(distDir, "landing-defaults.json"), JSON.stringify(landingDefaults, null, 2));
+
 // Default homepage
 const genericData = { ...shared, ...generic };
-const renderedGenericPage = addLocalComplianceLinks(addRootLeadCapture(render(genericTemplate, genericData)));
+const renderedGenericPage = addLandingRuntime(addLocalComplianceLinks(addRootLeadCapture(render(genericTemplate, genericData))));
 fs.writeFileSync(path.join(distDir, "index.html"), renderedGenericPage);
 
 // Partner pages
@@ -697,6 +753,7 @@ for (const file of fs.readdirSync(dataDir)) {
     renderedPartnerPage = upgradePartnerPage(renderedPartnerPage, partnerData, {
       sandsHarbor: file === "sands-harbor.json"
     });
+    renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
   }
 
   fs.writeFileSync(path.join(distDir, `${partnerData.slug}.html`), renderedPartnerPage);
@@ -707,3 +764,23 @@ for (const file of fs.readdirSync(dataDir)) {
 
   console.log(`Generated ${partnerData.slug}.html`);
 }
+
+// Neutral partner template used by /landing/<slug>/ for pages created in Landing Admin.
+// Runtime settings replace the neutral values before the visitor interacts with the page.
+const dynamicPartnerData = {
+  ...shared,
+  slug: "landing",
+  partner: "Partner",
+  promoCode: "",
+  trialType: "3 Classes",
+  trialCost: "$30",
+  trialDuration: "7 days",
+  firstClassBookingText: "Your first class must be booked within 14 days of purchasing the trial.",
+  regularPrice: "$30",
+  percentageSavings: ""
+};
+let dynamicPartnerPage = upgradePartnerPage(render(partnerTemplate, dynamicPartnerData), dynamicPartnerData);
+dynamicPartnerPage = addLandingRuntime(dynamicPartnerPage);
+const dynamicPartnerDir = path.join(distDir, "_landing-template");
+fs.mkdirSync(dynamicPartnerDir, { recursive: true });
+fs.writeFileSync(path.join(dynamicPartnerDir, "index.html"), dynamicPartnerPage);
