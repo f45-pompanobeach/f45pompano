@@ -681,7 +681,7 @@ function upgradePartnerPage(html, partnerData, options = {}) {
 }
 
 function addLandingRuntime(html) {
-  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=2"></script>\\n</body>');
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=3"></script>\\n</body>');
 }
 
 // Landing Admin defaults are generated from the repository data files so the admin
