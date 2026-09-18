@@ -180,21 +180,33 @@ function globalOfferFields(){
   };
 }
 
+function isMobileEditor(){return window.matchMedia('(max-width:620px)').matches;}
+function openMobileEditor(){
+  if(!isMobileEditor())return;
+  document.body.classList.add('mobile-editor-open');
+  $('editorBackdrop').classList.remove('hidden');
+  setTimeout(()=>{$('editorTitle').focus?.();},0);
+}
+function closeMobileEditor(){
+  document.body.classList.remove('mobile-editor-open');
+  $('editorBackdrop').classList.add('hidden');
+}
+
 function renderList(){
   const list=$('pageList');list.innerHTML='';
   for(const p of mergePages()){
     const b=document.createElement('button');b.type='button';b.className='page-item'+(state.selected?.slug===p.slug?' active':'');
     b.innerHTML='<strong>'+escapeHtml(p.slug==='root'?'Main / Root':p.partner||p.slug)+'</strong><span>'+escapeHtml(urlFor(p))+'</span>';
-    b.onclick=()=>selectPage(p);list.appendChild(b);
+    b.onclick=()=>{selectPage(p);openMobileEditor();};list.appendChild(b);
   }
 }
 function selectPage(p){
   if(!p)return;
   state.selected={...p};
   $('emptyEditor').classList.add('hidden');$('pageForm').classList.remove('hidden');
-  const showBadge=p.slug==='root'||p.isDefault;
+  const showBadge=p.slug==='root';
   $('editorBadge').classList.toggle('hidden',!showBadge);
-  if(showBadge)$('editorBadge').textContent=p.slug==='root'?'MAIN PAGE':'PARTNER PAGE';
+  if(showBadge)$('editorBadge').textContent='MAIN PAGE';
   $('editorTitle').textContent=p.slug==='root'?'Main / Root Page':(p.partner||p.slug||'New Partner');
   const u=urlFor(p);$('editorUrl').textContent=u;
   if(u){$('openPageLink').href=u;$('openPageLink').classList.remove('hidden')}else{$('openPageLink').classList.add('hidden')}
@@ -291,8 +303,11 @@ function showAdminTab(tab){
   $('dockStatus').textContent='';
   updateSaveStates();
 }
-$('globalTabBtn').addEventListener('click',()=>showAdminTab('global'));
-$('pagesTabBtn').addEventListener('click',()=>showAdminTab('pages'));
+$('globalTabBtn').addEventListener('click',()=>{closeMobileEditor();showAdminTab('global');});
+$('pagesTabBtn').addEventListener('click',()=>{closeMobileEditor();showAdminTab('pages');});
+
+$('editorBackdrop').addEventListener('click',closeMobileEditor);
+window.addEventListener('resize',()=>{if(!isMobileEditor())closeMobileEditor();});
 
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginError').textContent='';try{await login($('pin').value.trim())}catch(err){$('loginError').textContent=err.message}});
 $('logoutBtn').onclick=()=>{sessionStorage.removeItem('landingAdminPin');location.reload()};
@@ -343,6 +358,7 @@ $('newPageBtn').onclick=()=>{
   showAdminTab('pages');
   const g=effectiveGlobal();
   selectPage({slug:'',partner:'',pageKind:'partner',trialType:g.trialType||'3 Classes',trialCost:g.trialCost||'$30',trialDuration:g.trialDuration||'7 days',firstClassBookingText:g.firstClassBookingText||'',regularPrice:g.regularPrice||g.trialCost||'$30',percentageSavings:'',promoCode:'',videoUrl:'',mindbodyUrl:g.mindbodyUrl||'',offerOverrideEnabled:false,enabled:true,isDefault:false,isStored:false});
+  openMobileEditor();
   $('pageSlug').focus();
 };
 
@@ -384,3 +400,9 @@ $('resetPageBtn').onclick=async()=>{
 };
 
 if(state.pin){login(state.pin).catch(()=>{sessionStorage.removeItem('landingAdminPin');state.pin=''})}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/landing/admin/sw.js',{scope:'/landing/admin/'}).catch(()=>{});
+  });
+}
