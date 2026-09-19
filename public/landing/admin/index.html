@@ -79,7 +79,7 @@
             <input id="globalMindbodyUrl" placeholder="https://clients.mindbodyonline.com/...">
           </label>
 
-          <div class="full video-field">
+          <div class="full video-field offer-config-field">
             <label>Default hero video URL / path
               <input id="globalVideo" placeholder="/trial-video.mp4">
               <span>This is the background video shown in the hero area. New pages automatically use this unless they have a page-specific video.</span>
@@ -99,7 +99,7 @@
       <section class="workspace">
         <aside class="card sidebar">
           <div class="section-head compact">
-            <div><h2>Pages</h2><p>Main + current partners</p></div>
+            <div><h2>Pages</h2><p>Main + partners + events</p></div>
             <button id="newPageBtn" class="small primary" type="button">+ New Page</button>
           </div>
           <div id="pageList" class="page-list"></div>
@@ -140,7 +140,7 @@
               <div id="eventLinkFields" class="full event-link-fields hidden">
                 <label>Table Leads event
                   <select id="leadEventSlug"></select>
-                  <span>The event controls lead attribution, staff access, prizes, SMS confirmation, and follow-up.</span>
+                  <span>The event controls lead attribution, staff access, prizes, SMS confirmation, and follow-up.</span><span class="event-page-note">Offer settings are not used on Table Event pages; the visitor is sent into the linked Table Leads event.</span>
                 </label>
                 <div class="event-link-actions"><a class="ghost small" href="/tableleads/admin/" target="_blank" rel="noopener">Manage Table Leads Events</a></div>
               </div>
@@ -149,19 +149,19 @@
                 <textarea id="archivedMessage" rows="2" placeholder="This event or promotion has ended."></textarea>
               </label>
 
-              <label class="toggle full global-toggle">
+              <label class="toggle full global-toggle offer-config-field">
                 <input id="inheritGlobalOffer" type="checkbox">
                 <span><strong>Use Global Offer Settings</strong><small>Trial type, cost, duration, regular price, first-class booking text, and Mindbody URL will stay synced with Global Settings.</small></span>
               </label>
 
-              <label>Trial type<input id="trialType" placeholder="3 Classes"></label>
-              <label>Trial cost<input id="trialCost" placeholder="$30"></label>
-              <label>Trial duration<input id="trialDuration" placeholder="7 days"></label>
-              <label>Promo code<input id="promoCode" placeholder="Optional"></label>
-              <label>Regular price<input id="regularPrice" placeholder="$30"></label>
-              <label>Percentage savings<input id="percentageSavings" placeholder="Optional"></label>
+              <label class="offer-config-field">Trial type<input id="trialType" placeholder="3 Classes"></label>
+              <label class="offer-config-field">Trial cost<input id="trialCost" placeholder="$30"></label>
+              <label class="offer-config-field">Trial duration<input id="trialDuration" placeholder="7 days"></label>
+              <label class="offer-config-field">Promo code<input id="promoCode" placeholder="Optional"></label>
+              <label class="offer-config-field">Regular price<input id="regularPrice" placeholder="$30"></label>
+              <label class="offer-config-field">Percentage savings<input id="percentageSavings" placeholder="Optional"></label>
 
-              <label class="full">First-class booking text<textarea id="firstClassBookingText" rows="3"></textarea></label>
+              <label class="full offer-config-field">First-class booking text<textarea id="firstClassBookingText" rows="3"></textarea></label>
 
               <div class="full video-field">
                 <label>Hero video override
@@ -175,7 +175,7 @@
                 <div id="pageVideoStatus" class="status"></div>
               </div>
 
-              <label class="full">Mindbody checkout URL override<input id="mindbodyUrl" placeholder="Leave blank to use Global Settings"></label>
+              <label class="full offer-config-field">Mindbody checkout URL override<input id="mindbodyUrl" placeholder="Leave blank to use Global Settings"></label>
               <label class="toggle full"><input id="pageEnabled" type="checkbox" checked><span>Page enabled <small>Use this only as an emergency off switch. Archive a finished page instead.</small></span></label>
             </div>
 
@@ -195,7 +195,7 @@
     <div id="deleteDialog" class="delete-dialog hidden" role="dialog" aria-modal="true" aria-labelledby="deleteDialogTitle">
       <div class="delete-dialog-card">
         <h3 id="deleteDialogTitle">Delete landing page?</h3>
-        <p>This permanently deletes this partner landing page. Type <strong>DELETE</strong> to continue.</p>
+        <p>This permanently deletes this landing page. Archive a page instead if its URL has ever been shared or printed. Type <strong>DELETE</strong> to continue.</p>
         <input id="deleteConfirmInput" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="DELETE">
         <div class="delete-dialog-actions">
           <button id="cancelDeleteBtn" class="ghost" type="button">Cancel</button>
