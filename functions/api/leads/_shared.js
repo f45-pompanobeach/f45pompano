@@ -103,4 +103,31 @@ export async function authThrottle(env,request){if(!await ensureSchema(env))retu
 export async function recordAuthFailure(env,request){if(!await ensureSchema(env))return;const db=eventDb(env),subject=await authSubject(request),now=Math.floor(Date.now()/1000),iso=new Date().toISOString(),row=await db.prepare('SELECT fail_count,window_started_at FROM lead_auth_attempts WHERE subject_hash=? LIMIT 1').bind(subject).first();let count=1,start=now;if(row&&now-Number(row.window_started_at)<=600){count=Number(row.fail_count||0)+1;start=Number(row.window_started_at)}const locked=count>=5?now+900:0;await db.prepare(`INSERT INTO lead_auth_attempts(subject_hash,fail_count,window_started_at,locked_until,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(subject_hash) DO UPDATE SET fail_count=excluded.fail_count,window_started_at=excluded.window_started_at,locked_until=excluded.locked_until,updated_at=excluded.updated_at`).bind(subject,count,start,locked,iso).run();return {count,locked_until:locked}}
 export async function recordAuthSuccess(env,request){if(!await ensureSchema(env))return;const subject=await authSubject(request);await eventDb(env).prepare('DELETE FROM lead_auth_attempts WHERE subject_hash=?').bind(subject).run()}
 
+
+export function normalizeEventPresentation(value={}){
+  const cleanText=(v,n)=>String(v??'').trim().replace(/\r\n/g,'\n').slice(0,n);
+  return {
+    public_headline:cleanText(value.public_headline,80),
+    show_event_name:value.show_event_name===true||value.show_event_name===1,
+    info_title:cleanText(value.info_title,80),
+    info_body:cleanText(value.info_body,500),
+    confirmation_message:cleanText(value.confirmation_message,280),
+    show_schedule:value.show_schedule!==false&&value.show_schedule!==0,
+    show_expect:value.show_expect!==false&&value.show_expect!==0,
+    show_reviews:value.show_reviews!==false&&value.show_reviews!==0
+  };
+}
+export async function getEventPresentation(env,eventKey){
+  if(!eventKey||!await ensureSchema(env))return normalizeEventPresentation();
+  const row=await eventDb(env).prepare('SELECT setting_value FROM lead_app_settings WHERE setting_key=? LIMIT 1').bind(`event_presentation:${eventKey}`).first();
+  if(!row?.setting_value)return normalizeEventPresentation();
+  try{return normalizeEventPresentation(JSON.parse(row.setting_value))}catch{return normalizeEventPresentation()}
+}
+export async function setEventPresentation(env,eventKey,value){
+  await ensureSchema(env);
+  const normalized=normalizeEventPresentation(value),now=new Date().toISOString();
+  await eventDb(env).prepare(`INSERT INTO lead_app_settings(setting_key,setting_value,updated_at) VALUES(?,?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=excluded.updated_at`).bind(`event_presentation:${eventKey}`,JSON.stringify(normalized),now).run();
+  return normalized;
+}
+
 export async function createUniqueSlug(db,name,date){const base=cleanSlug(`${name}-${date}`)||`event-${date}`;let slug=base;for(let i=0;i<20;i++){const row=await db.prepare('SELECT event_key FROM lead_events WHERE slug=? LIMIT 1').bind(slug).first();if(!row)return slug;slug=`${base}-${String(Math.floor(1000+Math.random()*9000))}`}return `${base}-${crypto.randomUUID().slice(0,8)}`}
