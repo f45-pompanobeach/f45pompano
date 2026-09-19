@@ -481,7 +481,7 @@ $('resetPageBtn').onclick=async()=>{
   }catch(err){showStatus($('pageStatus'),err.message,true)}
 };
 
-if(state.pin){login(state.pin).catch(()=>{sessionStorage.removeItem('landingAdminPin');state.pin=''})}
+if(state.pin){login(state.pin).catch(()=>{sessionStorage.removeItem('landingAdminPin');state.pin='';document.documentElement.classList.remove('admin-handoff');$('loginView').classList.remove('hidden')})}
 
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
