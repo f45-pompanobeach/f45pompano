@@ -38,7 +38,7 @@ jobs:
                ! grep -q '<h2>Super Admin Code</h2>' <<<"$admin" && \
                grep -q '/admin/event/app.js?v=1' <<<"$staff_view" && \
                ! grep -q 'Table Leads Login' <<<"$staff_view" && \
-               grep -q '/landing/admin/app.js?v=15' <<<"$landing_admin"; then
+               grep -q '/landing/admin/app.js?v=13' <<<"$landing_admin"; then
               ok=1
               echo "Current admin assets verified on attempt $i."
               break
