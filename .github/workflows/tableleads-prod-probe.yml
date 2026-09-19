@@ -5,8 +5,10 @@ on:
     branches: [main]
     paths:
       - 'public/tableleads/**'
+      - 'public/admin/**'
       - 'functions/api/leads/**'
       - 'functions/tableleads/**'
+      - 'functions/events/**'
       - '.github/workflows/tableleads-prod-probe.yml'
   workflow_dispatch:
 
@@ -26,10 +28,20 @@ jobs:
           for i in $(seq 1 24); do
             login="$(curl -fsSL --max-time 15 "$base/tableleads/login/?probe=$GITHUB_SHA" || true)"
             admin="$(curl -fsSL --max-time 15 "$base/tableleads/admin/?probe=$GITHUB_SHA" || true)"
+            hub="$(curl -fsSL --max-time 15 "$base/admin/?probe=$GITHUB_SHA" || true)"
+            event_page="$(curl -fsSL --max-time 15 "$base/events/pier-cleanup-2026-09-12/?probe=$GITHUB_SHA" || true)"
+            landing_admin="$(curl -fsSL --max-time 15 "$base/landing/admin/?probe=$GITHUB_SHA" || true)"
             form="$(curl -fsSL --max-time 15 "$base/tableleads/?probe=$GITHUB_SHA" || true)"
             if grep -q 'id="statusFilter"' <<<"$login" && \
                grep -q 'id="editEventBack"' <<<"$admin" && \
-               grep -q 'id="confirmationEnabled"' <<<"$admin" && \
+               grep -q 'id="evHeadline"' <<<"$admin" && \
+               grep -q '/tableleads/admin/app.js?v=5' <<<"$admin" && \
+               grep -q 'Partner Pages' <<<"$hub" && \
+               grep -q 'Table Events' <<<"$hub" && \
+               grep -q 'Event Staff' <<<"$hub" && \
+               grep -q 'EVENT ENDED' <<<"$event_page" && \
+               grep -q 'v2026.09.18.1' <<<"$landing_admin" && \
+               ! grep -q 'id="pageKind"' <<<"$landing_admin" && \
                grep -q '/tableleads/form.js?v=4' <<<"$form"; then
               ok=1
               echo "Production static assets converged on attempt $i."
