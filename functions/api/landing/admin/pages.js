@@ -14,7 +14,8 @@ export async function onRequestPost({request,env}){
     return json({ok:true,page:result.value,updated_at:result.updated_at});
   }catch(e){
     const code=String(e?.message||e);
-    return json({ok:false,error:code==='invalid_slug'||code==='invalid_root_slug'?code:'save_failed'},code.startsWith('invalid_')?400:500);
+    const clientError=code==='invalid_slug'||code==='invalid_root_slug'||code==='event_link_required';
+    return json({ok:false,error:clientError?code:'save_failed',message:code==='event_link_required'?'Choose the Table Leads event this page should use.':undefined},clientError?400:500);
   }
 }
 export function onRequest(){return json({ok:false,error:'method_not_allowed'},405)}
