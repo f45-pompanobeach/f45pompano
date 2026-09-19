@@ -48,7 +48,7 @@ async function go(){
     clearAccess();
     sessionStorage.setItem('table_access_code',code);
     sessionStorage.setItem('table_event_code',code);
-    location.href='/tableleads/login/';
+    location.href='/admin/event/';
     return;
   }
   e.textContent='Invalid access code.';
