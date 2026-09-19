@@ -29,6 +29,7 @@ jobs:
             login="$(curl -fsSL --max-time 15 "$base/tableleads/login/?probe=$GITHUB_SHA" || true)"
             admin="$(curl -fsSL --max-time 15 "$base/tableleads/admin/?probe=$GITHUB_SHA" || true)"
             hub="$(curl -fsSL --max-time 15 "$base/admin/?probe=$GITHUB_SHA" || true)"
+            staff_view="$(curl -fsSL --max-time 15 "$base/admin/event/?probe=$GITHUB_SHA" || true)"
             event_page="$(curl -fsSL --max-time 15 "$base/events/pier-cleanup-2026-09-12/?probe=$GITHUB_SHA" || true)"
             landing_admin="$(curl -fsSL --max-time 15 "$base/landing/admin/?probe=$GITHUB_SHA" || true)"
             form="$(curl -fsSL --max-time 15 "$base/tableleads/?probe=$GITHUB_SHA" || true)"
@@ -39,6 +40,8 @@ jobs:
                grep -q 'id="accessView"' <<<"$hub" && \
                grep -q 'id="adminView" class="hidden"' <<<"$hub" && \
                grep -q 'Event staff are taken directly to their assigned event' <<<"$hub" && \
+               grep -q '/admin/event/app.js?v=1' <<<"$staff_view" && \
+               ! grep -q 'Table Leads Login' <<<"$staff_view" && \
                grep -q 'EVENT ENDED' <<<"$event_page" && \
                grep -q 'v2026.09.18.1' <<<"$landing_admin" && \
                ! grep -q 'id="pageKind"' <<<"$landing_admin" && \
