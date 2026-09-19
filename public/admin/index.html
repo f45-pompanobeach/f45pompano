@@ -17,14 +17,14 @@
     <a class="tile partner" href="/landing/admin/">Partner Pages</a>
     <a class="tile events" href="/tableleads/admin/">Table Events</a>
     <a class="tile leads" href="/admin/leads/">Leads</a>
-    <button id="settingsBtn" class="tile settings" type="button">Admin Settings</button>
+    <button id="settingsBtn" class="tile settings" type="button">Admin Access Code</button>
   </div>
   <button id="logout" class="logout" type="button">Use a different access code</button>
 </section>
 
 <div id="settingsBack" class="dialogBack hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
   <section class="dialog">
-    <h2 id="settingsTitle">Admin Settings</h2>
+    <h2 id="settingsTitle">Change Admin Access Code</h2>
     <p>Enter the new Super Admin access code twice.</p>
     <div class="field"><label for="newAdminCode">New 4-digit code</label><input id="newAdminCode" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}"></div>
     <div class="field"><label for="confirmAdminCode">Confirm new code</label><input id="confirmAdminCode" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}"></div>
