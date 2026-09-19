@@ -789,7 +789,7 @@ function upgradePartnerPage(html, partnerData, options = {}) {
 }
 
 function addLandingRuntime(html) {
-  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=5"></script>\\n</body>');
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=4"></script>\\n</body>');
 }
 
 function addSiteVersion(html) {

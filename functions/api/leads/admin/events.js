@@ -1,4 +1,4 @@
-import {QR_KITS,adminAuthorized,cleanKit,cleanPrizeList,createUniqueSlug,ensureSchema,eventDb,getAdminPinHash,json,sha256Hex} from '../_shared.js';
+import {QR_KITS,adminAuthorized,cleanKit,cleanPrizeList,createUniqueSlug,ensureSchema,eventDb,getAdminPinHash,getEventPresentation,json,setEventPresentation,sha256Hex} from '../_shared.js';
 
 function validDate(v){return /^\d{4}-\d{2}-\d{2}$/.test(String(v||''))}
 function validTime(v){return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(v||''))}
@@ -15,7 +15,8 @@ export async function onRequestGet({request,env}){
     CASE WHEN e.staff_code_hash IS NULL THEN 0 ELSE 1 END AS code_set
     FROM lead_events e ORDER BY e.event_date DESC,e.start_time DESC`).all();
   const general=await db.prepare(`SELECT COUNT(*) AS n FROM event_leads WHERE event_key='general'`).first();
-  return json({ok:true,events:q.results||[],general_lead_count:Number(general?.n||0),qr_kits:QR_KITS});
+  const events=[];for(const event of (q.results||[]))events.push({...event,presentation:await getEventPresentation(env,event.event_key)});
+  return json({ok:true,events,general_lead_count:Number(general?.n||0),qr_kits:QR_KITS});
 }
 
 export async function onRequestPost({request,env}){
@@ -32,7 +33,8 @@ export async function onRequestPost({request,env}){
     if(kit)await db.prepare('UPDATE lead_events SET qr_kit=NULL,updated_at=? WHERE qr_kit=? AND archived=0').bind(now,kit).run();
     await db.prepare(`INSERT INTO lead_events (event_key,name,slug,event_date,start_time,end_time,staff_code_hash,qr_kit,enabled,archived,prize_enabled,prizes_json,confirmation_enabled,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,1,0,?,?,?,?,?)`)
       .bind(eventKey,name,slug,date,start,end,hash,kit,prizeEnabled?1:0,JSON.stringify(prizes),confirmationEnabled?1:0,now,now).run();
-    return json({ok:true,event:{event_key:eventKey,name,slug,event_date:date,start_time:start,end_time:end,qr_kit:kit,staff_code:code,prize_enabled:prizeEnabled,prizes,confirmation_enabled:confirmationEnabled}});
+    const presentation=await setEventPresentation(env,eventKey,body.presentation||{});
+    return json({ok:true,event:{event_key:eventKey,name,slug,event_date:date,start_time:start,end_time:end,qr_kit:kit,staff_code:code,prize_enabled:prizeEnabled,prizes,confirmation_enabled:confirmationEnabled,presentation}});
   }
   const eventKey=String(body.event_key||'').trim();if(!eventKey)return json({ok:false,error:'missing_event'},400);
   const existing=await db.prepare('SELECT * FROM lead_events WHERE event_key=? LIMIT 1').bind(eventKey).first();if(!existing)return json({ok:false,error:'not_found'},404);
@@ -44,7 +46,9 @@ export async function onRequestPost({request,env}){
     const confirmationEnabled=body.confirmation_enabled===undefined?Boolean(Number(existing.confirmation_enabled)):(body.confirmation_enabled===true||body.confirmation_enabled===1);
     if(name.length<2||!validDate(date)||!validTime(start)||!validTime(end)||min(start)>=min(end))return json({ok:false,error:'invalid_event',message:'Check the event name, date, and times.'},400);
     if(kit)await db.prepare('UPDATE lead_events SET qr_kit=NULL,updated_at=? WHERE qr_kit=? AND event_key<>? AND archived=0').bind(now,kit,eventKey).run();
-    await db.prepare('UPDATE lead_events SET name=?,event_date=?,start_time=?,end_time=?,qr_kit=?,confirmation_enabled=?,updated_at=? WHERE event_key=?').bind(name,date,start,end,kit,confirmationEnabled?1:0,now,eventKey).run();return json({ok:true,confirmation_enabled:confirmationEnabled});
+    await db.prepare('UPDATE lead_events SET name=?,event_date=?,start_time=?,end_time=?,qr_kit=?,confirmation_enabled=?,updated_at=? WHERE event_key=?').bind(name,date,start,end,kit,confirmationEnabled?1:0,now,eventKey).run();
+    const presentation=body.presentation===undefined?await getEventPresentation(env,eventKey):await setEventPresentation(env,eventKey,body.presentation);
+    return json({ok:true,confirmation_enabled:confirmationEnabled,presentation});
   }
   if(action==='update_prizes'){
     const enabled=body.prize_enabled===true||body.prize_enabled===1,prizes=cleanPrizeList(body.prizes||[]);
