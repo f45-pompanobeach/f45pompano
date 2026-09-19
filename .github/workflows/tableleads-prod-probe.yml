@@ -36,10 +36,12 @@ jobs:
             if grep -q 'id="statusFilter"' <<<"$login" && \
                grep -q 'id="editEventBack"' <<<"$admin" && \
                grep -q 'id="evHeadline"' <<<"$admin" && \
-               grep -q '/tableleads/admin/app.js?v=7' <<<"$admin" && \
+               grep -q '/tableleads/admin/app.js?v=8' <<<"$admin" && \
                grep -q 'id="accessView"' <<<"$hub" && \
                grep -q 'id="adminView" class="hidden"' <<<"$hub" && \
                grep -q 'Event staff are taken directly to their assigned event' <<<"$hub" && \
+               grep -q 'id="changeAdminCode"' <<<"$hub" && \
+               ! grep -q '<h2>Super Admin Code</h2>' <<<"$admin" && \
                               grep -q '/admin/event/app.js?v=1' <<<"$staff_view" && \
                ! grep -q 'Table Leads Login' <<<"$staff_view" && \
                grep -q 'EVENT ENDED' <<<"$event_page" && \
