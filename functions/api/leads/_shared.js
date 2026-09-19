@@ -74,12 +74,22 @@ export async function adminAuthorized(request,env){
 }
 export async function setAdminPin(env,newCode){if(!/^\d{4}$/.test(String(newCode||'')))throw new Error('invalid_pin');await ensureSchema(env);const db=eventDb(env),now=new Date().toISOString(),hash=await sha256Hex(newCode);await db.prepare(`INSERT INTO lead_app_settings (setting_key,setting_value,updated_at) VALUES ('super_admin_pin_hash',?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=excluded.updated_at`).bind(hash,now).run();return true}
 
+async function eventForStaffHash(env,hash){
+  if(!/^[a-f0-9]{64}$/i.test(String(hash||''))||!await ensureSchema(env))return null;
+  return eventDb(env).prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived,prize_enabled,prizes_json,confirmation_enabled FROM lead_events WHERE staff_code_hash=? AND archived=0 AND enabled=1 ORDER BY event_date DESC LIMIT 1`).bind(String(hash).toLowerCase()).first();
+}
 export async function eventForStaffCode(env,code){
   if(!/^\d{4}$/.test(String(code||''))||!await ensureSchema(env))return null;
-  const db=eventDb(env),hash=await sha256Hex(code);
-  return db.prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived,prize_enabled,prizes_json,confirmation_enabled FROM lead_events WHERE staff_code_hash=? AND archived=0 AND enabled=1 ORDER BY event_date DESC LIMIT 1`).bind(hash).first();
+  return eventForStaffHash(env,await sha256Hex(code));
 }
-export async function staffEventFromRequest(request,env){return eventForStaffCode(env,String(request.headers.get('x-table-code')||'').trim())}
+export async function staffEventFromRequest(request,env){
+  const code=String(request.headers.get('x-table-code')||'').trim();
+  if(/^\d{4}$/.test(code)){
+    const event=await eventForStaffCode(env,code);
+    if(event)return event;
+  }
+  return eventForStaffHash(env,cookieValue(request,'f45_event_session'));
+}
 
 function floridaParts(date=new Date()){const parts=new Intl.DateTimeFormat('en-US',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date);const o={};for(const p of parts)if(p.type!=='literal')o[p.type]=p.value;return {date:`${o.year}-${o.month}-${o.day}`,time:`${o.hour}:${o.minute}`}}
 function mins(t){const m=String(t||'').match(/^(\d{2}):(\d{2})$/);return m?Number(m[1])*60+Number(m[2]):null}
