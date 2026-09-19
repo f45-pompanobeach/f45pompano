@@ -24,11 +24,12 @@
 </main>
 <script>(function(){
 const c=document.getElementById('code'),e=document.getElementById('err'),access=document.getElementById('accessView'),admin=document.getElementById('adminView');
-const HANDOFF_KEY='f45SuperAdminHandoff';
-function showAdmin(code){
-  sessionStorage.setItem('table_access_code',code);
-  sessionStorage.setItem('table_admin_code',code);
-  sessionStorage.setItem('landingAdminPin',code);
+function showAdmin(code=''){
+  if(/^\d{4}$/.test(code)){
+    sessionStorage.setItem('table_access_code',code);
+    sessionStorage.setItem('table_admin_code',code);
+    sessionStorage.setItem('landingAdminPin',code);
+  }
   access.classList.add('hidden');admin.classList.remove('hidden');
 }
 function clearAccess(){
@@ -61,14 +62,18 @@ async function go(){
   e.textContent='Invalid access code.';
 }
 document.getElementById('open').onclick=go;
-document.getElementById('partnerPagesBtn').addEventListener('click',x=>{if(!prepareAdminHandoff()){x.preventDefault();clearAccess();location.href='/admin/'}});
-document.getElementById('tableEventsBtn').addEventListener('click',x=>{if(!prepareAdminHandoff()){x.preventDefault();clearAccess();location.href='/admin/'}});
 c.addEventListener('keydown',x=>{if(x.key==='Enter')go()});
-document.getElementById('logout').onclick=()=>{clearAccess();admin.classList.add('hidden');access.classList.remove('hidden');c.value='';e.textContent='';c.focus()};
+document.getElementById('logout').onclick=async()=>{await clearAccess();admin.classList.add('hidden');access.classList.remove('hidden');c.value='';e.textContent='';c.focus()};
 (async()=>{
   const saved=sessionStorage.getItem('table_admin_code')||'';
-  if(!/^\d{4}$/.test(saved))return;
-  const {r,j}=await validate(saved);
-  if(r.ok&&j.ok&&j.role==='admin')showAdmin(saved);else clearAccess();
+  if(/^\d{4}$/.test(saved)){
+    const {r,j}=await validate(saved);
+    if(r.ok&&j.ok&&j.role==='admin'){showAdmin(saved);return}
+  }
+  try{
+    const r=await fetch('/api/leads/auth',{method:'GET',cache:'no-store'}),j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ok&&j.role==='admin'){showAdmin();return}
+  }catch{}
+  sessionStorage.removeItem('table_access_code');sessionStorage.removeItem('table_admin_code');sessionStorage.removeItem('landingAdminPin');
 })();
 })();</script></body></html>
