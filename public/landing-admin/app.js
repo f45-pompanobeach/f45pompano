@@ -215,8 +215,10 @@ function renderEventOptions(selectedSlug=''){
 function selectedLeadEvent(){return state.events.find(event=>event.slug===$('leadEventSlug').value)||null}
 function syncPageKindFields(){
   const kind=$('pageKind').value;
-  $('eventLinkFields').classList.toggle('hidden',kind!=='event');
+  const isEvent=kind==='event';
+  $('eventLinkFields').classList.toggle('hidden',!isEvent);
   $('archivedMessageWrap').classList.toggle('hidden',$('pageLifecycle').value!=='archived');
+  document.querySelectorAll('.offer-config-field').forEach(el=>el.classList.toggle('hidden',isEvent));
 }
 function applySelectedLeadEvent(){
   if($('pageKind').value!=='event')return;
