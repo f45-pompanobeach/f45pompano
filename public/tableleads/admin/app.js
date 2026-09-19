@@ -1,13 +1,5 @@
 (()=>{
-const HANDOFF_KEY='f45SuperAdminHandoff';
-function takeAdminHandoff(){
-  let handoff=null;
-  try{handoff=JSON.parse(localStorage.getItem(HANDOFF_KEY)||'null')}catch{}
-  localStorage.removeItem(HANDOFF_KEY);
-  const code=String(handoff?.code||'');
-  return /^\d{4}$/.test(code)&&Number(handoff?.expires||0)>=Date.now()?code:'';
-}
-const $=id=>document.getElementById(id);const NONE='__NONE__',CUSTOM='__CUSTOM__';let code=sessionStorage.getItem('table_access_code')||sessionStorage.getItem('table_admin_code')||takeAdminHandoff(),events=[],currentEvent=null,currentLeads=[],current=null,selected=NONE,editingEvent=null;
+const $=id=>document.getElementById(id);const NONE='__NONE__',CUSTOM='__CUSTOM__';let code=sessionStorage.getItem('table_access_code')||sessionStorage.getItem('table_admin_code')||'',events=[],currentEvent=null,currentLeads=[],current=null,selected=NONE,editingEvent=null;
 const STATUS_LABELS={new:'NEW',contacted:'CONTACTED',scheduled:'SCHEDULED',attended:'ATTENDED',redeemed:'REDEEMED',not_interested:'NOT INTERESTED'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));const fmt=t=>t?new Date(t).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'—';const prizeList=e=>{try{return JSON.parse(e?.prizes_json||'[]')||[]}catch{return []}};
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
