@@ -1,11 +1,3 @@
-const HANDOFF_KEY='f45SuperAdminHandoff';
-function takeAdminHandoff(){
-  let handoff=null;
-  try{handoff=JSON.parse(localStorage.getItem(HANDOFF_KEY)||'null')}catch{}
-  localStorage.removeItem(HANDOFF_KEY);
-  const code=String(handoff?.code||'');
-  return /^\d{4}$/.test(code)&&Number(handoff?.expires||0)>=Date.now()?code:'';
-}
 const state={pin:sessionStorage.getItem('landingAdminPin')||takeAdminHandoff(),defaults:null,stored:[],global:{},selected:null,publishing:false,mediaConfigured:null,leadNotificationEmails:[],globalBaseline:'',pageBaseline:'',pageOfferDraft:null};
 const $=id=>document.getElementById(id);
 
@@ -332,7 +324,7 @@ if(window.visualViewport){
 updateViewportVars();
 
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginError').textContent='';try{await login($('pin').value.trim())}catch(err){$('loginError').textContent=err.message}});
-$('logoutBtn').onclick=()=>{sessionStorage.removeItem('landingAdminPin');sessionStorage.removeItem('table_access_code');sessionStorage.removeItem('table_admin_code');sessionStorage.removeItem('table_event_code');localStorage.removeItem(HANDOFF_KEY);location.replace('/admin/')};
+$('logoutBtn').onclick=async()=>{sessionStorage.removeItem('landingAdminPin');sessionStorage.removeItem('table_access_code');sessionStorage.removeItem('table_admin_code');sessionStorage.removeItem('table_event_code');try{await fetch('/api/leads/auth',{method:'DELETE',cache:'no-store'})}catch{}location.replace('/admin/')};
 $('addLeadEmailBtn').onclick=addLeadEmail;
 $('leadEmailInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addLeadEmail();}});
 
@@ -489,7 +481,17 @@ $('resetPageBtn').onclick=async()=>{
   }catch(err){showStatus($('pageStatus'),err.message,true)}
 };
 
-if(state.pin){login(state.pin).catch(()=>{sessionStorage.removeItem('landingAdminPin');state.pin='';location.replace('/admin/')})}else{location.replace('/admin/')}
+async function bootstrapAdmin(){
+  if(state.pin){
+    try{await login(state.pin);return}catch{sessionStorage.removeItem('landingAdminPin');state.pin=''}
+  }
+  try{
+    const r=await fetch('/api/leads/auth',{method:'GET',cache:'no-store'}),d=await r.json().catch(()=>({}));
+    if(r.ok&&d.ok&&d.role==='admin'){await loadAdmin();return}
+  }catch{}
+  location.replace('/admin/');
+}
+bootstrapAdmin()
 
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
