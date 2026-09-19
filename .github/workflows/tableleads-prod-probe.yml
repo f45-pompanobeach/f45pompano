@@ -6,9 +6,12 @@ on:
     paths:
       - 'public/tableleads/**'
       - 'public/admin/**'
+      - 'public/landing/admin/**'
+      - 'public/landing-admin/**'
       - 'functions/api/leads/**'
       - 'functions/tableleads/**'
       - 'functions/events/**'
+      - 'build.js'
       - '.github/workflows/tableleads-prod-probe.yml'
   workflow_dispatch:
 
@@ -19,39 +22,47 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify current admin and event access production
+      - name: Verify unified admin production
         shell: bash
         run: |
           set -euo pipefail
           base='https://f45pompano.com'
           ok=0
-          for i in $(seq 1 18); do
+          for i in $(seq 1 24); do
             hub="$(curl -fsSL --max-time 15 "$base/admin/?probe=$GITHUB_SHA" || true)"
-            admin="$(curl -fsSL --max-time 15 "$base/tableleads/admin/?probe=$GITHUB_SHA" || true)"
-            staff_view="$(curl -fsSL --max-time 15 "$base/admin/event/?probe=$GITHUB_SHA" || true)"
-            landing_admin="$(curl -fsSL --max-time 15 "$base/landing/admin/?probe=$GITHUB_SHA" || true)"
-            if grep -q 'id="accessView"' <<<"$hub" && \
-               grep -q 'id="changeAdminCode"' <<<"$hub" && \
-               grep -q 'Admin Settings' <<<"$hub" && \
-               ! grep -q 'HANDOFF_KEY' <<<"$hub" && \
-               grep -q '/tableleads/admin/app.js?v=9' <<<"$admin" && \
-               ! grep -q '<h2>Super Admin Code</h2>' <<<"$admin" && \
-               grep -q '/admin/event/app.js?v=1' <<<"$staff_view" && \
-               ! grep -q 'Table Leads Login' <<<"$staff_view" && \
-               grep -q '/landing/admin/app.js?v=13' <<<"$landing_admin"; then
+            leads="$(curl -fsSL --max-time 15 "$base/admin/leads/?probe=$GITHUB_SHA" || true)"
+            events="$(curl -fsSL --max-time 15 "$base/tableleads/admin/?probe=$GITHUB_SHA" || true)"
+            staff="$(curl -fsSL --max-time 15 "$base/admin/event/?probe=$GITHUB_SHA" || true)"
+            partner="$(curl -fsSL --max-time 15 "$base/landing/admin/?probe=$GITHUB_SHA" || true)"
+            if grep -q '>Partner Pages</a>' <<<"$hub" && \
+               grep -q '>Table Events</a>' <<<"$hub" && \
+               grep -q '>Leads</a>' <<<"$hub" && \
+               grep -q '>Admin Access Code</button>' <<<"$hub" && \
+               grep -q 'confirmAdminCode' <<<"$hub" && \
+               grep -q '← Admin' <<<"$leads" && \
+               grep -q 'Mark Tracked Elsewhere' <<<"$leads" && \
+               grep -q '/tableleads/admin/app.js?v=10' <<<"$events" && \
+               grep -q '← Admin' <<<"$events" && \
+               grep -q '/admin/event/app.js?v=1' <<<"$staff" && \
+               grep -q '/landing/admin/app.js?v=14' <<<"$partner" && \
+               grep -q 'admin-handoff' <<<"$partner" && \
+               grep -q '← Admin' <<<"$partner"; then
               ok=1
               echo "Current admin assets verified on attempt $i."
               break
             fi
-            echo "Attempt $i: current admin assets have not converged yet."
+            echo "Attempt $i: production has not converged yet."
             sleep 10
           done
           test "$ok" -eq 1
 
-          auth_status="$(curl -sS -o /tmp/auth-status.txt -w '%{http_code}' --max-time 15 "$base/api/leads/auth")"
-          staff_status="$(curl -sS -o /tmp/staff-status.txt -w '%{http_code}' --max-time 15 "$base/api/leads/staff/leads")"
+          auth_status="$(curl -sS -o /tmp/auth.txt -w '%{http_code}' --max-time 15 "$base/api/leads/auth")"
+          all_status="$(curl -sS -o /tmp/all.txt -w '%{http_code}' --max-time 15 "$base/api/leads/admin/all")"
+          tracked_status="$(curl -sS -o /tmp/tracked.txt -w '%{http_code}' --max-time 15 -X POST "$base/api/leads/admin/tracked" -H 'content-type: application/json' --data '{"id":"probe","tracked":true}')"
           test "$auth_status" = '401'
-          test "$staff_status" = '401'
-          grep -q 'unauthorized' /tmp/auth-status.txt
-          grep -q 'unauthorized' /tmp/staff-status.txt
-          echo "Protected auth routes verified."
+          test "$all_status" = '401'
+          test "$tracked_status" = '401'
+          grep -q 'unauthorized' /tmp/auth.txt
+          grep -q 'unauthorized' /tmp/all.txt
+          grep -q 'unauthorized' /tmp/tracked.txt
+          echo "Protected Leads routes verified."
