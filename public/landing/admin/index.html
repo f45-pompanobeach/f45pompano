@@ -13,6 +13,8 @@
 <link rel="icon" href="/landing/admin/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/landing/admin/icon.svg">
 <link rel="stylesheet" href="/landing/admin/app.css?v=13">
+<script>try{if(sessionStorage.getItem('landingAdminPin'))document.documentElement.classList.add('admin-handoff')}catch{}</script>
+<style>.admin-handoff #loginView{display:none!important}.admin-top-actions{display:flex;gap:8px;align-items:center}.admin-back-link{display:inline-flex;align-items:center;text-decoration:none}</style>
 </head>
 <body>
 <div class="shell">
@@ -21,7 +23,7 @@
       <div class="eyebrow">F45 POMPANO BEACH</div>
       <h1>Landing Page Admin</h1>
     </div>
-    <button id="logoutBtn" class="ghost hidden" type="button">Log Out</button>
+    <div class="admin-top-actions"><a class="ghost admin-back-link" href="/admin/">← Admin</a><button id="logoutBtn" class="ghost hidden" type="button">Log Out</button></div>
   </header>
 
   <section id="loginView" class="card login-card">
@@ -191,6 +193,6 @@
   </main>
   <div class="admin-version-badge" aria-label="Admin version">v2026.09.18.1</div>
 </div>
-<script src="/landing/admin/app.js?v=13"></script>
+<script src="/landing/admin/app.js?v=14"></script>
 </body>
 </html>
