@@ -40,12 +40,18 @@ export function sanitizeGlobal(input={}){
 export function sanitizePage(input={},existingSlug=''){
   const slug=cleanSlug(input.slug||existingSlug);
   if(!slug||slug==='social-trial')throw new Error('invalid_slug');
-  const pageKind=input.pageKind==='root'?'root':'partner';
+  const pageKind=input.pageKind==='root'?'root':(input.pageKind==='event'?'event':'partner');
   if(pageKind==='root'&&slug!=='root')throw new Error('invalid_root_slug');
+  const leadEventSlug=pageKind==='event'?cleanSlug(input.leadEventSlug):'';
+  if(pageKind==='event'&&!leadEventSlug)throw new Error('event_link_required');
+  const status=input.status==='archived'?'archived':'active';
   return {
     slug,
     pageKind,
     partner:cleanText(input.partner,pageKind==='root'?80:100),
+    leadEventSlug,
+    status,
+    archivedMessage:cleanText(input.archivedMessage,260),
     promoCode:cleanText(input.promoCode,60),
     trialType:cleanText(input.trialType,80)||'3 Classes',
     trialCost:cleanCost(input.trialCost)||'$30',
