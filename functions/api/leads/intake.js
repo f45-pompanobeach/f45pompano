@@ -3,7 +3,7 @@ import {LOCAL_ZIPS,cleanEmail,cleanName,cleanPhone,cleanSlug,cleanZip,ensureSche
 export async function onRequestPost({request,env}){
   let d={};try{d=await request.json()}catch{return json({ok:false,error:'invalid_request'},400)}
   if(String(d.website||'').trim())return json({ok:true});
-  const firstName=cleanName(d.first_name),lastName=cleanName(d.last_name),email=cleanEmail(d.email),phone=cleanPhone(d.phone),zip=cleanZip(d.zip);
+  const firstName=cleanName(d.first_name),lastName=cleanName(d.last_name),email=cleanEmail(d.email),phone=cleanPhone(d.phone),zip=cleanZip(d.zip)||'';
   if(firstName.length<2||lastName.length<2||!/^\\S+@\\S+\\.\\S+$/.test(email)||!phone||!zip)return json({ok:false,error:'invalid_fields'},400);
   if(!await ensureSchema(env))return json({ok:false,error:'db_unavailable'},503);
   const type=String(d.source_type||'website').trim().toLowerCase()==='partner'?'partner-page':'website';
