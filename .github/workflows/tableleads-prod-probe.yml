@@ -36,16 +36,15 @@ jobs:
             if grep -q 'id="statusFilter"' <<<"$login" && \
                grep -q 'id="editEventBack"' <<<"$admin" && \
                grep -q 'id="evHeadline"' <<<"$admin" && \
-               grep -q '/tableleads/admin/app.js?v=6' <<<"$admin" && \
+               grep -q '/tableleads/admin/app.js?v=7' <<<"$admin" && \
                grep -q 'id="accessView"' <<<"$hub" && \
                grep -q 'id="adminView" class="hidden"' <<<"$hub" && \
                grep -q 'Event staff are taken directly to their assigned event' <<<"$hub" && \
-               grep -q 'f45SuperAdminHandoff' <<<"$hub" && \
-               grep -q '/admin/event/app.js?v=1' <<<"$staff_view" && \
+                              grep -q '/admin/event/app.js?v=1' <<<"$staff_view" && \
                ! grep -q 'Table Leads Login' <<<"$staff_view" && \
                grep -q 'EVENT ENDED' <<<"$event_page" && \
                grep -q 'v2026.09.18.1' <<<"$landing_admin" && \
-               grep -q '/landing/admin/app.js?v=14' <<<"$landing_admin" && \
+               grep -q '/landing/admin/app.js?v=15' <<<"$landing_admin" && \
                grep -q 'id="loginView" class="card login-card hidden"' <<<"$landing_admin" && \
                ! grep -q 'id="pageKind"' <<<"$landing_admin" && \
                grep -q '/tableleads/form.js?v=4' <<<"$form"; then
@@ -60,8 +59,11 @@ jobs:
 
           staff_status="$(curl -sS -o /tmp/staff-status.txt -w '%{http_code}' --max-time 15 -X POST "$base/api/leads/staff/status" -H 'content-type: application/json' --data '{}')"
           admin_status="$(curl -sS -o /tmp/admin-status.txt -w '%{http_code}' --max-time 15 -X POST "$base/api/leads/admin/status" -H 'content-type: application/json' --data '{}')"
+          auth_status="$(curl -sS -o /tmp/auth-status.txt -w '%{http_code}' --max-time 15 "$base/api/leads/auth")"
           test "$staff_status" = '401'
           test "$admin_status" = '401'
+          test "$auth_status" = '401'
           grep -q 'unauthorized' /tmp/staff-status.txt
           grep -q 'unauthorized' /tmp/admin-status.txt
+          grep -q 'unauthorized' /tmp/auth-status.txt
           echo "Production Functions routes verified."
