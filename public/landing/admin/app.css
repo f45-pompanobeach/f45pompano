@@ -261,3 +261,13 @@ input,textarea,select,button,a{max-width:100%;box-sizing:border-box}
     word-break:normal!important;
   }
 }
+
+
+/* Event / partner page configuration */
+select{width:100%;border:2px solid #c7ced8;border-radius:9px;padding:12px 13px;font:inherit;font-size:15px;font-weight:600;color:#111827;background:#fff}
+select:focus{outline:none;border-color:#e8272a;box-shadow:0 0 0 4px rgba(232,39,42,.1)}
+select:disabled{background:#f2f4f7;color:#596273;border-color:#dde2ea;cursor:not-allowed}
+.event-link-fields{border:1px solid #dbe2ec;border-left:4px solid #e8272a;border-radius:12px;padding:15px;background:#f8fafc}
+.event-link-fields label{margin:0}
+.event-link-actions{display:flex;justify-content:flex-start;margin-top:12px}
+.toggle span small{display:block;margin-top:3px;color:#687285;font-size:11px;font-weight:600;letter-spacing:0;text-transform:none}
