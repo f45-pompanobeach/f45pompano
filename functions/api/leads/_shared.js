@@ -41,6 +41,8 @@ export async function ensureSchema(env){
   await addColumnIfMissing(db,'event_leads',leadCols,'notes','notes TEXT');
   await addColumnIfMissing(db,'event_leads',leadCols,'followup_status',"followup_status TEXT NOT NULL DEFAULT 'new'");
   await addColumnIfMissing(db,'event_leads',leadCols,'followup_updated_at','followup_updated_at TEXT');
+  await addColumnIfMissing(db,'event_leads',leadCols,'tracked_elsewhere','tracked_elsewhere INTEGER NOT NULL DEFAULT 0');
+  await addColumnIfMissing(db,'event_leads',leadCols,'tracked_elsewhere_at','tracked_elsewhere_at TEXT');
   await db.prepare(`CREATE TABLE IF NOT EXISTS lead_events (
     event_key TEXT PRIMARY KEY,name TEXT NOT NULL,slug TEXT NOT NULL UNIQUE,event_date TEXT NOT NULL,start_time TEXT NOT NULL,end_time TEXT NOT NULL,
     staff_code_hash TEXT,qr_kit TEXT,enabled INTEGER NOT NULL DEFAULT 1,archived INTEGER NOT NULL DEFAULT 0,prize_enabled INTEGER NOT NULL DEFAULT 0,
