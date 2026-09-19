@@ -38,6 +38,8 @@ jobs:
                grep -q '>Table Events</a>' <<<"$hub" && \
                grep -q '>Leads</a>' <<<"$hub" && \
                grep -q '>Admin Access Code</button>' <<<"$hub" && \
+               grep -q 'admin-session-pending' <<<"$hub" && \
+               grep -q '>Log Out</button>' <<<"$hub" && \
                grep -q 'confirmAdminCode' <<<"$hub" && \
                grep -q '← Admin' <<<"$leads" && \
                grep -q 'Mark Tracked Elsewhere' <<<"$leads" && \
