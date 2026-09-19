@@ -5,6 +5,10 @@ on:
     branches: [main, tableleads-v3]
     paths:
       - 'public/tableleads/**'
+      - 'public/admin/**'
+      - 'public/landing/admin/**'
+      - 'public/landing-admin/**'
+      - 'build.js'
       - 'functions/api/leads/**'
       - 'functions/tableleads/**'
       - '.github/workflows/tableleads-ci.yml'
@@ -30,9 +34,15 @@ jobs:
           node --check public/tableleads/modal-scroll.js
           node --check public/tableleads/save-state.js
           node --check public/tableleads/sw.js
+          node --check public/admin/event/app.js
+          node --check public/landing/admin/app.js
+          node --check build.js
           node --check functions/api/leads/_shared.js
           node --check functions/api/leads/auth.js
           node --check functions/api/leads/register.js
+          node --check functions/api/leads/intake.js
+          node --check functions/api/leads/admin/all.js
+          node --check functions/api/leads/admin/tracked.js
           node --check functions/api/leads/admin/events.js
           node --check functions/api/leads/admin/leads.js
           node --check functions/api/leads/admin/status.js
