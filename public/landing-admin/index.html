@@ -12,7 +12,7 @@
 <link rel="manifest" href="/landing/admin/manifest.webmanifest">
 <link rel="icon" href="/landing/admin/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/landing/admin/icon.svg">
-<link rel="stylesheet" href="/landing/admin/app.css?v=13">
+<link rel="stylesheet" href="/landing/admin/app.css?v=14">
 </head>
 <body>
 <div class="shell">
@@ -100,7 +100,7 @@
         <aside class="card sidebar">
           <div class="section-head compact">
             <div><h2>Pages</h2><p>Main + current partners</p></div>
-            <button id="newPageBtn" class="small primary" type="button">+ New Partner</button>
+            <button id="newPageBtn" class="small primary" type="button">+ New Page</button>
           </div>
           <div id="pageList" class="page-list"></div>
         </aside>
@@ -119,8 +119,35 @@
 
           <form id="pageForm" class="hidden">
             <div class="grid two">
-              <label>Partner / page name<input id="pagePartner" maxlength="100"></label>
+              <label>Page name<input id="pagePartner" maxlength="100"></label>
               <label>Slug<input id="pageSlug" maxlength="64"><span id="slugHelp"></span></label>
+
+              <label>Page type
+                <select id="pageKind">
+                  <option value="root">Main website</option>
+                  <option value="partner">Partner promotion</option>
+                  <option value="event">Table event</option>
+                </select>
+              </label>
+              <label>Page status
+                <select id="pageLifecycle">
+                  <option value="active">Active</option>
+                  <option value="archived">Archived</option>
+                </select>
+                <span>Archived pages keep their URL but show an ended message.</span>
+              </label>
+
+              <div id="eventLinkFields" class="full event-link-fields hidden">
+                <label>Table Leads event
+                  <select id="leadEventSlug"></select>
+                  <span>The event controls lead attribution, staff access, prizes, SMS confirmation, and follow-up.</span>
+                </label>
+                <div class="event-link-actions"><a class="ghost small" href="/tableleads/admin/" target="_blank" rel="noopener">Manage Table Leads Events</a></div>
+              </div>
+
+              <label id="archivedMessageWrap" class="full hidden">Archived message
+                <textarea id="archivedMessage" rows="2" placeholder="This event or promotion has ended."></textarea>
+              </label>
 
               <label class="toggle full global-toggle">
                 <input id="inheritGlobalOffer" type="checkbox">
@@ -149,7 +176,7 @@
               </div>
 
               <label class="full">Mindbody checkout URL override<input id="mindbodyUrl" placeholder="Leave blank to use Global Settings"></label>
-              <label class="toggle full"><input id="pageEnabled" type="checkbox" checked><span>Page enabled</span></label>
+              <label class="toggle full"><input id="pageEnabled" type="checkbox" checked><span>Page enabled <small>Use this only as an emergency off switch. Archive a finished page instead.</small></span></label>
             </div>
 
             <div class="secondary-actions">
@@ -158,7 +185,7 @@
             <div id="pageStatus" class="status"></div>
           </form>
 
-          <div id="emptyEditor" class="empty">Choose a page on the left, or create a new partner landing page.</div>
+          <div id="emptyEditor" class="empty">Choose a page on the left, or create a new partner or event landing page.</div>
         </section>
       </section>
     </section>
@@ -189,8 +216,8 @@
       </div>
     </div>
   </main>
-  <div class="admin-version-badge" aria-label="Admin version">v2026.09.18.1</div>
+  <div class="admin-version-badge" aria-label="Admin version">v2026.09.19.1</div>
 </div>
-<script src="/landing/admin/app.js?v=13"></script>
+<script src="/landing/admin/app.js?v=14"></script>
 </body>
 </html>
