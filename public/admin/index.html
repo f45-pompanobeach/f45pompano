@@ -69,7 +69,10 @@ async function changeAdminCode(){
   if(!/^\d{4}$/.test(code)){settingsMsg.textContent='Enter exactly 4 digits.';settingsMsg.style.color='#a91d1d';return}
   if(!confirm('Change the Super Admin code now?'))return;
   try{
-    const r=await fetch('/api/leads/admin/pin',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({new_code:code})});
+    const current=sessionStorage.getItem('table_admin_code')||'';
+    const headers={'content-type':'application/json'};
+    if(/^\d{4}$/.test(current))headers['x-table-code']=current;
+    const r=await fetch('/api/leads/admin/pin',{method:'POST',headers,body:JSON.stringify({new_code:code})});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.ok)throw new Error(j.message||'Could not change the Super Admin code.');
     const auth=await validate(code);
@@ -88,10 +91,6 @@ document.getElementById('logout').onclick=async()=>{await clearAllAccess();admin
     const {r,j}=await validate(saved);
     if(r.ok&&j.ok&&j.role==='admin'){showAdmin(saved);return}
   }
-  try{
-    const r=await fetch('/api/leads/auth',{method:'GET',cache:'no-store'}),j=await r.json().catch(()=>({}));
-    if(r.ok&&j.ok&&j.role==='admin'){showAdmin();return}
-  }catch{}
   clearBrowserAccess();
 })();
 })();</script></body></html>
