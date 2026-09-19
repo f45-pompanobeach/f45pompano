@@ -64,7 +64,14 @@ export async function ensureSchema(env){
 }
 
 export async function getAdminPinHash(env){if(!await ensureSchema(env))return LEGACY_ADMIN_PIN_HASH;const row=await eventDb(env).prepare(`SELECT setting_value FROM lead_app_settings WHERE setting_key='super_admin_pin_hash' LIMIT 1`).first();return row?.setting_value||LEGACY_ADMIN_PIN_HASH}
-export async function adminAuthorized(request,env){const code=String(request.headers.get('x-table-code')||'').trim();if(!/^\d{4}$/.test(code))return false;return equal(await sha256Hex(code),await getAdminPinHash(env))}
+function cookieValue(request,name){const raw=String(request.headers.get('cookie')||'');for(const part of raw.split(';')){const i=part.indexOf('=');if(i<0)continue;if(part.slice(0,i).trim()===name)return decodeURIComponent(part.slice(i+1).trim())}return ''}
+export async function adminAuthorized(request,env){
+  const expected=await getAdminPinHash(env);
+  const code=String(request.headers.get('x-table-code')||'').trim();
+  if(/^\d{4}$/.test(code)&&equal(await sha256Hex(code),expected))return true;
+  const session=cookieValue(request,'f45_admin_session');
+  return /^[a-f0-9]{64}$/i.test(session)&&equal(session.toLowerCase(),String(expected||'').toLowerCase());
+}
 export async function setAdminPin(env,newCode){if(!/^\d{4}$/.test(String(newCode||'')))throw new Error('invalid_pin');await ensureSchema(env);const db=eventDb(env),now=new Date().toISOString(),hash=await sha256Hex(newCode);await db.prepare(`INSERT INTO lead_app_settings (setting_key,setting_value,updated_at) VALUES ('super_admin_pin_hash',?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=excluded.updated_at`).bind(hash,now).run();return true}
 
 export async function eventForStaffCode(env,code){
