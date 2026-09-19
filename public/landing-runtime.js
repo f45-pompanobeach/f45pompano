@@ -46,6 +46,14 @@
     const embeddedPartner=embeddedPartnerInput&&embeddedPartnerInput.value?embeddedPartnerInput.value.trim():'';
     const partnerName=storedPage.partner||embeddedPartner||'Partner';
 
+    if(storedPage.status==='archived'&&!isRoot){
+      document.body.innerHTML='<main style="min-height:100vh;display:grid;place-items:center;padding:20px;background:#eef1f6;font-family:Inter,system-ui,sans-serif"><section style="width:min(650px,100%);background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 18px 55px rgba(28,28,46,.16);border-top:7px solid #e8272a;text-align:center"><div style="background:#1c1c2e;color:#fff;padding:40px 26px"><div style="color:#ffcc00;font-size:12px;font-weight:900;letter-spacing:2px">F45 TRAINING POMPANO BEACH</div><div style="display:inline-block;margin:18px 0 14px;padding:7px 11px;border-radius:999px;background:#eef1f6;color:#596273;font-size:11px;font-weight:900;letter-spacing:1.4px">PROMOTION ENDED</div><h1 id="landingArchivedTitle" style="margin:0;font-size:clamp(30px,7vw,48px);line-height:1;font-weight:900;text-transform:uppercase"></h1></div><div style="padding:30px 26px 34px"><p id="landingArchivedMessage" style="margin:0 auto 24px;max-width:500px;color:#4b5563;font-size:16px;line-height:1.65"></p><a href="/" style="display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:14px 26px;border-radius:9px;background:#1c1c2e;color:#fff;text-decoration:none;font-size:14px;font-weight:900;text-transform:uppercase">Visit F45 Pompano Beach</a></div></section></main>';
+      const title=document.getElementById('landingArchivedTitle');if(title)title.textContent=partnerName;
+      const message=document.getElementById('landingArchivedMessage');if(message)message.textContent=storedPage.archivedMessage||'This promotion has ended, but you can still connect with F45 Training Pompano Beach.';
+      document.title=partnerName+' | Promotion Ended';
+      return;
+    }
+
     setVideo(storedPage.videoUrl||global.defaultVideoUrl||'/trial-video.mp4');
 
     if(page.trialType&&page.trialCost){

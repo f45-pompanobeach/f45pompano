@@ -1,4 +1,4 @@
-const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},selected:null,publishing:false,mediaConfigured:null,leadNotificationEmails:[],globalBaseline:'',pageBaseline:'',pageOfferDraft:null};
+const state={pin:sessionStorage.getItem('landingAdminPin')||'',defaults:null,stored:[],global:{},events:[],selected:null,publishing:false,mediaConfigured:null,leadNotificationEmails:[],globalBaseline:'',pageBaseline:'',pageOfferDraft:null};
 const $=id=>document.getElementById(id);
 
 function api(path,opts={}){
@@ -65,13 +65,14 @@ async function login(code){
   state.pin=code;sessionStorage.setItem('landingAdminPin',code);await loadAdmin();
 }
 async function loadAdmin(){
-  const [defaults,stored,global,media]=await Promise.all([
+  const [defaults,stored,global,media,events]=await Promise.all([
     fetch('/landing-defaults.json',{cache:'no-store'}).then(r=>r.json()),
     api('/api/landing/admin/pages'),
     api('/api/landing/admin/global'),
-    fetch('/api/landing/media-status',{cache:'no-store'}).then(r=>r.json()).catch(()=>({configured:false}))
+    fetch('/api/landing/media-status',{cache:'no-store'}).then(r=>r.json()).catch(()=>({configured:false})),
+    api('/api/leads/admin/events')
   ]);
-  state.defaults=defaults;state.stored=stored.pages||[];state.global=global.global||{};state.mediaConfigured=Boolean(media.configured);
+  state.defaults=defaults;state.stored=stored.pages||[];state.global=global.global||{};state.events=events.events||[];state.mediaConfigured=Boolean(media.configured);
   populateGlobal();
   setGlobalBaseline();
   if(!state.mediaConfigured){
@@ -200,6 +201,34 @@ function closeMobileEditor(){
   $('editorBackdrop').classList.add('hidden');
 }
 
+function renderEventOptions(selectedSlug=''){
+  const select=$('leadEventSlug');if(!select)return;
+  select.innerHTML='';
+  const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Choose a Table Leads event…';select.appendChild(placeholder);
+  for(const event of state.events){
+    const option=document.createElement('option');option.value=event.slug;
+    option.textContent=event.name+' — '+event.event_date+(Number(event.archived)?' (Archived)':'');
+    if(event.slug===selectedSlug)option.selected=true;
+    select.appendChild(option);
+  }
+}
+function selectedLeadEvent(){return state.events.find(event=>event.slug===$('leadEventSlug').value)||null}
+function syncPageKindFields(){
+  const kind=$('pageKind').value;
+  const isEvent=kind==='event';
+  $('eventLinkFields').classList.toggle('hidden',!isEvent);
+  $('archivedMessageWrap').classList.toggle('hidden',$('pageLifecycle').value!=='archived');
+  document.querySelectorAll('.offer-config-field').forEach(el=>el.classList.toggle('hidden',isEvent));
+}
+function applySelectedLeadEvent(){
+  if($('pageKind').value!=='event')return;
+  const event=selectedLeadEvent();if(!event)return;
+  const isNew=!!(state.selected&&!state.selected.isDefault&&!state.selected.isStored);
+  if(!$('pagePartner').value.trim())$('pagePartner').value=event.name;
+  if(isNew&&!$('pageSlug').value.trim())$('pageSlug').value=event.slug;
+  updateSaveStates();
+}
+
 function renderList(){
   const list=$('pageList');list.innerHTML='';
   for(const p of mergePages()){
@@ -222,6 +251,10 @@ function selectPage(p){
   const g=effectiveGlobal();
   $('pagePartner').value=p.partner||'';
   $('pageSlug').value=p.slug||'';
+  $('pageKind').value=p.slug==='root'?'root':(p.pageKind==='event'?'event':'partner');
+  $('pageLifecycle').value=p.status==='archived'?'archived':'active';
+  $('archivedMessage').value=p.archivedMessage||'';
+  renderEventOptions(p.leadEventSlug||'');
   const inherit=p.offerOverrideEnabled!==true;
   $('inheritGlobalOffer').checked=inherit;
   state.pageOfferDraft={
@@ -239,10 +272,11 @@ function selectPage(p){
   $('pageEnabled').checked=p.enabled!==false;
 
   const locked=p.isDefault||p.slug==='root';
-  $('pageSlug').disabled=locked;$('pagePartner').disabled=p.slug==='root';
+  $('pageSlug').disabled=locked;$('pagePartner').disabled=p.slug==='root';$('pageKind').disabled=locked;
   $('slugHelp').textContent=locked?'URL slug is fixed for existing pages.':'New page URL will use /landing/'+(p.slug||'your-slug')+'/';
   $('resetPageBtn').textContent=p.isDefault||p.slug==='root'?'Reset Override':'Delete Page';
   syncOfferInheritanceFields();
+  syncPageKindFields();
   renderList();
   if(!$('pagesPanel').classList.contains('hidden')){
     $('dockContext').textContent=p.slug==='root'?'Main / Root Page':(p.partner||p.slug||'Landing Page');
@@ -254,9 +288,28 @@ function selectPage(p){
 function formPage(){
   const base=state.selected||{};
   const slug=base.isDefault||base.slug==='root'?base.slug:cleanSlug($('pageSlug').value);
+  const pageKind=slug==='root'?'root':($('pageKind').value==='event'?'event':'partner');
   const inherit=$('inheritGlobalOffer').checked;
   const offer=inherit?(state.pageOfferDraft||globalOfferFields()):readOfferFields();
-  return {slug,pageKind:slug==='root'?'root':'partner',partner:slug==='root'?'Main Website':$('pagePartner').value.trim(),trialType:offer.trialType,trialCost:offer.trialCost,trialDuration:offer.trialDuration,promoCode:$('promoCode').value.trim(),regularPrice:offer.regularPrice,percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:offer.firstClassBookingText,videoUrl:$('videoUrl').value.trim(),mindbodyUrl:offer.mindbodyUrl,offerOverrideEnabled:!inherit,enabled:$('pageEnabled').checked};
+  return {
+    slug,
+    pageKind,
+    partner:slug==='root'?'Main Website':$('pagePartner').value.trim(),
+    leadEventSlug:pageKind==='event'?$('leadEventSlug').value:'',
+    status:slug==='root'?'active':$('pageLifecycle').value,
+    archivedMessage:$('archivedMessage').value.trim(),
+    trialType:offer.trialType,
+    trialCost:offer.trialCost,
+    trialDuration:offer.trialDuration,
+    promoCode:$('promoCode').value.trim(),
+    regularPrice:offer.regularPrice,
+    percentageSavings:$('percentageSavings').value.trim(),
+    firstClassBookingText:offer.firstClassBookingText,
+    videoUrl:$('videoUrl').value.trim(),
+    mindbodyUrl:offer.mindbodyUrl,
+    offerOverrideEnabled:!inherit,
+    enabled:$('pageEnabled').checked
+  };
 }
 
 async function uploadVideo(file,targetInput,statusEl,button){
@@ -334,6 +387,9 @@ for(const id of ['globalZips','globalVideo','globalTrialType','globalTrialCost',
 }
 $('pageForm').addEventListener('input',updateSaveStates);
 $('pageForm').addEventListener('change',updateSaveStates);
+$('pageKind').addEventListener('change',()=>{syncPageKindFields();applySelectedLeadEvent();updateSaveStates();});
+$('pageLifecycle').addEventListener('change',()=>{syncPageKindFields();updateSaveStates();});
+$('leadEventSlug').addEventListener('change',applySelectedLeadEvent);
 
 $('uploadGlobalVideoBtn').onclick=async()=>{try{await uploadVideo($('globalVideoFile').files[0],$('globalVideo'),$('globalVideoStatus'),$('uploadGlobalVideoBtn'))}catch(e){showStatus($('globalVideoStatus'),e.message,true)}};
 $('uploadPageVideoBtn').onclick=async()=>{try{await uploadVideo($('pageVideoFile').files[0],$('videoUrl'),$('pageVideoStatus'),$('uploadPageVideoBtn'))}catch(e){showStatus($('pageVideoStatus'),e.message,true)}};
@@ -371,7 +427,7 @@ $('saveGlobalBtn').onclick=async()=>{if($('saveGlobalBtn').disabled)return;
 $('newPageBtn').onclick=()=>{
   showAdminTab('pages');
   const g=effectiveGlobal();
-  selectPage({slug:'',partner:'',pageKind:'partner',trialType:g.trialType||'3 Classes',trialCost:g.trialCost||'$30',trialDuration:g.trialDuration||'7 days',firstClassBookingText:g.firstClassBookingText||'',regularPrice:g.regularPrice||g.trialCost||'$30',percentageSavings:'',promoCode:'',videoUrl:'',mindbodyUrl:g.mindbodyUrl||'',offerOverrideEnabled:false,enabled:true,isDefault:false,isStored:false});
+  selectPage({slug:'',partner:'',pageKind:'partner',leadEventSlug:'',status:'active',archivedMessage:'',trialType:g.trialType||'3 Classes',trialCost:g.trialCost||'$30',trialDuration:g.trialDuration||'7 days',firstClassBookingText:g.firstClassBookingText||'',regularPrice:g.regularPrice||g.trialCost||'$30',percentageSavings:'',promoCode:'',videoUrl:'',mindbodyUrl:g.mindbodyUrl||'',offerOverrideEnabled:false,enabled:true,isDefault:false,isStored:false});
   openMobileEditor();
   $('pageSlug').focus();
 };
@@ -379,6 +435,7 @@ $('newPageBtn').onclick=()=>{
 $('pageForm').addEventListener('submit',async e=>{
   e.preventDefault();if(state.publishing||$('savePageBtn').disabled)return;
   const page=formPage();if(!page.slug){showStatus($('pageStatus'),'Enter a page slug.',true);return}if(page.slug==='social-trial'){showStatus($('pageStatus'),'social-trial cannot be edited here.',true);return}
+  if(page.pageKind==='event'&&!page.leadEventSlug){showStatus($('pageStatus'),'Choose the Table Leads event this page should use.',true);return}
   const isNew=!state.selected?.isDefault&&!state.selected?.isStored;
   const btn=$('savePageBtn');state.publishing=true;btn.disabled=true;btn.textContent=isNew?'Creating Page…':'Saving…';
   showStatus($('pageStatus'),isNew?'Creating and publishing the new partner page…':'Saving page settings…',false,true);

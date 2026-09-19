@@ -40,12 +40,18 @@ export function sanitizeGlobal(input={}){
 export function sanitizePage(input={},existingSlug=''){
   const slug=cleanSlug(input.slug||existingSlug);
   if(!slug||slug==='social-trial')throw new Error('invalid_slug');
-  const pageKind=input.pageKind==='root'?'root':'partner';
+  const pageKind=input.pageKind==='root'?'root':(input.pageKind==='event'?'event':'partner');
   if(pageKind==='root'&&slug!=='root')throw new Error('invalid_root_slug');
+  const leadEventSlug=pageKind==='event'?cleanSlug(input.leadEventSlug):'';
+  if(pageKind==='event'&&!leadEventSlug)throw new Error('event_link_required');
+  const status=input.status==='archived'?'archived':'active';
   return {
     slug,
     pageKind,
     partner:cleanText(input.partner,pageKind==='root'?80:100),
+    leadEventSlug,
+    status,
+    archivedMessage:cleanText(input.archivedMessage,260),
     promoCode:cleanText(input.promoCode,60),
     trialType:cleanText(input.trialType,80)||'3 Classes',
     trialCost:cleanCost(input.trialCost)||'$30',
@@ -82,7 +88,15 @@ async function writeSetting(env,key,value){
 export async function getGlobal(env){return (await readSetting(env,GLOBAL_KEY))?.value||{}}
 export async function setGlobal(env,value){const v=sanitizeGlobal(value);return {value:v,updated_at:await writeSetting(env,GLOBAL_KEY,v)}}
 export async function getPage(env,slug){const s=cleanSlug(slug==='root'?'root':slug);if(!s)return null;return (await readSetting(env,PAGE_PREFIX+s))?.value||null}
-export async function setPage(env,input){const value=sanitizePage(input,input.slug);return {value,updated_at:await writeSetting(env,PAGE_PREFIX+value.slug,value)}}
+export async function setPage(env,input){
+  const value=sanitizePage(input,input.slug);
+  if(value.pageKind==='event'){
+    if(!await ensureSchema(env))throw new Error('event_db_unavailable');
+    const event=await eventDb(env).prepare('SELECT slug FROM lead_events WHERE slug=? LIMIT 1').bind(value.leadEventSlug).first();
+    if(!event)throw new Error('event_not_found');
+  }
+  return {value,updated_at:await writeSetting(env,PAGE_PREFIX+value.slug,value)};
+}
 export async function deletePage(env,slug){
   const s=cleanSlug(slug);if(!s||s==='social-trial')throw new Error('invalid_slug');
   await ensureSchema(env);await eventDb(env).prepare('DELETE FROM lead_app_settings WHERE setting_key=?').bind(PAGE_PREFIX+s).run();return true;
