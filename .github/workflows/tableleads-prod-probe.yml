@@ -28,7 +28,7 @@ jobs:
           set -euo pipefail
           base='https://f45pompano.com'
           ok=0
-          for i in $(seq 1 24); do
+          for i in $(seq 1 4); do
             hub="$(curl -fsSL --max-time 15 "$base/admin/?probe=$GITHUB_SHA" || true)"
             leads="$(curl -fsSL --max-time 15 "$base/admin/leads/?probe=$GITHUB_SHA" || true)"
             events="$(curl -fsSL --max-time 15 "$base/tableleads/admin/?probe=$GITHUB_SHA" || true)"
