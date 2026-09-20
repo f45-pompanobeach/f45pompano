@@ -54,6 +54,8 @@ const PERMS=[
  ['leads','Leads']
 ];
 let users=[],toastTimer=null;
+function cacheUsers(){try{sessionStorage.setItem('f45_access_users',JSON.stringify(users))}catch{}}
+function readCachedUsers(){try{const v=JSON.parse(sessionStorage.getItem('f45_access_users')||'[]');return Array.isArray(v)?v:[]}catch{return[]}}
 function toast(message,bad=false){
  const t=$('toast');clearTimeout(toastTimer);t.textContent=message;t.className='toast show'+(bad?' bad':'');
  toastTimer=setTimeout(()=>{t.className='toast'},3000);
@@ -72,11 +74,11 @@ function render(){
  </section>`).join('');
  document.querySelectorAll('.saveUser').forEach(b=>b.onclick=()=>saveUser(Number(b.closest('[data-i]').dataset.i)));
 }
-async function load(){const j=await request('/api/leads/admin/users');users=j.users||[];render()}
+async function load(){const j=await request('/api/leads/admin/users');users=j.users||[];cacheUsers();render()}
 async function saveUser(i){
  const el=document.querySelector(`[data-i="${i}"]`),u=users[i],msg=el.querySelector('.userMsg');msg.className='msg';msg.textContent='';
  const permissions=[...el.querySelectorAll('.permToggle:checked')].map(x=>x.dataset.p),pin=el.querySelector('.pin').value.trim();
- try{const j=await request('/api/leads/admin/users',{method:'POST',body:JSON.stringify({user_key:u.user_key,display_name:u.display_name,pin,enabled:el.querySelector('.enabled').checked,permissions})});users=j.users||[];render();toast(u.display_name+' access saved.')}catch(e){msg.className='msg bad';msg.textContent=e.message;toast(e.message,true)}
+ try{const j=await request('/api/leads/admin/users',{method:'POST',body:JSON.stringify({user_key:u.user_key,display_name:u.display_name,pin,enabled:el.querySelector('.enabled').checked,permissions})});users=j.users||[];cacheUsers();render();toast(u.display_name+' access saved.')}catch(e){msg.className='msg bad';msg.textContent=e.message;toast(e.message,true)}
 }
 $('saveSuper').onclick=async()=>{
  const a=$('superPin').value.trim(),b=$('superPin2').value.trim(),m=$('superMsg');m.className='msg';m.textContent='';
@@ -88,9 +90,13 @@ $('addUser').onclick=async()=>{
  const name=$('newName').value.trim(),pin=$('newPin').value.trim(),m=$('addMsg');m.className='msg';m.textContent='';
  if(!name){m.className='msg bad';m.textContent='Enter a name.';return}
  if(!/^\d{4}$/.test(pin)){m.className='msg bad';m.textContent='Enter exactly 4 digits.';return}
- try{const j=await request('/api/leads/admin/users',{method:'POST',body:JSON.stringify({display_name:name,pin,enabled:true,permissions:['trial_intake','table_events']})});users=j.users||[];$('newName').value='';$('newPin').value='';m.textContent='';render();toast('User added.')}catch(e){m.className='msg bad';m.textContent=e.message;toast(e.message,true)}
+ try{const j=await request('/api/leads/admin/users',{method:'POST',body:JSON.stringify({display_name:name,pin,enabled:true,permissions:['trial_intake','table_events']})});users=j.users||[];cacheUsers();$('newName').value='';$('newPin').value='';m.textContent='';render();toast('User added.')}catch(e){m.className='msg bad';m.textContent=e.message;toast(e.message,true)}
 };
-(async()=>{if(await guard())load().catch(e=>{document.body.innerHTML='<main class="shell"><section class="card"><h2>Could not load access settings.</h2><p>'+esc(e.message)+'</p></section></main>'})})();
+(()=>{
+  const cached=readCachedUsers();
+  if(cached.length){users=cached;render()}
+  (async()=>{if(await guard())load().catch(e=>{if(!users.length)document.body.innerHTML='<main class="shell"><section class="card"><h2>Could not load access settings.</h2><p>'+esc(e.message)+'</p></section></main>'})})();
+})();
 })();
 </script>
 </body>
