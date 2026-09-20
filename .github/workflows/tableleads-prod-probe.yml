@@ -36,27 +36,29 @@ jobs:
             partner="$(curl -fsSL --max-time 15 "$base/landing/admin/?probe=$GITHUB_SHA" || true)"
             access="$(curl -fsSL --max-time 15 "$base/admin/access/?probe=$GITHUB_SHA" || true)"
             manifest="$(curl -fsSL --max-time 15 "$base/admin/manifest.webmanifest?probe=$GITHUB_SHA" || true)"
-            if grep -q 'F45 Leads/Trials' <<<"$hub" && \
-               grep -q '>Trial Intake</a>' <<<"$hub" && \
-               grep -q '>Table Events</button>' <<<"$hub" && \
-               grep -q '>Admin</button>' <<<"$hub" && \
-               grep -q 'Access Management' <<<"$hub" && \
-               grep -q '← Admin' <<<"$leads" && \
-               grep -q 'Mark as Handled' <<<"$leads" && \
-               grep -q '/tableleads/admin/app.js?v=10' <<<"$events" && \
-               grep -q '← Admin' <<<"$events" && \
-               grep -q '/admin/event/app.js?v=1' <<<"$staff" && \
-               grep -q '/landing/admin/app.js?v=14' <<<"$partner" && \
-               grep -q 'admin-handoff' <<<"$partner" && \
-               grep -q '← Admin' <<<"$partner" && \
-               grep -q 'Access Management' <<<"$access" && \
-               grep -q 'Trial Intake' <<<"$access" && \
-               grep -q 'F45 Leads/Trials' <<<"$manifest"; then
+            missing=()
+            grep -q 'F45 Leads/Trials' <<<"$hub" || missing+=("hub-name")
+            grep -q '>Trial Intake</a>' <<<"$hub" || missing+=("hub-trial")
+            grep -q '>Table Events</button>' <<<"$hub" || missing+=("hub-events")
+            grep -q '>Admin</button>' <<<"$hub" || missing+=("hub-admin")
+            grep -q 'Access Management' <<<"$hub" || missing+=("hub-access")
+            grep -q '← Admin' <<<"$leads" || missing+=("leads-back")
+            grep -q 'Mark as Handled' <<<"$leads" || missing+=("leads-wording")
+            grep -q '/tableleads/admin/app.js?v=10' <<<"$events" || missing+=("events-v10")
+            grep -q '← Admin' <<<"$events" || missing+=("events-back")
+            grep -q '/admin/event/app.js?v=1' <<<"$staff" || missing+=("staff-app")
+            grep -q '/landing/admin/app.js?v=14' <<<"$partner" || missing+=("partner-v14")
+            grep -q 'admin-handoff' <<<"$partner" || missing+=("partner-handoff")
+            grep -q '← Admin' <<<"$partner" || missing+=("partner-back")
+            grep -q 'Access Management' <<<"$access" || missing+=("access-page")
+            grep -q 'Trial Intake' <<<"$access" || missing+=("access-trial")
+            grep -q 'F45 Leads/Trials' <<<"$manifest" || missing+=("manifest-name")
+            if [ "${#missing[@]}" -eq 0 ]; then
               ok=1
               echo "Current F45 Leads/Trials assets verified on attempt $i."
               break
             fi
-            echo "Attempt $i: production has not converged yet."
+            echo "Attempt $i missing: ${missing[*]}"
             sleep 10
           done
           test "$ok" -eq 1
