@@ -1,4 +1,4 @@
-import {adminAuthorized,authThrottle,eventForStaffCode,getAdminPinHash,json,recordAuthFailure,recordAuthSuccess,sha256Hex,staffEventFromRequest} from './_shared.js';
+import {adminAuthorized,authThrottle,createNamedUserSession,deleteNamedUserSession,eventForStaffCode,getAdminPinHash,json,namedUserForCode,namedUserFromRequest,recordAuthFailure,recordAuthSuccess,sha256Hex,staffEventFromRequest} from './_shared.js';
 
 export async function onRequestPost({request,env}){
   const throttle=await authThrottle(env,request);
@@ -13,7 +13,18 @@ export async function onRequestPost({request,env}){
     const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
     headers.append('set-cookie',`f45_admin_session=${hash}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
     headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
+  headers.append('set-cookie','f45_user_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     return new Response(JSON.stringify({ok:true,role:'admin'}),{status:200,headers});
+  }
+  const user=await namedUserForCode(env,code);
+  if(user){
+    await recordAuthSuccess(env,request);
+    const session=await createNamedUserSession(env,user.user_key);
+    const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
+    headers.append('set-cookie',`f45_user_session=${session.token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
+    headers.append('set-cookie','f45_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
+    headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
+    return new Response(JSON.stringify({ok:true,role:'user',user:{user_key:user.user_key,display_name:user.display_name,permissions:user.permissions}}),{status:200,headers});
   }
   const event=await eventForStaffCode(env,code);
   if(event){
@@ -28,12 +39,15 @@ export async function onRequestPost({request,env}){
   return json({ok:false,error:'unauthorized',message:'That code is not valid.'},401);
 }
 export async function onRequestGet({request,env}){
-  if(await adminAuthorized(request,env))return json({ok:true,role:'admin'});
+  if(await adminAuthorized(request,env))return json({ok:true,role:'admin',user:{display_name:'Super Admin',permissions:['trial_intake','intake_admin','table_events','table_event_admin','partner_pages','leads','access_management']}});
+  const user=await namedUserFromRequest(request,env);
+  if(user)return json({ok:true,role:'user',user});
   const event=await staffEventFromRequest(request,env);
   if(event)return json({ok:true,role:'event',event});
   return json({ok:false,error:'unauthorized'},401);
 }
-export function onRequestDelete(){
+export async function onRequestDelete({request,env}){
+  await deleteNamedUserSession(request,env);
   const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
   headers.append('set-cookie','f45_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
   headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
