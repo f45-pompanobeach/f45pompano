@@ -15,7 +15,7 @@ jobs:
   purge:
     runs-on: ubuntu-latest
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLARE_WORKER_DEPLOY_API_TOKEN }}
     steps:
       - name: Validate Cloudflare token
         shell: bash
