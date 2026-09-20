@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1C1C2E">
+<title>Access Management · F45 Leads/Trials</title>
+<style>
+:root{--navy:#1C1C2E;--red:#E8272A;--yellow:#FFB800;--muted:#707582;--line:#e3e6eb;--bg:#f4f5f7}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;background:var(--bg);color:#20202b}body{padding:calc(16px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom))}.shell{width:min(760px,100%);margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.back{font-weight:900;color:var(--navy);text-decoration:none}.top h1{font-size:24px;margin:0;color:var(--navy)}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px;box-shadow:0 8px 24px rgba(28,28,46,.08)}.card h2{margin:0 0 5px;color:var(--navy)}.muted{color:var(--muted);font-size:13px;line-height:1.45}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.field{display:flex;flex-direction:column;gap:6px;margin-top:12px}.field label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.field input{width:100%;padding:12px;border:2px solid #ccd1d9;border-radius:9px;font-size:16px}.pinrow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}.perm{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #eef0f3}.perm:first-child{border-top:0}.perm b{font-size:14px}.switch{position:relative;width:48px;height:28px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;background:#c9ced6;border-radius:999px;cursor:pointer;transition:.18s}.slider:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:white;border-radius:50%;transition:.18s;box-shadow:0 1px 4px rgba(0,0,0,.25)}.switch input:checked+.slider{background:var(--red)}.switch input:checked+.slider:before{transform:translateX(20px)}.btn{border:0;border-radius:10px;padding:11px 14px;font-weight:900;cursor:pointer}.btn.red{background:var(--red);color:#fff}.btn.gray{background:#eceef2;color:var(--navy)}.btn.yellow{background:var(--yellow);color:var(--navy)}.userHead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.userName{font-size:20px;font-weight:950;color:var(--navy)}.badge{font-size:11px;font-weight:900;padding:5px 8px;border-radius:999px;background:#eef0f3;color:var(--muted)}.savebar{display:flex;justify-content:flex-end;margin-top:14px}.msg{font-size:12px;font-weight:800;min-height:18px;margin-top:10px}.msg.bad{color:#a91d1d}.msg.good{color:#1d7a46}.addGrid{display:grid;grid-template-columns:1fr 120px auto;gap:8px;align-items:end}@media(max-width:620px){.pinrow,.addGrid{grid-template-columns:1fr}.top h1{font-size:20px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="top"><a class="back" href="/admin/">← Admin</a><h1>Access Management</h1></header>
+
+<section class="card">
+  <h2>Super Admin PIN</h2>
+  <div class="muted">This is your master PIN. Changing it does not change any user or Table Event PIN.</div>
+  <div class="pinrow">
+    <div class="field"><label for="superPin">New PIN</label><input id="superPin" type="password" inputmode="numeric" maxlength="4"></div>
+    <div class="field"><label for="superPin2">Confirm PIN</label><input id="superPin2" type="password" inputmode="numeric" maxlength="4"></div>
+    <button id="saveSuper" class="btn yellow" type="button">Change PIN</button>
+  </div>
+  <div id="superMsg" class="msg"></div>
+</section>
+
+<section class="card">
+  <h2>Users</h2>
+  <div class="muted">Each person gets their own 4-digit PIN. Turn their account or individual app access on/off at any time.</div>
+  <div id="users"></div>
+</section>
+
+<section class="card">
+  <h2>Add User</h2>
+  <div class="addGrid">
+    <div class="field"><label for="newName">Name</label><input id="newName" maxlength="60" placeholder="e.g. Manager"></div>
+    <div class="field"><label for="newPin">4-digit PIN</label><input id="newPin" type="password" inputmode="numeric" maxlength="4"></div>
+    <button id="addUser" class="btn red" type="button">Add User</button>
+  </div>
+  <div id="addMsg" class="msg"></div>
+</section>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const PERMS=[
+ ['trial_intake','Trial Intake'],
+ ['intake_admin','Intake Admin'],
+ ['table_events','Table Events'],
+ ['table_event_admin','Table Event Admin'],
+ ['partner_pages','Partner Pages'],
+ ['leads','Leads']
+];
+let users=[];
+async function request(url,opt={}){const r=await fetch(url,{credentials:'same-origin',...opt,headers:{'content-type':'application/json',...(opt.headers||{})}}),j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.message||j.error||'Request failed');return j}
+async function guard(){const r=await fetch('/api/leads/auth',{cache:'no-store'}),j=await r.json().catch(()=>({}));if(!r.ok||j.role!=='admin'){location.replace('/admin/');return false}return true}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function render(){
+ $('users').innerHTML=users.map((u,i)=>`<section class="card" style="box-shadow:none;margin-top:14px" data-i="${i}">
+   <div class="userHead"><div><div class="userName">${esc(u.display_name)}</div><div class="badge">${u.has_pin?'PIN SET':'PIN NOT SET'}</div></div>
+   <label class="switch" title="User enabled"><input class="enabled" type="checkbox" ${u.enabled?'checked':''}><span class="slider"></span></label></div>
+   <div class="field"><label>Change PIN</label><input class="pin" type="password" inputmode="numeric" maxlength="4" placeholder="${u.has_pin?'Leave blank to keep current PIN':'Enter 4 digits'}"></div>
+   <div style="margin-top:12px">${PERMS.map(([k,label])=>`<div class="perm"><b>${label}</b><label class="switch"><input class="permToggle" data-p="${k}" type="checkbox" ${u.permissions.includes(k)?'checked':''}><span class="slider"></span></label></div>`).join('')}</div>
+   <div class="savebar"><button class="btn red saveUser" type="button">Save ${esc(u.display_name)}</button></div>
+   <div class="msg userMsg"></div>
+ </section>`).join('');
+ document.querySelectorAll('.saveUser').forEach(b=>b.onclick=()=>saveUser(Number(b.closest('[data-i]').dataset.i)));
+}
+async function load(){const j=await request('/api/leads/admin/users');users=j.users||[];render()}
+async function saveUser(i){
+ const el=document.querySelector(`[data-i="${i}"]`),u=users[i],msg=el.querySelector('.userMsg');msg.className='msg';msg.textContent='';
+ const permissions=[...el.querySelectorAll('.permToggle:checked')].map(x=>x.dataset.p),pin=el.querySelector('.pin').value.trim();
+ try{const j=await request('/api/leads/admin/users',{method:'POST',body:JSON.stringify({user_key:u.user_key,display_name:u.display_name,pin,enabled:el.querySelector('.enabled').checked,permissions})});users=j.users||[];render()}catch(e){msg.className='msg bad';msg.textContent=e.message}
+}
+$('saveSuper').onclick=async()=>{
+ const a=$('superPin').value.trim(),b=$('superPin2').value.trim(),m=$('superMsg');m.className='msg';m.textContent='';
+ if(!/^\d{4}$/.test(a)){m.className='msg bad';m.textContent='Enter exactly 4 digits.';return}
+ if(a!==b){m.className='msg bad';m.textContent='The PINs do not match.';return}
+ try{await request('/api/leads/admin/pin',{method:'POST',body:JSON.stringify({new_code:a})});m.className='msg good';m.textContent='Super Admin PIN updated.';$('superPin').value='';$('superPin2').value='';sessionStorage.setItem('table_admin_code',a);sessionStorage.setItem('landingAdminPin',a)}catch(e){m.className='msg bad';m.textContent=e.message}
+};
+$('addUser').onclick=async()=>{
+ const name=$('newName').value.trim(),pin=$('newPin').value.trim(),m=$('addMsg');m.className='msg';m.textContent='';
+ if(!name){m.className='msg bad';m.textContent='Enter a name.';return}
+ if(!/^\d{4}$/.test(pin)){m.className='msg bad';m.textContent='Enter exactly 4 digits.';return}
+ try{const j=await request('/api/leads/admin/users',{method:'POST',body:JSON.stringify({display_name:name,pin,enabled:true,permissions:['trial_intake','table_events']})});users=j.users||[];$('newName').value='';$('newPin').value='';m.className='msg good';m.textContent='User added.';render()}catch(e){m.className='msg bad';m.textContent=e.message}
+};
+(async()=>{if(await guard())load().catch(e=>{document.body.innerHTML='<main class="shell"><section class="card"><h2>Could not load access settings.</h2><p>'+esc(e.message)+'</p></section></main>'})})();
+})();
+</script>
+</body>
+</html>
