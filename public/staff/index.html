@@ -26,15 +26,25 @@
 
   <section id="staffHome">
     <div class="hero"><h1>Staff Hub</h1><p>Choose what you need.</p></div>
+
+    <div class="sectionTitle">Trials</div>
     <div class="grid">
       <a class="tile navy" href="https://intake.f45pompano.com/">Trial Intake</a>
+    </div>
+
+    <div class="sectionTitle">Leads</div>
+    <div class="grid" id="leadGrid">
       <button id="tableEventsBtn" class="tile red" type="button">Table Events</button>
+      <a id="partnerPagesTile" class="tile red hidden" href="/landing/admin/">Partner Pages</a>
+      <a id="leadsTile" class="tile red hidden" href="/admin/leads/">Leads</a>
     </div>
   </section>
 
   <section id="adminHome" class="hidden">
-    <div class="sectionTitle">Admin Access</div>
-    <div id="adminGrid" class="grid"></div>
+    <div class="sectionTitle">Administration</div>
+    <div class="grid">
+      <a id="accessTile" class="tile yellow hidden" href="/staff/access/">Access Management</a>
+    </div>
     <div id="adminWho" class="who"></div>
   </section>
 </main>
@@ -53,26 +63,36 @@
 (()=>{
 const $=id=>document.getElementById(id);
 let mode='admin';
-const ALL={partner_pages:['Partner Pages','/landing/admin/','navy'],leads:['Leads','/admin/leads/','white']};
+const ADMIN_PERMS=['partner_pages','leads'];
 function openPin(kind){mode=kind;$('pinTitle').textContent=kind==='event'?'Table Event Access':'Admin Access';$('pinHelp').textContent=kind==='event'?'Enter the 4-digit code for the event you are working.':'Enter your 4-digit PIN.';$('pin').value='';$('pinMsg').textContent='';$('pinBack').classList.remove('hidden');setTimeout(()=>$('pin').focus(),20)}
 function closePin(){$('pinBack').classList.add('hidden')}
 async function auth(code){const r=await fetch('/api/leads/auth',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code})});const j=await r.json().catch(()=>({}));return {r,j}}
 function eventButton(label='Table Events'){const b=document.createElement('button');b.className='tile red';b.type='button';b.textContent=label;b.onclick=()=>openPin('event');return b}
-function showStaff(){$('staffHome').classList.remove('hidden');$('adminHome').classList.add('hidden');$('adminBtn').classList.remove('hidden');$('logoutBtn').classList.add('hidden')}
+function showStaff(){
+  $('staffHome').classList.remove('hidden');
+  $('adminHome').classList.add('hidden');
+  $('partnerPagesTile').classList.add('hidden');
+  $('leadsTile').classList.add('hidden');
+  $('accessTile').classList.add('hidden');
+  $('adminBtn').classList.remove('hidden');
+  $('logoutBtn').classList.add('hidden');
+}
 function showDashboard(role,user,rawCode=''){
-  $('staffHome').classList.remove('hidden');$('adminHome').classList.remove('hidden');$('adminBtn').classList.add('hidden');$('logoutBtn').classList.remove('hidden');
+  $('staffHome').classList.remove('hidden');
+  $('adminHome').classList.remove('hidden');
+  $('adminBtn').classList.add('hidden');
+  $('logoutBtn').classList.remove('hidden');
+
   const superAdmin=role==='admin';
-  const rawPerms=superAdmin?Object.keys(ALL):((user&&user.permissions)||[]);
-  const perms=rawPerms.filter(p=>ALL[p]);
+  const perms=superAdmin?ADMIN_PERMS:((user&&user.permissions)||[]);
+  $('partnerPagesTile').classList.toggle('hidden',!perms.includes('partner_pages'));
+  $('leadsTile').classList.toggle('hidden',!perms.includes('leads'));
+  $('accessTile').classList.toggle('hidden',!superAdmin);
+
   $('adminWho').textContent=superAdmin?'Super Admin':`Signed in as ${user?.display_name||'User'}`;
-  const grid=$('adminGrid');grid.innerHTML='';
-  for(const p of perms){
-    const item=ALL[p];if(!item)continue;
-    const a=document.createElement('a');a.className=`tile ${item[2]}`;a.textContent=item[0];a.href=item[1];grid.appendChild(a);
-  }
-  if(superAdmin){
-    const a=document.createElement('a');a.className='tile yellow';a.textContent='Access Management';a.href='/staff/access/';grid.appendChild(a);
-    if(/^\d{4}$/.test(rawCode)){sessionStorage.setItem('table_admin_code',rawCode);sessionStorage.setItem('landingAdminPin',rawCode)}
+  if(/^\d{4}$/.test(rawCode)&&superAdmin){
+    sessionStorage.setItem('table_admin_code',rawCode);
+    sessionStorage.setItem('landingAdminPin',rawCode);
   }
 }
 async function submitPin(){
