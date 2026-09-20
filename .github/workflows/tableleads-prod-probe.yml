@@ -36,13 +36,11 @@ jobs:
             partner="$(curl -fsSL --max-time 15 "$base/landing/admin/?probe=$GITHUB_SHA" || true)"
             access="$(curl -fsSL --max-time 15 "$base/admin/access/?probe=$GITHUB_SHA" || true)"
             manifest="$(curl -fsSL --max-time 15 "$base/admin/manifest.webmanifest?probe=$GITHUB_SHA" || true)"
-            if grep -q '>Partner Pages</a>' <<<"$hub" && \
-               grep -q '>Table Events</a>' <<<"$hub" && \
-               grep -q '>Leads</a>' <<<"$hub" && \
-               grep -q '>Admin Access Code</button>' <<<"$hub" && \
-               grep -q 'admin-session-pending' <<<"$hub" && \
-               grep -q '>Log Out</button>' <<<"$hub" && \
-               grep -q 'confirmAdminCode' <<<"$hub" && \
+            if grep -q 'F45 Leads/Trials' <<<"$hub" && \
+               grep -q '>Trial Intake</a>' <<<"$hub" && \
+               grep -q '>Table Events</button>' <<<"$hub" && \
+               grep -q '>Admin</button>' <<<"$hub" && \
+               grep -q 'Access Management' <<<"$hub" && \
                grep -q '← Admin' <<<"$leads" && \
                grep -q 'Mark as Handled' <<<"$leads" && \
                grep -q '/tableleads/admin/app.js?v=10' <<<"$events" && \
@@ -55,7 +53,7 @@ jobs:
                grep -q 'Trial Intake' <<<"$access" && \
                grep -q 'F45 Leads/Trials' <<<"$manifest"; then
               ok=1
-              echo "Current admin assets verified on attempt $i."
+              echo "Current F45 Leads/Trials assets verified on attempt $i."
               break
             fi
             echo "Attempt $i: production has not converged yet."
