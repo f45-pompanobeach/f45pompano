@@ -23,6 +23,7 @@ export async function onRequestPost({request,env}){
     const code=String(e?.message||e);
     if(code==='invalid_pin')return json({ok:false,error:code,message:'PIN must be exactly 4 digits.'},400);
     if(code==='pin_in_use')return json({ok:false,error:code,message:'That PIN is already being used by another user or Table Event.'},409);
+    if(code==='pin_required')return json({ok:false,error:code,message:'Set a 4-digit PIN before enabling this user.'},400);
     return json({ok:false,error:'save_failed',message:'Could not save this user.'},500);
   }
   return json({ok:true,users:await listAdminUsers(env)});
