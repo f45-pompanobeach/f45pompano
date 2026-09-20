@@ -1,0 +1,12 @@
+{
+  "name": "F45 Leads/Trials",
+  "short_name": "F45 Leads/Trials",
+  "start_url": "/leads-trials/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#211551",
+  "theme_color": "#211551",
+  "icons": [
+    { "src": "/leads-trials/icon-leads-trials.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
