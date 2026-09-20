@@ -58,7 +58,7 @@
     <div id="adminWho" class="who"></div>
   </section>
 </main>
-<div class="version">v0.1.4</div>
+<div class="version">v0.1.5</div>
 
 <div id="pinBack" class="modalBack hidden" role="dialog" aria-modal="true">
   <section class="modal">
@@ -93,6 +93,13 @@ async function launchIntakeAdmin(){
 }
 function cacheIdentity(role,user){
   try{localStorage.setItem('f45_staff_identity',JSON.stringify({role,user:user||null}))}catch{}
+}
+async function prefetchAccessUsers(){
+  try{
+    const r=await fetch('/api/leads/admin/users',{cache:'no-store',credentials:'same-origin'});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ok&&Array.isArray(j.users))localStorage.setItem('f45_access_users',JSON.stringify(j.users));
+  }catch{}
 }
 function clearIdentity(){try{localStorage.removeItem('f45_staff_identity')}catch{}}
 function cachedIdentity(){try{const v=JSON.parse(localStorage.getItem('f45_staff_identity')||'null');return v&&['admin','user'].includes(v.role)?v:null}catch{return null}}
@@ -133,6 +140,7 @@ function showDashboard(role,user,rawCode=''){
 
   $('adminWho').textContent=superAdmin?'Super Admin':`Signed in as ${user?.display_name||'User'}`;
   cacheIdentity(role,user);
+  if(superAdmin)prefetchAccessUsers();
   if(/^\d{4}$/.test(rawCode)&&superAdmin){
     sessionStorage.setItem('table_admin_code',rawCode);
     sessionStorage.setItem('landingAdminPin',rawCode);
