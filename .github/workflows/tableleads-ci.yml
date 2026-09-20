@@ -35,6 +35,7 @@ jobs:
           node --check public/tableleads/save-state.js
           node --check public/tableleads/sw.js
           node --check public/admin/event/app.js
+          node --check public/admin/sw.js
           node --check public/landing/admin/app.js
           node --check build.js
           node --check functions/api/leads/_shared.js
@@ -43,6 +44,7 @@ jobs:
           node --check functions/api/leads/intake.js
           node --check functions/api/leads/admin/all.js
           node --check functions/api/leads/admin/tracked.js
+          node --check functions/api/leads/admin/users.js
           node --check functions/api/leads/admin/events.js
           node --check functions/api/leads/admin/leads.js
           node --check functions/api/leads/admin/status.js
