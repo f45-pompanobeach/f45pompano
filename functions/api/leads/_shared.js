@@ -81,7 +81,11 @@ export async function ensureSchema(env){
   return true;
 }
 
-export async function getAdminPinHash(env){if(!await ensureSchema(env))return LEGACY_ADMIN_PIN_HASH;const row=await eventDb(env).prepare(`SELECT setting_value FROM lead_app_settings WHERE setting_key='super_admin_pin_hash' LIMIT 1`).first();return row?.setting_value||LEGACY_ADMIN_PIN_HASH}
+export async function getAdminPinHash(env){
+  const db=eventDb(env);if(!db)return LEGACY_ADMIN_PIN_HASH;
+  try{const row=await db.prepare(`SELECT setting_value FROM lead_app_settings WHERE setting_key='super_admin_pin_hash' LIMIT 1`).first();return row?.setting_value||LEGACY_ADMIN_PIN_HASH}
+  catch{if(!await ensureSchema(env))return LEGACY_ADMIN_PIN_HASH;const row=await db.prepare(`SELECT setting_value FROM lead_app_settings WHERE setting_key='super_admin_pin_hash' LIMIT 1`).first();return row?.setting_value||LEGACY_ADMIN_PIN_HASH}
+}
 function cookieValue(request,name){const raw=String(request.headers.get('cookie')||'');for(const part of raw.split(';')){const i=part.indexOf('=');if(i<0)continue;if(part.slice(0,i).trim()===name)return decodeURIComponent(part.slice(i+1).trim())}return ''}
 export async function adminAuthorized(request,env){
   const expected=await getAdminPinHash(env);
@@ -98,9 +102,12 @@ export function normalizePermissions(v){
   return USER_PERMISSIONS.filter(p=>input.includes(p));
 }
 export async function namedUserForCode(env,code){
-  if(!/^\d{4}$/.test(String(code||''))||!await ensureSchema(env))return null;
+  if(!/^\d{4}$/.test(String(code||'')))return null;
+  const db=eventDb(env);if(!db)return null;
   const hash=await sha256Hex(code);
-  const row=await eventDb(env).prepare('SELECT user_key,display_name,enabled,permissions_json FROM admin_users WHERE pin_hash=? AND enabled=1 LIMIT 1').bind(hash).first();
+  let row;
+  try{row=await db.prepare('SELECT user_key,display_name,enabled,permissions_json FROM admin_users WHERE pin_hash=? AND enabled=1 LIMIT 1').bind(hash).first()}
+  catch{if(!await ensureSchema(env))return null;row=await db.prepare('SELECT user_key,display_name,enabled,permissions_json FROM admin_users WHERE pin_hash=? AND enabled=1 LIMIT 1').bind(hash).first()}
   if(!row)return null;
   let permissions=[];try{permissions=normalizePermissions(JSON.parse(row.permissions_json||'[]'))}catch{}
   return {...row,permissions};
@@ -110,9 +117,16 @@ function randomToken(){
   return btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 export async function createNamedUserSession(env,userKey){
-  await ensureSchema(env);const db=eventDb(env),token=randomToken(),tokenHash=await sha256Hex(token),now=Math.floor(Date.now()/1000),expires=now+28800,iso=new Date().toISOString();
-  await db.prepare('DELETE FROM admin_user_sessions WHERE expires_at<?').bind(now).run();
-  await db.prepare('INSERT INTO admin_user_sessions(token_hash,user_key,expires_at,created_at) VALUES(?,?,?,?)').bind(tokenHash,userKey,expires,iso).run();
+  const db=eventDb(env);if(!db)throw new Error('db_unavailable');
+  const token=randomToken(),tokenHash=await sha256Hex(token),now=Math.floor(Date.now()/1000),expires=now+28800,iso=new Date().toISOString();
+  try{
+    await db.prepare('DELETE FROM admin_user_sessions WHERE expires_at<?').bind(now).run();
+    await db.prepare('INSERT INTO admin_user_sessions(token_hash,user_key,expires_at,created_at) VALUES(?,?,?,?)').bind(tokenHash,userKey,expires,iso).run();
+  }catch{
+    await ensureSchema(env);
+    await db.prepare('DELETE FROM admin_user_sessions WHERE expires_at<?').bind(now).run();
+    await db.prepare('INSERT INTO admin_user_sessions(token_hash,user_key,expires_at,created_at) VALUES(?,?,?,?)').bind(tokenHash,userKey,expires,iso).run();
+  }
   return {token,expires};
 }
 export async function namedUserFromRequest(request,env){
@@ -160,11 +174,13 @@ export async function saveAdminUser(env,{userKey,displayName,pin=null,enabled=fa
 }
 
 async function eventForStaffHash(env,hash){
-  if(!/^[a-f0-9]{64}$/i.test(String(hash||''))||!await ensureSchema(env))return null;
-  return eventDb(env).prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived,prize_enabled,prizes_json,confirmation_enabled FROM lead_events WHERE staff_code_hash=? AND archived=0 AND enabled=1 ORDER BY event_date DESC LIMIT 1`).bind(String(hash).toLowerCase()).first();
+  if(!/^[a-f0-9]{64}$/i.test(String(hash||'')))return null;
+  const db=eventDb(env);if(!db)return null;
+  const q=()=>db.prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived,prize_enabled,prizes_json,confirmation_enabled FROM lead_events WHERE staff_code_hash=? AND archived=0 AND enabled=1 ORDER BY event_date DESC LIMIT 1`).bind(String(hash).toLowerCase()).first();
+  try{return await q()}catch{if(!await ensureSchema(env))return null;return q()}
 }
 export async function eventForStaffCode(env,code){
-  if(!/^\d{4}$/.test(String(code||''))||!await ensureSchema(env))return null;
+  if(!/^\d{4}$/.test(String(code||'')))return null;
   return eventForStaffHash(env,await sha256Hex(code));
 }
 export async function staffEventFromRequest(request,env){
@@ -201,9 +217,9 @@ export async function updateLeadFollowupStatus(env,{id,eventKey,status}){const c
 
 function clientId(request){return String(request.headers.get('cf-connecting-ip')||request.headers.get('x-forwarded-for')||'unknown').split(',')[0].trim().slice(0,80)}
 async function authSubject(request){return sha256Hex(`tableleads-auth:${clientId(request)}`)}
-export async function authThrottle(env,request){if(!await ensureSchema(env))return {blocked:false,retry_after:0};const db=eventDb(env),subject=await authSubject(request),now=Math.floor(Date.now()/1000),row=await db.prepare('SELECT fail_count,window_started_at,locked_until FROM lead_auth_attempts WHERE subject_hash=? LIMIT 1').bind(subject).first();if(row&&Number(row.locked_until)>now)return {blocked:true,retry_after:Number(row.locked_until)-now,subject};return {blocked:false,retry_after:0,subject}}
-export async function recordAuthFailure(env,request){if(!await ensureSchema(env))return;const db=eventDb(env),subject=await authSubject(request),now=Math.floor(Date.now()/1000),iso=new Date().toISOString(),row=await db.prepare('SELECT fail_count,window_started_at FROM lead_auth_attempts WHERE subject_hash=? LIMIT 1').bind(subject).first();let count=1,start=now;if(row&&now-Number(row.window_started_at)<=600){count=Number(row.fail_count||0)+1;start=Number(row.window_started_at)}const locked=count>=5?now+900:0;await db.prepare(`INSERT INTO lead_auth_attempts(subject_hash,fail_count,window_started_at,locked_until,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(subject_hash) DO UPDATE SET fail_count=excluded.fail_count,window_started_at=excluded.window_started_at,locked_until=excluded.locked_until,updated_at=excluded.updated_at`).bind(subject,count,start,locked,iso).run();return {count,locked_until:locked}}
-export async function recordAuthSuccess(env,request){if(!await ensureSchema(env))return;const subject=await authSubject(request);await eventDb(env).prepare('DELETE FROM lead_auth_attempts WHERE subject_hash=?').bind(subject).run()}
+export async function authThrottle(env,request){const db=eventDb(env);if(!db)return {blocked:false,retry_after:0};const subject=await authSubject(request),now=Math.floor(Date.now()/1000);let row;try{row=await db.prepare('SELECT fail_count,window_started_at,locked_until FROM lead_auth_attempts WHERE subject_hash=? LIMIT 1').bind(subject).first()}catch{await ensureSchema(env);row=await db.prepare('SELECT fail_count,window_started_at,locked_until FROM lead_auth_attempts WHERE subject_hash=? LIMIT 1').bind(subject).first()}if(row&&Number(row.locked_until)>now)return {blocked:true,retry_after:Number(row.locked_until)-now,subject};return {blocked:false,retry_after:0,subject}}
+export async function recordAuthFailure(env,request){const db=eventDb(env);if(!db)return;const subject=await authSubject(request),now=Math.floor(Date.now()/1000),iso=new Date().toISOString();let row;try{row=await db.prepare('SELECT fail_count,window_started_at FROM lead_auth_attempts WHERE subject_hash=? LIMIT 1').bind(subject).first()}catch{await ensureSchema(env);row=await db.prepare('SELECT fail_count,window_started_at FROM lead_auth_attempts WHERE subject_hash=? LIMIT 1').bind(subject).first()};let count=1,start=now;if(row&&now-Number(row.window_started_at)<=600){count=Number(row.fail_count||0)+1;start=Number(row.window_started_at)}const locked=count>=5?now+900:0;await db.prepare(`INSERT INTO lead_auth_attempts(subject_hash,fail_count,window_started_at,locked_until,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(subject_hash) DO UPDATE SET fail_count=excluded.fail_count,window_started_at=excluded.window_started_at,locked_until=excluded.locked_until,updated_at=excluded.updated_at`).bind(subject,count,start,locked,iso).run();return {count,locked_until:locked}}
+export async function recordAuthSuccess(env,request){const db=eventDb(env);if(!db)return;const subject=await authSubject(request);try{await db.prepare('DELETE FROM lead_auth_attempts WHERE subject_hash=?').bind(subject).run()}catch{await ensureSchema(env);await db.prepare('DELETE FROM lead_auth_attempts WHERE subject_hash=?').bind(subject).run()}}
 
 
 export function normalizeEventPresentation(value={}){
