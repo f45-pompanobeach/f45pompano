@@ -41,14 +41,13 @@ jobs:
             events="$(curl -fsSL --max-time 15 "$base/tableleads/admin/?probe=$GITHUB_SHA" || true)"
             staff="$(curl -fsSL --max-time 15 "$base/admin/event/?probe=$GITHUB_SHA" || true)"
             partner="$(curl -fsSL --max-time 15 "$base/landing/admin/?probe=$GITHUB_SHA" || true)"
-            access="$(curl -fsSL --max-time 15 "$base/admin/access/?probe=$GITHUB_SHA" || true)"
-            manifest="$(curl -fsSL --max-time 15 "$base/admin/manifest.webmanifest?probe=$GITHUB_SHA" || true)"
+            manifest="$(curl -fsSL --max-time 15 "$base/staff/manifest.webmanifest?probe=$GITHUB_SHA" || true)"
             missing=()
-            grep -q 'F45 Leads/Trials' <<<"$hub" || missing+=("hub-name")
-            grep -q '>Trial Intake</a>' <<<"$hub" || missing+=("hub-trial")
-            grep -q '>Table Events</button>' <<<"$hub" || missing+=("hub-events")
-            grep -q '>Admin</button>' <<<"$hub" || missing+=("hub-admin")
-            grep -q 'Access Management' <<<"$hub" || missing+=("hub-access")
+            grep -q 'F45 Leads/Trials' <<<"$staffhub" || missing+=("hub-name")
+            grep -q '>Trial Intake</a>' <<<"$staffhub" || missing+=("hub-trial")
+            grep -q '>Table Events</button>' <<<"$staffhub" || missing+=("hub-events")
+            grep -q '>Admin</button>' <<<"$staffhub" || missing+=("hub-admin")
+            grep -q 'Access Management' <<<"$staffhub" || missing+=("hub-access")
             grep -q '← Admin' <<<"$leads" || missing+=("leads-back")
             grep -q 'Mark as Handled' <<<"$leads" || missing+=("leads-wording")
             grep -q '/tableleads/admin/app.js?v=10' <<<"$events" || missing+=("events-v10")
@@ -57,8 +56,8 @@ jobs:
             grep -q '/landing/admin/app.js?v=14' <<<"$partner" || missing+=("partner-v14")
             grep -q 'admin-handoff' <<<"$partner" || missing+=("partner-handoff")
             grep -q '← Admin' <<<"$partner" || missing+=("partner-back")
-            grep -q 'Access Management' <<<"$access" || missing+=("access-page")
-            grep -q 'Trial Intake' <<<"$access" || missing+=("access-trial")
+            grep -q 'Access Management' <<<"$staffaccess" || missing+=("access-page")
+            grep -q 'Trial Intake' <<<"$staffaccess" || missing+=("access-trial")
             grep -q 'F45 Leads/Trials' <<<"$manifest" || missing+=("manifest-name")
             if [ "${#missing[@]}" -eq 0 ]; then
               ok=1
