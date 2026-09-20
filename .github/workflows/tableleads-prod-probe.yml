@@ -6,6 +6,7 @@ on:
     paths:
       - 'public/tableleads/**'
       - 'public/admin/**'
+      - 'public/staff/**'
       - 'public/landing/admin/**'
       - 'public/landing-admin/**'
       - 'functions/api/leads/**'
@@ -34,6 +35,8 @@ jobs:
           ok=0
           for i in $(seq 1 4); do
             hub="$(curl -fsSL --max-time 15 "$base/admin/?probe=$GITHUB_SHA" || true)"
+            staffhub="$(curl -fsSL --max-time 15 "$base/staff/?probe=$GITHUB_SHA" || true)"
+            staffaccess="$(curl -fsSL --max-time 15 "$base/staff/access/?probe=$GITHUB_SHA" || true)"
             leads="$(curl -fsSL --max-time 15 "$base/admin/leads/?probe=$GITHUB_SHA" || true)"
             events="$(curl -fsSL --max-time 15 "$base/tableleads/admin/?probe=$GITHUB_SHA" || true)"
             staff="$(curl -fsSL --max-time 15 "$base/admin/event/?probe=$GITHUB_SHA" || true)"
