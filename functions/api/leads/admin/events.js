@@ -4,7 +4,7 @@ function validDate(v){return /^\d{4}-\d{2}-\d{2}$/.test(String(v||''))}
 function validTime(v){return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(v||''))}
 function min(t){const [h,m]=t.split(':').map(Number);return h*60+m}
 function cleanName(v){return String(v||'').trim().replace(/\s+/g,' ').slice(0,80)}
-async function codeAvailable(env,code,excludeKey=null){const db=eventDb(env),hash=await sha256Hex(code),adminHash=await getAdminPinHash(env);if(hash===adminHash)return false;const row=await db.prepare(`SELECT event_key FROM lead_events WHERE staff_code_hash=? AND archived=0 ${excludeKey?'AND event_key<>?':''} LIMIT 1`).bind(...(excludeKey?[hash,excludeKey]:[hash])).first();return !row}
+async function codeAvailable(env,code,excludeKey=null){const db=eventDb(env),hash=await sha256Hex(code),adminHash=await getAdminPinHash(env);if(hash===adminHash)return false;const user=await db.prepare('SELECT user_key FROM admin_users WHERE pin_hash=? AND enabled=1 LIMIT 1').bind(hash).first();if(user)return false;const row=await db.prepare(`SELECT event_key FROM lead_events WHERE staff_code_hash=? AND archived=0 ${excludeKey?'AND event_key<>?':''} LIMIT 1`).bind(...(excludeKey?[hash,excludeKey]:[hash])).first();return !row}
 
 export async function onRequestGet({request,env}){
   if(!await adminAuthorized(request,env))return json({ok:false,error:'unauthorized'},401);
@@ -28,7 +28,7 @@ export async function onRequestPost({request,env}){
     const name=cleanName(body.name),date=String(body.event_date||''),start=String(body.start_time||''),end=String(body.end_time||''),code=String(body.staff_code||''),kit=cleanKit(body.qr_kit);
     const prizeEnabled=body.prize_enabled===true||body.prize_enabled===1,prizes=cleanPrizeList(body.prizes||[]),confirmationEnabled=body.confirmation_enabled===true||body.confirmation_enabled===1;
     if(name.length<2||!validDate(date)||!validTime(start)||!validTime(end)||min(start)>=min(end)||!/^\d{4}$/.test(code))return json({ok:false,error:'invalid_event',message:'Enter an event name, date, valid start/end times, and a 4-digit event code.'},400);
-    if(!await codeAvailable(env,code))return json({ok:false,error:'code_in_use',message:'That 4-digit code is already in use or matches the Super Admin code.'},409);
+    if(!await codeAvailable(env,code))return json({ok:false,error:'code_in_use',message:'That 4-digit code is already in use or matches an Admin PIN.'},409);
     const eventKey=`evt_${crypto.randomUUID()}`,slug=await createUniqueSlug(db,name,date),now=new Date().toISOString(),hash=await sha256Hex(code);
     if(kit)await db.prepare('UPDATE lead_events SET qr_kit=NULL,updated_at=? WHERE qr_kit=? AND archived=0').bind(now,kit).run();
     await db.prepare(`INSERT INTO lead_events (event_key,name,slug,event_date,start_time,end_time,staff_code_hash,qr_kit,enabled,archived,prize_enabled,prizes_json,confirmation_enabled,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,1,0,?,?,?,?,?)`)
@@ -57,7 +57,7 @@ export async function onRequestPost({request,env}){
   }
   if(action==='reset_code'){
     const code=String(body.staff_code||'');if(!/^\d{4}$/.test(code))return json({ok:false,error:'invalid_code',message:'Enter a 4-digit event code.'},400);
-    if(!await codeAvailable(env,code,eventKey))return json({ok:false,error:'code_in_use',message:'That code is already in use or matches the Super Admin code.'},409);
+    if(!await codeAvailable(env,code,eventKey))return json({ok:false,error:'code_in_use',message:'That code is already in use or matches an Admin PIN.'},409);
     await db.prepare('UPDATE lead_events SET staff_code_hash=?,updated_at=? WHERE event_key=?').bind(await sha256Hex(code),now,eventKey).run();return json({ok:true,staff_code:code});
   }
   if(action==='archive'){await db.prepare('UPDATE lead_events SET archived=1,enabled=0,qr_kit=NULL,updated_at=? WHERE event_key=?').bind(now,eventKey).run();return json({ok:true})}
