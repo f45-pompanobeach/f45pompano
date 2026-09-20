@@ -145,9 +145,11 @@ export async function saveAdminUser(env,{userKey,displayName,pin=null,enabled=fa
   const current=await db.prepare('SELECT user_key,pin_hash FROM admin_users WHERE user_key=? LIMIT 1').bind(key).first();
   if(current){
     const finalHash=pinHash||current.pin_hash||null;
+    if(enabled&&!finalHash)throw new Error('pin_required');
     await db.prepare('UPDATE admin_users SET display_name=?,pin_hash=?,enabled=?,permissions_json=?,updated_at=? WHERE user_key=?').bind(name,finalHash,enabled?1:0,JSON.stringify(perms),now,key).run();
     if(!enabled)await db.prepare('DELETE FROM admin_user_sessions WHERE user_key=?').bind(key).run();
   }else{
+    if(enabled&&!pinHash)throw new Error('pin_required');
     await db.prepare('INSERT INTO admin_users(user_key,display_name,pin_hash,enabled,permissions_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?)').bind(key,name,pinHash,enabled?1:0,JSON.stringify(perms),now,now).run();
   }
   return true;
