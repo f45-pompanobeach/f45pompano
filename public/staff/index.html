@@ -33,7 +33,7 @@
   </section>
 
   <section id="adminHome" class="hidden">
-    <div class="hero"><h1 id="adminTitle">Admin</h1><p id="adminSub"></p></div>
+    <div class="sectionTitle">Admin Access</div>
     <div id="adminGrid" class="grid"></div>
     <div id="adminWho" class="who"></div>
   </section>
@@ -53,22 +53,21 @@
 (()=>{
 const $=id=>document.getElementById(id);
 let mode='admin';
-const ALL={trial_intake:['Trial Intake','https://intake.f45pompano.com/','navy'],intake_admin:['Intake Admin','https://intake.f45pompano.com/','white'],table_events:['Table Events',null,'red'],table_event_admin:['Table Event Admin','/tableleads/admin/','red'],partner_pages:['Partner Pages','/landing/admin/','navy'],leads:['Leads','/admin/leads/','white']};
+const ALL={intake_admin:['Intake Admin','https://intake.f45pompano.com/','white'],table_event_admin:['Table Event Admin','/tableleads/admin/','red'],partner_pages:['Partner Pages','/landing/admin/','navy'],leads:['Leads','/admin/leads/','white']};
 function openPin(kind){mode=kind;$('pinTitle').textContent=kind==='event'?'Table Event Access':'Admin Access';$('pinHelp').textContent=kind==='event'?'Enter the 4-digit code for the event you are working.':'Enter your 4-digit PIN.';$('pin').value='';$('pinMsg').textContent='';$('pinBack').classList.remove('hidden');setTimeout(()=>$('pin').focus(),20)}
 function closePin(){$('pinBack').classList.add('hidden')}
 async function auth(code){const r=await fetch('/api/leads/auth',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code})});const j=await r.json().catch(()=>({}));return {r,j}}
 function eventButton(label='Table Events'){const b=document.createElement('button');b.className='tile red';b.type='button';b.textContent=label;b.onclick=()=>openPin('event');return b}
 function showStaff(){$('staffHome').classList.remove('hidden');$('adminHome').classList.add('hidden');$('adminBtn').classList.remove('hidden');$('logoutBtn').classList.add('hidden')}
 function showDashboard(role,user,rawCode=''){
-  $('staffHome').classList.add('hidden');$('adminHome').classList.remove('hidden');$('adminBtn').classList.add('hidden');$('logoutBtn').classList.remove('hidden');
-  const superAdmin=role==='admin',perms=superAdmin?Object.keys(ALL):((user&&user.permissions)||[]);
-  $('adminTitle').textContent=superAdmin?'Super Admin':(user?.display_name||'Admin');
-  $('adminSub').textContent=superAdmin?'Full access':'Your available tools';
-  $('adminWho').textContent=superAdmin?'Super Admin access':`Signed in as ${user?.display_name||'User'}`;
+  $('staffHome').classList.remove('hidden');$('adminHome').classList.remove('hidden');$('adminBtn').classList.add('hidden');$('logoutBtn').classList.remove('hidden');
+  const superAdmin=role==='admin';
+  const rawPerms=superAdmin?Object.keys(ALL):((user&&user.permissions)||[]);
+  const perms=rawPerms.filter(p=>ALL[p]);
+  $('adminWho').textContent=superAdmin?'Super Admin':`Signed in as ${user?.display_name||'User'}`;
   const grid=$('adminGrid');grid.innerHTML='';
   for(const p of perms){
     const item=ALL[p];if(!item)continue;
-    if(p==='table_events'){grid.appendChild(eventButton());continue}
     const a=document.createElement('a');a.className=`tile ${item[2]}`;a.textContent=item[0];a.href=item[1];grid.appendChild(a);
   }
   if(superAdmin){
