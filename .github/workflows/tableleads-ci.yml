@@ -6,6 +6,7 @@ on:
     paths:
       - 'public/tableleads/**'
       - 'public/admin/**'
+      - 'public/staff/**'
       - 'public/landing/admin/**'
       - 'public/landing-admin/**'
       - 'build.js'
