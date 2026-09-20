@@ -62,6 +62,10 @@ export async function ensureSchema(env){
     token_hash TEXT PRIMARY KEY,user_key TEXT NOT NULL,expires_at INTEGER NOT NULL,created_at TEXT NOT NULL
   )`).run();
   await db.prepare(`CREATE INDEX IF NOT EXISTS idx_admin_user_sessions_user ON admin_user_sessions(user_key)`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS admin_handoff_tokens (
+    token_hash TEXT PRIMARY KEY,user_key TEXT NOT NULL,target TEXT NOT NULL,expires_at INTEGER NOT NULL,created_at TEXT NOT NULL
+  )`).run();
+  await db.prepare(`CREATE INDEX IF NOT EXISTS idx_admin_handoff_expiry ON admin_handoff_tokens(expires_at)`).run();
   const seededNow=new Date().toISOString();
   await db.prepare(`INSERT OR IGNORE INTO admin_users(user_key,display_name,pin_hash,enabled,permissions_json,created_at,updated_at)
     VALUES('andrea','Andrea',NULL,0,?, ?, ?)`).bind(JSON.stringify(['trial_intake','intake_admin','table_events']),seededNow,seededNow).run();
