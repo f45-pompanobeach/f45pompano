@@ -13,7 +13,7 @@ export async function onRequestPost({request,env}){
     const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
     headers.append('set-cookie',`f45_admin_session=${hash}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
     headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
-  headers.append('set-cookie','f45_user_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
+    headers.append('set-cookie','f45_user_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     return new Response(JSON.stringify({ok:true,role:'admin'}),{status:200,headers});
   }
   const user=await namedUserForCode(env,code);
@@ -32,6 +32,7 @@ export async function onRequestPost({request,env}){
     const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
     headers.append('set-cookie',`f45_event_session=${await sha256Hex(code)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
     headers.append('set-cookie','f45_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
+    headers.append('set-cookie','f45_user_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     return new Response(JSON.stringify({ok:true,role:'event',event}),{status:200,headers});
   }
   const fail=await recordAuthFailure(env,request);
@@ -51,6 +52,7 @@ export async function onRequestDelete({request,env}){
   const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
   headers.append('set-cookie','f45_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
   headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
+  headers.append('set-cookie','f45_user_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
   return new Response(JSON.stringify({ok:true}),{status:200,headers});
 }
 export function onRequest(){return json({ok:false,error:'method_not_allowed'},405)}
