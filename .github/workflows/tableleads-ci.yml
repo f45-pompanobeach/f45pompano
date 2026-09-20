@@ -7,6 +7,8 @@ on:
       - 'public/tableleads/**'
       - 'public/admin/**'
       - 'public/staff/**'
+      - 'public/leads-trials/**'
+      - 'public/_redirects'
       - 'public/landing/admin/**'
       - 'public/landing-admin/**'
       - 'build.js'
