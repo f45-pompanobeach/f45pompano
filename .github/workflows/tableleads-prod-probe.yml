@@ -7,6 +7,8 @@ on:
       - 'public/tableleads/**'
       - 'public/admin/**'
       - 'public/staff/**'
+      - 'public/leads-trials/**'
+      - 'public/_redirects'
       - 'public/landing/admin/**'
       - 'public/landing-admin/**'
       - 'functions/api/leads/**'
@@ -35,13 +37,13 @@ jobs:
           ok=0
           for i in $(seq 1 4); do
             hub="$(curl -fsSL --max-time 15 "$base/admin/?probe=$GITHUB_SHA" || true)"
-            staffhub="$(curl -fsSL --max-time 15 "$base/staff/?probe=$GITHUB_SHA" || true)"
-            staffaccess="$(curl -fsSL --max-time 15 "$base/staff/access/?probe=$GITHUB_SHA" || true)"
+            staffhub="$(curl -fsSL --max-time 15 "$base/leads-trials/?probe=$GITHUB_SHA" || true)"
+            staffaccess="$(curl -fsSL --max-time 15 "$base/leads-trials/access/?probe=$GITHUB_SHA" || true)"
             leads="$(curl -fsSL --max-time 15 "$base/admin/leads/?probe=$GITHUB_SHA" || true)"
             events="$(curl -fsSL --max-time 15 "$base/tableleads/admin/?probe=$GITHUB_SHA" || true)"
             staff="$(curl -fsSL --max-time 15 "$base/admin/event/?probe=$GITHUB_SHA" || true)"
             partner="$(curl -fsSL --max-time 15 "$base/landing/admin/?probe=$GITHUB_SHA" || true)"
-            manifest="$(curl -fsSL --max-time 15 "$base/staff/manifest.webmanifest?probe=$GITHUB_SHA" || true)"
+            manifest="$(curl -fsSL --max-time 15 "$base/leads-trials/manifest.webmanifest?probe=$GITHUB_SHA" || true)"
             missing=()
             grep -q 'F45 Leads/Trials' <<<"$staffhub" || missing+=("hub-name")
             grep -q '>Trial Intake</a>' <<<"$staffhub" || missing+=("hub-trial")
