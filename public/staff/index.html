@@ -33,22 +33,28 @@
   </section>
 
   <section id="adminHome" class="hidden">
-    <div class="sectionTitle">Trials</div>
-    <div class="grid">
-      <button id="adminIntakeBtn" class="tile red hidden" type="button">Trial Intake</button>
-    </div>
+    <section id="trialsSection" class="hidden">
+      <div class="sectionTitle">Trials</div>
+      <div class="grid">
+        <button id="adminIntakeBtn" class="tile red hidden" type="button">Trial Intake</button>
+      </div>
+    </section>
 
-    <div class="sectionTitle">Lead Management</div>
-    <div class="grid">
-      <a id="adminTableEventsTile" class="tile white hidden" href="/tableleads/admin/">Table Events</a>
-      <a id="partnerPagesTile" class="tile white hidden" href="/landing/admin/">Partner Pages</a>
-      <a id="leadsTile" class="tile white hidden" href="/admin/leads/">Leads</a>
-    </div>
+    <section id="leadManagementSection" class="hidden">
+      <div class="sectionTitle">Lead Management</div>
+      <div class="grid">
+        <a id="adminTableEventsTile" class="tile white hidden" href="/tableleads/admin/">Table Events</a>
+        <a id="partnerPagesTile" class="tile white hidden" href="/landing/admin/">Partner Pages</a>
+        <a id="leadsTile" class="tile white hidden" href="/admin/leads/">Leads</a>
+      </div>
+    </section>
 
-    <div class="sectionTitle">Administration</div>
-    <div class="grid">
-      <a id="accessTile" class="tile yellow hidden" href="/staff/access/">Access Management</a>
-    </div>
+    <section id="administrationSection" class="hidden">
+      <div class="sectionTitle">Administration</div>
+      <div class="grid">
+        <a id="accessTile" class="tile yellow hidden" href="/staff/access/">Access Management</a>
+      </div>
+    </section>
     <div id="adminWho" class="who"></div>
   </section>
 </main>
@@ -87,6 +93,9 @@ async function launchIntakeAdmin(){
 function showStaff(){
   $('staffHome').classList.remove('hidden');
   $('adminHome').classList.add('hidden');
+  $('trialsSection').classList.add('hidden');
+  $('leadManagementSection').classList.add('hidden');
+  $('administrationSection').classList.add('hidden');
   $('adminIntakeBtn').classList.add('hidden');
   $('adminTableEventsTile').classList.add('hidden');
   $('partnerPagesTile').classList.add('hidden');
@@ -103,6 +112,12 @@ function showDashboard(role,user,rawCode=''){
 
   const superAdmin=role==='admin';
   const perms=superAdmin?ADMIN_PERMS:((user&&user.permissions)||[]);
+  const showTrials=perms.includes('intake_admin');
+  const showLeadManagement=perms.includes('table_event_admin')||perms.includes('partner_pages')||perms.includes('leads');
+  const showAdministration=superAdmin;
+  $('trialsSection').classList.toggle('hidden',!showTrials);
+  $('leadManagementSection').classList.toggle('hidden',!showLeadManagement);
+  $('administrationSection').classList.toggle('hidden',!showAdministration);
   $('adminIntakeBtn').classList.toggle('hidden',!perms.includes('intake_admin'));
   $('adminTableEventsTile').classList.toggle('hidden',!perms.includes('table_event_admin'));
   $('partnerPagesTile').classList.toggle('hidden',!perms.includes('partner_pages'));
