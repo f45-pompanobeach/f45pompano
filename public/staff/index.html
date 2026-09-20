@@ -90,6 +90,11 @@ async function launchIntakeAdmin(){
     if(b)b.disabled=false;
   }
 }
+function cacheIdentity(role,user){
+  try{sessionStorage.setItem('f45_staff_identity',JSON.stringify({role,user:user||null}))}catch{}
+}
+function clearIdentity(){try{sessionStorage.removeItem('f45_staff_identity')}catch{}}
+function cachedIdentity(){try{const v=JSON.parse(sessionStorage.getItem('f45_staff_identity')||'null');return v&&['admin','user'].includes(v.role)?v:null}catch{return null}}
 function showStaff(){
   $('staffHome').classList.remove('hidden');
   $('adminHome').classList.add('hidden');
@@ -103,6 +108,7 @@ function showStaff(){
   $('accessTile').classList.add('hidden');
   $('adminBtn').classList.remove('hidden');
   $('logoutBtn').classList.add('hidden');
+  clearIdentity();
 }
 function showDashboard(role,user,rawCode=''){
   $('staffHome').classList.add('hidden');
@@ -125,6 +131,7 @@ function showDashboard(role,user,rawCode=''){
   $('accessTile').classList.toggle('hidden',!superAdmin);
 
   $('adminWho').textContent=superAdmin?'Super Admin':`Signed in as ${user?.display_name||'User'}`;
+  cacheIdentity(role,user);
   if(/^\d{4}$/.test(rawCode)&&superAdmin){
     sessionStorage.setItem('table_admin_code',rawCode);
     sessionStorage.setItem('landingAdminPin',rawCode);
@@ -143,11 +150,16 @@ async function submitPin(){
   $('pinMsg').textContent='Use the Table Events button for an event code.';
 }
 async function restore(){
-  try{const r=await fetch('/api/leads/auth',{cache:'no-store'}),j=await r.json().catch(()=>({}));if(r.ok&&j.ok&&(j.role==='admin'||j.role==='user')){showDashboard(j.role,j.user);return}}catch{}
+  const cached=cachedIdentity();
+  if(cached)showDashboard(cached.role,cached.user);
+  try{
+    const r=await fetch('/api/leads/auth',{cache:'no-store'}),j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ok&&(j.role==='admin'||j.role==='user')){showDashboard(j.role,j.user);return}
+  }catch{}
   showStaff();
 }
 $('adminBtn').onclick=()=>openPin('admin');$('staffTableEventsBtn').onclick=()=>openPin('event');$('adminIntakeBtn').onclick=launchIntakeAdmin;$('pinCancel').onclick=closePin;$('pinGo').onclick=submitPin;$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')submitPin()});$('pinBack').addEventListener('click',e=>{if(e.target===$('pinBack'))closePin()});
-$('logoutBtn').onclick=async()=>{try{await fetch('/api/leads/auth',{method:'DELETE',cache:'no-store'})}catch{}sessionStorage.removeItem('table_access_code');sessionStorage.removeItem('table_admin_code');sessionStorage.removeItem('table_event_code');sessionStorage.removeItem('landingAdminPin');showStaff()};
+$('logoutBtn').onclick=async()=>{clearIdentity();try{await fetch('/api/leads/auth',{method:'DELETE',cache:'no-store'})}catch{}sessionStorage.removeItem('table_access_code');sessionStorage.removeItem('table_admin_code');sessionStorage.removeItem('table_event_code');sessionStorage.removeItem('landingAdminPin');showStaff()};
 if('serviceWorker'in navigator)navigator.serviceWorker.register('/staff/sw.js',{scope:'/staff/'}).catch(()=>{});
 restore();
 })();
