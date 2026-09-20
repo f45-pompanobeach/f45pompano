@@ -27,12 +27,12 @@
   <section id="staffHome">
     <div class="hero"><h1>Staff Hub</h1><p>Choose what you need.</p></div>
 
-    <div class="sectionTitle">Trials</div>
+    <div id="trialsHeading" class="sectionTitle hidden">Trials</div>
     <div class="grid">
       <a class="tile navy" href="https://intake.f45pompano.com/">Trial Intake</a>
     </div>
 
-    <div class="sectionTitle">Leads</div>
+    <div id="leadsHeading" class="sectionTitle hidden">Leads</div>
     <div class="grid" id="leadGrid">
       <button id="tableEventsBtn" class="tile red" type="button">Table Events</button>
       <a id="partnerPagesTile" class="tile red hidden" href="/landing/admin/">Partner Pages</a>
@@ -71,6 +71,8 @@ function eventButton(label='Table Events'){const b=document.createElement('butto
 function showStaff(){
   $('staffHome').classList.remove('hidden');
   $('adminHome').classList.add('hidden');
+  $('trialsHeading').classList.add('hidden');
+  $('leadsHeading').classList.add('hidden');
   $('partnerPagesTile').classList.add('hidden');
   $('leadsTile').classList.add('hidden');
   $('accessTile').classList.add('hidden');
@@ -85,6 +87,8 @@ function showDashboard(role,user,rawCode=''){
 
   const superAdmin=role==='admin';
   const perms=superAdmin?ADMIN_PERMS:((user&&user.permissions)||[]);
+  $('trialsHeading').classList.remove('hidden');
+  $('leadsHeading').classList.remove('hidden');
   $('partnerPagesTile').classList.toggle('hidden',!perms.includes('partner_pages'));
   $('leadsTile').classList.toggle('hidden',!perms.includes('leads'));
   $('accessTile').classList.toggle('hidden',!superAdmin);
