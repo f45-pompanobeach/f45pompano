@@ -3,6 +3,7 @@ const TZ='America/New_York';
 export const GENERAL_EVENT_KEY='general';
 export const QR_KITS=['A','B','C','D'];
 export const FOLLOWUP_STATUSES=['new','contacted','scheduled','attended','redeemed','not_interested'];
+export const USER_PERMISSIONS=['trial_intake','intake_admin','table_events','table_event_admin','partner_pages','leads'];
 export const LOCAL_ZIPS=new Set(['33062','33060','33064','33069','33334','33308','33309','33441']);
 const enc=new TextEncoder();
 
@@ -53,6 +54,17 @@ export async function ensureSchema(env){
   await addColumnIfMissing(db,'lead_events',eventCols,'prizes_json','prizes_json TEXT');
   await addColumnIfMissing(db,'lead_events',eventCols,'confirmation_enabled','confirmation_enabled INTEGER NOT NULL DEFAULT 0');
   await db.prepare(`CREATE TABLE IF NOT EXISTS lead_app_settings (setting_key TEXT PRIMARY KEY,setting_value TEXT NOT NULL,updated_at TEXT NOT NULL)`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS admin_users (
+    user_key TEXT PRIMARY KEY,display_name TEXT NOT NULL,pin_hash TEXT,enabled INTEGER NOT NULL DEFAULT 0,
+    permissions_json TEXT NOT NULL DEFAULT '[]',created_at TEXT NOT NULL,updated_at TEXT NOT NULL
+  )`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS admin_user_sessions (
+    token_hash TEXT PRIMARY KEY,user_key TEXT NOT NULL,expires_at INTEGER NOT NULL,created_at TEXT NOT NULL
+  )`).run();
+  await db.prepare(`CREATE INDEX IF NOT EXISTS idx_admin_user_sessions_user ON admin_user_sessions(user_key)`).run();
+  const seededNow=new Date().toISOString();
+  await db.prepare(`INSERT OR IGNORE INTO admin_users(user_key,display_name,pin_hash,enabled,permissions_json,created_at,updated_at)
+    VALUES('andrea','Andrea',NULL,0,?, ?, ?)`).bind(JSON.stringify(['trial_intake','intake_admin','table_events']),seededNow,seededNow).run();
   await db.prepare(`CREATE TABLE IF NOT EXISTS lead_auth_attempts (subject_hash TEXT PRIMARY KEY,fail_count INTEGER NOT NULL DEFAULT 0,window_started_at INTEGER NOT NULL,locked_until INTEGER NOT NULL DEFAULT 0,updated_at TEXT NOT NULL)`).run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_event_created ON event_leads(event_key,created_at DESC)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_event_leads_event_phone ON event_leads(event_key,phone)').run();
@@ -75,6 +87,71 @@ export async function adminAuthorized(request,env){
   return /^[a-f0-9]{64}$/i.test(session)&&equal(session.toLowerCase(),String(expected||'').toLowerCase());
 }
 export async function setAdminPin(env,newCode){if(!/^\d{4}$/.test(String(newCode||'')))throw new Error('invalid_pin');await ensureSchema(env);const db=eventDb(env),now=new Date().toISOString(),hash=await sha256Hex(newCode);await db.prepare(`INSERT INTO lead_app_settings (setting_key,setting_value,updated_at) VALUES ('super_admin_pin_hash',?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=excluded.updated_at`).bind(hash,now).run();return true}
+
+export function cleanUserKey(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40)}
+export function normalizePermissions(v){
+  const input=Array.isArray(v)?v:[];
+  return USER_PERMISSIONS.filter(p=>input.includes(p));
+}
+export async function namedUserForCode(env,code){
+  if(!/^\d{4}$/.test(String(code||''))||!await ensureSchema(env))return null;
+  const hash=await sha256Hex(code);
+  const row=await eventDb(env).prepare('SELECT user_key,display_name,enabled,permissions_json FROM admin_users WHERE pin_hash=? AND enabled=1 LIMIT 1').bind(hash).first();
+  if(!row)return null;
+  let permissions=[];try{permissions=normalizePermissions(JSON.parse(row.permissions_json||'[]'))}catch{}
+  return {...row,permissions};
+}
+function randomToken(){
+  const b=new Uint8Array(32);crypto.getRandomValues(b);
+  return btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+export async function createNamedUserSession(env,userKey){
+  await ensureSchema(env);const db=eventDb(env),token=randomToken(),tokenHash=await sha256Hex(token),now=Math.floor(Date.now()/1000),expires=now+28800,iso=new Date().toISOString();
+  await db.prepare('DELETE FROM admin_user_sessions WHERE expires_at<?').bind(now).run();
+  await db.prepare('INSERT INTO admin_user_sessions(token_hash,user_key,expires_at,created_at) VALUES(?,?,?,?)').bind(tokenHash,userKey,expires,iso).run();
+  return {token,expires};
+}
+export async function namedUserFromRequest(request,env){
+  if(!await ensureSchema(env))return null;
+  const token=cookieValue(request,'f45_user_session');if(!token)return null;
+  const hash=await sha256Hex(token),now=Math.floor(Date.now()/1000);
+  const row=await eventDb(env).prepare(`SELECT u.user_key,u.display_name,u.enabled,u.permissions_json,s.expires_at
+    FROM admin_user_sessions s JOIN admin_users u ON u.user_key=s.user_key
+    WHERE s.token_hash=? AND s.expires_at>? AND u.enabled=1 LIMIT 1`).bind(hash,now).first();
+  if(!row)return null;
+  let permissions=[];try{permissions=normalizePermissions(JSON.parse(row.permissions_json||'[]'))}catch{}
+  return {user_key:row.user_key,display_name:row.display_name,permissions};
+}
+export async function deleteNamedUserSession(request,env){
+  if(!await ensureSchema(env))return;
+  const token=cookieValue(request,'f45_user_session');if(!token)return;
+  await eventDb(env).prepare('DELETE FROM admin_user_sessions WHERE token_hash=?').bind(await sha256Hex(token)).run();
+}
+export async function listAdminUsers(env){
+  await ensureSchema(env);const rows=await eventDb(env).prepare('SELECT user_key,display_name,enabled,permissions_json,pin_hash IS NOT NULL AS has_pin,created_at,updated_at FROM admin_users ORDER BY display_name').all();
+  return (rows.results||[]).map(r=>{let permissions=[];try{permissions=normalizePermissions(JSON.parse(r.permissions_json||'[]'))}catch{}return {...r,enabled:Boolean(r.enabled),has_pin:Boolean(r.has_pin),permissions}});
+}
+export async function saveAdminUser(env,{userKey,displayName,pin=null,enabled=false,permissions=[]}){
+  await ensureSchema(env);const db=eventDb(env),key=cleanUserKey(userKey||displayName),name=String(displayName||'').trim().replace(/\s+/g,' ').slice(0,60),perms=normalizePermissions(permissions),now=new Date().toISOString();
+  if(!key||!name)throw new Error('invalid_user');
+  let pinHash=null;
+  if(pin!==null&&pin!==''){
+    if(!/^\d{4}$/.test(String(pin)))throw new Error('invalid_pin');
+    pinHash=await sha256Hex(String(pin));
+    const superHash=await getAdminPinHash(env);if(equal(pinHash,superHash))throw new Error('pin_in_use');
+    const event=await db.prepare('SELECT event_key FROM lead_events WHERE staff_code_hash=? LIMIT 1').bind(pinHash).first();if(event)throw new Error('pin_in_use');
+    const other=await db.prepare('SELECT user_key FROM admin_users WHERE pin_hash=? AND user_key<>? LIMIT 1').bind(pinHash,key).first();if(other)throw new Error('pin_in_use');
+  }
+  const current=await db.prepare('SELECT user_key,pin_hash FROM admin_users WHERE user_key=? LIMIT 1').bind(key).first();
+  if(current){
+    const finalHash=pinHash||current.pin_hash||null;
+    await db.prepare('UPDATE admin_users SET display_name=?,pin_hash=?,enabled=?,permissions_json=?,updated_at=? WHERE user_key=?').bind(name,finalHash,enabled?1:0,JSON.stringify(perms),now,key).run();
+    if(!enabled)await db.prepare('DELETE FROM admin_user_sessions WHERE user_key=?').bind(key).run();
+  }else{
+    await db.prepare('INSERT INTO admin_users(user_key,display_name,pin_hash,enabled,permissions_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?)').bind(key,name,pinHash,enabled?1:0,JSON.stringify(perms),now,now).run();
+  }
+  return true;
+}
 
 async function eventForStaffHash(env,hash){
   if(!/^[a-f0-9]{64}$/i.test(String(hash||''))||!await ensureSchema(env))return null;
