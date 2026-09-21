@@ -101,6 +101,29 @@ export function normalizePermissions(v){
   const input=Array.isArray(v)?v:[];
   return USER_PERMISSIONS.filter(p=>input.includes(p));
 }
+export async function resolveCodeIdentity(env,code){
+  if(!/^\d{4}$/.test(String(code||'')))return {hash:null,role:null};
+  const db=eventDb(env);if(!db)return {hash:null,role:null};
+  const hash=await sha256Hex(code);
+  const run=async()=>db.batch([
+    db.prepare(`SELECT setting_value FROM lead_app_settings WHERE setting_key='super_admin_pin_hash' LIMIT 1`),
+    db.prepare('SELECT user_key,display_name,enabled,permissions_json FROM admin_users WHERE pin_hash=? AND enabled=1 LIMIT 1').bind(hash),
+    db.prepare(`SELECT event_key,name,slug,event_date,start_time,end_time,qr_kit,enabled,archived,prize_enabled,prizes_json,confirmation_enabled FROM lead_events WHERE staff_code_hash=? AND archived=0 AND enabled=1 ORDER BY event_date DESC LIMIT 1`).bind(hash)
+  ]);
+  let results;
+  try{results=await run()}catch{if(!await ensureSchema(env))return {hash,role:null};results=await run()}
+  const superRow=results?.[0]?.results?.[0]||null;
+  const superHash=superRow?.setting_value||LEGACY_ADMIN_PIN_HASH;
+  if(equal(hash,String(superHash)))return {hash,role:'admin'};
+  const userRow=results?.[1]?.results?.[0]||null;
+  if(userRow){
+    let permissions=[];try{permissions=normalizePermissions(JSON.parse(userRow.permissions_json||'[]'))}catch{}
+    return {hash,role:'user',user:{user_key:userRow.user_key,display_name:userRow.display_name,permissions}};
+  }
+  const event=results?.[2]?.results?.[0]||null;
+  if(event)return {hash,role:'event',event};
+  return {hash,role:null};
+}
 export async function namedUserForCode(env,code){
   if(!/^\d{4}$/.test(String(code||'')))return null;
   const db=eventDb(env);if(!db)return null;
@@ -119,14 +142,11 @@ function randomToken(){
 export async function createNamedUserSession(env,userKey){
   const db=eventDb(env);if(!db)throw new Error('db_unavailable');
   const token=randomToken(),tokenHash=await sha256Hex(token),now=Math.floor(Date.now()/1000),expires=now+28800,iso=new Date().toISOString();
-  try{
-    await db.prepare('DELETE FROM admin_user_sessions WHERE expires_at<?').bind(now).run();
-    await db.prepare('INSERT INTO admin_user_sessions(token_hash,user_key,expires_at,created_at) VALUES(?,?,?,?)').bind(tokenHash,userKey,expires,iso).run();
-  }catch{
-    await ensureSchema(env);
-    await db.prepare('DELETE FROM admin_user_sessions WHERE expires_at<?').bind(now).run();
-    await db.prepare('INSERT INTO admin_user_sessions(token_hash,user_key,expires_at,created_at) VALUES(?,?,?,?)').bind(tokenHash,userKey,expires,iso).run();
-  }
+  const run=()=>db.batch([
+    db.prepare('DELETE FROM admin_user_sessions WHERE expires_at<?').bind(now),
+    db.prepare('INSERT INTO admin_user_sessions(token_hash,user_key,expires_at,created_at) VALUES(?,?,?,?)').bind(tokenHash,userKey,expires,iso)
+  ]);
+  try{await run()}catch{await ensureSchema(env);await run()}
   return {token,expires};
 }
 export async function namedUserFromRequest(request,env){
