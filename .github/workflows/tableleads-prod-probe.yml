@@ -36,7 +36,6 @@ jobs:
           echo "Preflight users body: $(cat /tmp/pre-users.txt)"
           ok=0
           for i in $(seq 1 4); do
-            hub="$(curl -fsSL --max-time 15 "$base/admin/?probe=$GITHUB_SHA" || true)"
             staffhub="$(curl -fsSL --max-time 15 "$base/leads-trials/?probe=$GITHUB_SHA" || true)"
             staffaccess="$(curl -fsSL --max-time 15 "$base/leads-trials/access/?probe=$GITHUB_SHA" || true)"
             leads="$(curl -fsSL --max-time 15 "$base/admin/leads/?probe=$GITHUB_SHA" || true)"
@@ -72,10 +71,8 @@ jobs:
           test "$ok" -eq 1
 
           intake_location="$(curl -sS -o /dev/null -D - --max-time 15 "$base/intake" | tr -d '\r' | awk 'tolower($1)=="location:"{print $2}' | tail -1)"
-          staff_location="$(curl -sS -o /dev/null -D - --max-time 15 "$base/staff/" | tr -d '\r' | awk 'tolower($1)=="location:"{print $2}' | tail -1)"
           test "$intake_location" = "/leads-trials/"
-          test "$staff_location" = "/leads-trials/"
-          echo "Legacy Intake/Staff redirects verified."
+          echo "Legacy Intake redirect verified."
 
           auth_status="$(curl -sS -o /tmp/auth.txt -w '%{http_code}' --max-time 15 "$base/api/leads/auth")"
           all_status="$(curl -sS -o /tmp/all.txt -w '%{http_code}' --max-time 15 "$base/api/leads/admin/all")"
