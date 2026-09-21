@@ -1,4 +1,4 @@
-import {adminAuthorized,authThrottle,createNamedUserSession,deleteNamedUserSession,eventForStaffCode,getAdminPinHash,json,namedUserForCode,namedUserFromRequest,recordAuthFailure,recordAuthSuccess,sha256Hex,staffEventFromRequest} from './_shared.js';
+import {adminAuthorized,authThrottle,createNamedUserSession,deleteNamedUserSession,json,namedUserFromRequest,recordAuthFailure,recordAuthSuccess,resolveCodeIdentity,staffEventFromRequest} from './_shared.js';
 
 export async function onRequestPost({request,env}){
   const throttle=await authThrottle(env,request);
@@ -6,34 +6,33 @@ export async function onRequestPost({request,env}){
   let body={};try{body=await request.json()}catch{return json({ok:false,error:'invalid_request'},400)}
   const code=String(body.code||'').trim();
   if(!/^\d{4}$/.test(code)){await recordAuthFailure(env,request);return json({ok:false,error:'invalid_code',message:'Enter a 4-digit code.'},400)}
-  const synthetic=new Request(request.url,{headers:{'x-table-code':code}});
-  if(await adminAuthorized(synthetic,env)){
+  const identity=await resolveCodeIdentity(env,code);
+  if(identity.role==='admin'){
     await recordAuthSuccess(env,request);
-    const hash=await getAdminPinHash(env);
     const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
-    headers.append('set-cookie',`f45_admin_session=${hash}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
+    headers.append('set-cookie',`f45_admin_session=${identity.hash}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
     headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     headers.append('set-cookie','f45_user_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     return new Response(JSON.stringify({ok:true,role:'admin'}),{status:200,headers});
   }
-  const user=await namedUserForCode(env,code);
-  if(user){
-    await recordAuthSuccess(env,request);
-    const session=await createNamedUserSession(env,user.user_key);
+  if(identity.role==='user'&&identity.user){
+    const [session]=await Promise.all([
+      createNamedUserSession(env,identity.user.user_key),
+      recordAuthSuccess(env,request)
+    ]);
     const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
     headers.append('set-cookie',`f45_user_session=${session.token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
     headers.append('set-cookie','f45_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
-    return new Response(JSON.stringify({ok:true,role:'user',user:{user_key:user.user_key,display_name:user.display_name,permissions:user.permissions}}),{status:200,headers});
+    return new Response(JSON.stringify({ok:true,role:'user',user:identity.user}),{status:200,headers});
   }
-  const event=await eventForStaffCode(env,code);
-  if(event){
+  if(identity.role==='event'&&identity.event){
     await recordAuthSuccess(env,request);
     const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
-    headers.append('set-cookie',`f45_event_session=${await sha256Hex(code)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
+    headers.append('set-cookie',`f45_event_session=${identity.hash}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
     headers.append('set-cookie','f45_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     headers.append('set-cookie','f45_user_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
-    return new Response(JSON.stringify({ok:true,role:'event',event}),{status:200,headers});
+    return new Response(JSON.stringify({ok:true,role:'event',event:identity.event}),{status:200,headers});
   }
   const fail=await recordAuthFailure(env,request);
   if(Number(fail?.locked_until)>0)return json({ok:false,error:'rate_limited',message:'Too many failed attempts. Try again in about 15 minutes.',retry_after:900},429);
