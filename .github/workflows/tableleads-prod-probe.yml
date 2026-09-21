@@ -71,8 +71,12 @@ jobs:
           test "$ok" -eq 1
 
           intake_location="$(curl -sS -o /dev/null -D - --max-time 15 "$base/intake" | tr -d '\r' | awk 'tolower($1)=="location:"{print $2}' | tail -1)"
+          admin_location="$(curl -sS -o /dev/null -D - --max-time 15 "$base/admin/" | tr -d '\r' | awk 'tolower($1)=="location:"{print $2}' | tail -1)"
+          staff_location="$(curl -sS -o /dev/null -D - --max-time 15 "$base/staff/" | tr -d '\r' | awk 'tolower($1)=="location:"{print $2}' | tail -1)"
           test "$intake_location" = "/leads-trials/"
-          echo "Legacy Intake redirect verified."
+          test "$admin_location" = "/leads-trials/"
+          test "$staff_location" = "/leads-trials/"
+          echo "Legacy Intake/Admin/Staff redirects verified."
 
           auth_status="$(curl -sS -o /tmp/auth.txt -w '%{http_code}' --max-time 15 "$base/api/leads/auth")"
           all_status="$(curl -sS -o /tmp/all.txt -w '%{http_code}' --max-time 15 "$base/api/leads/admin/all")"
