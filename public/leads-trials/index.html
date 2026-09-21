@@ -58,7 +58,7 @@
     <div id="adminWho" class="who"></div>
   </section>
 </main>
-<div class="version">v0.1.9</div>
+<div class="version">v0.1.10</div>
 
 <div id="pinBack" class="modalBack hidden" role="dialog" aria-modal="true">
   <section class="modal">
@@ -73,7 +73,7 @@
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-let mode='admin';
+let mode='admin',currentRole='';
 const ADMIN_PERMS=['intake_admin','table_event_admin','partner_pages','leads'];
 function openPin(kind){mode=kind;$('pinTitle').textContent=kind==='event'?'Table Event Access':'Admin Access';$('pinHelp').textContent=kind==='event'?'Enter the 4-digit code for the event you are working.':'Enter your 4-digit PIN.';$('pin').value='';$('pinMsg').textContent='';$('pinBack').classList.remove('hidden');setTimeout(()=>$('pin').focus(),20)}
 function closePin(){$('pinBack').classList.add('hidden')}
@@ -85,7 +85,7 @@ async function launchIntakeAdmin(){
     const r=await fetch('/api/leads/handoff/intake',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.ok||!j.token)throw new Error('Could not open Intake Admin.');
-    location.href='https://intake.f45pompano.com/?handoff='+encodeURIComponent(j.token);
+    location.href='https://intake.f45pompano.com/?handoff='+encodeURIComponent(j.token)+(currentRole==='user'?'&staff=1':'');
   }catch(e){
     alert(e.message||'Could not open Intake Admin.');
     if(b)b.disabled=false;
@@ -119,6 +119,7 @@ function showStaff(){
   clearIdentity();
 }
 function showDashboard(role,user,rawCode=''){
+  currentRole=role;
   $('staffHome').classList.add('hidden');
   $('adminHome').classList.remove('hidden');
   $('adminBtn').classList.add('hidden');
