@@ -1,5 +1,17 @@
-const CACHE='f45-leads-trials-v1';
-const CORE=['/admin/','/admin/access/','/admin/manifest.webmanifest','/admin/icon.svg'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE&&k.startsWith('f45-leads-trials-')).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);if(u.origin!==location.origin)return;if(u.pathname.startsWith('/api/'))return;e.respondWith(fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>caches.match(e.request).then(r=>r||caches.match('/admin/'))))});
+const OLD_PREFIX='f45-leads-trials-';
+self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
+self.addEventListener('activate',event=>event.waitUntil(
+  caches.keys()
+    .then(keys=>Promise.all(keys.filter(k=>k.startsWith(OLD_PREFIX)).map(k=>caches.delete(k))))
+    .then(()=>self.clients.claim())
+));
+self.addEventListener('fetch',event=>{
+  if(event.request.method!=='GET')return;
+  const u=new URL(event.request.url);
+  if(u.origin!==location.origin)return;
+  if(event.request.mode==='navigate'&&(u.pathname==='/admin/'||u.pathname==='/admin')){
+    event.respondWith(Response.redirect('/leads-trials/',302));
+    return;
+  }
+  event.respondWith(fetch(event.request,{cache:'no-store'}));
+});
