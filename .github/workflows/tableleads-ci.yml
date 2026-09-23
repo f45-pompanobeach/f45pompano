@@ -56,3 +56,13 @@ jobs:
           node --check functions/tableleads/confirm.js
       - name: Build site
         run: npm run build
+      - name: Parse generated homepage inline scripts
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const html = fs.readFileSync('dist/index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)];
+          scripts.forEach((match, index) => new vm.Script(match[1], { filename: 'dist/index.html:inline-script-' + index }));
+          console.log('Parsed ' + scripts.length + ' generated homepage inline scripts.');
+          NODE
