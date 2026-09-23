@@ -39,7 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
-const SITE_VERSION = "v2026.09.18.7";
+const SITE_VERSION = "v2026.09.22.1";
 
 const rootLeadCaptureCss = String.raw`
 
@@ -275,6 +275,16 @@ const rootLeadCaptureHtml = String.raw`
         <input id="rootPhone" name="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="(954) 555-1234" title="Please enter a valid U.S. phone number.">
       </div>
 
+      <div class="form-row">
+        <label for="rootZipCode">ZIP Code on your ID *</label>
+        <input id="rootZipCode" name="zip_code_on_id" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" required title="Please enter the 5-digit ZIP code shown on your ID.">
+      </div>
+
+      <label class="terms-privacy-row eligibility-confirm-row">
+        <input id="rootResidencyConfirm" type="checkbox" name="first_time_local_resident" value="yes" required>
+        <span>I confirm that I am a first-time visitor, a local resident, and able to verify residency for this offer.</span>
+      </label>
+
       <p class="root-inquiry-disclosure">By submitting this form, you agree that F45 Training Pompano Beach may contact you by phone or email to respond to your inquiry and help you with this trial offer.</p>
 
       <label class="terms-privacy-row">
@@ -355,6 +365,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const lastNameField = form.querySelector("#rootLastName");
     const emailField = form.querySelector("#rootEmail");
     const phoneField = form.querySelector("#rootPhone");
+    const zipField = form.querySelector("#rootZipCode");
+    const residencyCheckbox = form.querySelector("#rootResidencyConfirm");
     const smsCheckbox = form.querySelector("#rootSmsConsent");
     const termsPrivacyCheckbox = form.querySelector("#rootTermsPrivacy");
     const termsPrivacyError = form.querySelector("#rootTermsPrivacyError");
@@ -387,6 +399,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!validName(lastNameField && lastNameField.value)) {
       alert("Please enter your full last name with at least 2 letters.");
       if (lastNameField) lastNameField.focus();
+      return;
+    }
+
+    const zipValue = zipField ? zipField.value.trim() : "";
+    if (!/^\d{5}$/.test(zipValue)) {
+      alert("Please enter the 5-digit ZIP code shown on your ID.");
+      if (zipField) zipField.focus();
+      return;
+    }
+
+    if (!residencyCheckbox || !residencyCheckbox.checked) {
+      alert("Please confirm that you are a first-time local resident and can verify residency for this offer.");
+      if (residencyCheckbox) residencyCheckbox.focus();
       return;
     }
 
@@ -436,6 +461,9 @@ document.addEventListener("DOMContentLoaded", function () {
       "last_name": lastNameField ? lastNameField.value.trim() : "",
       "email": emailField ? emailField.value.trim() : "",
       "phone": normalizedPhoneForPayload,
+      "ZIP Code": zipValue,
+      "First-time Local Resident": "Yes",
+      "Residency Verification Confirmed": "Yes",
       "terms_privacy_acknowledged": true,
       "terms_privacy_acknowledged_timestamp": timestamp,
       "terms_privacy_version": "2026-09-01-v1",
@@ -452,7 +480,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ? runtimeLandingConfig.global.leadNotificationEmails
         : ["pompanobeach@f45training.com"];
       const notificationEmails = Array.isArray(configuredRecipients)
-        ? configuredRecipients.map(function (email) { return String(email || "").trim().toLowerCase(); }).filter(function (email) { return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email); })
+        ? configuredRecipients.map(function (email) { return String(email || "").trim().toLowerCase(); }).filter(function (email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); })
         : [];
 
       if (notificationEmails.length) {
@@ -472,7 +500,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!response.ok) throw new Error("FormSubmit did not accept the submission");
       }
 
-      fetch("/api/leads/intake",{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({source_type:"website",source_name:"Main Website",source_slug:"root",first_name:firstNameField?firstNameField.value.trim():"",last_name:lastNameField?lastNameField.value.trim():"",email:emailField?emailField.value.trim():"",phone:normalizedPhoneForPayload,zip:"",marketing_opt_in:smsOptIn,source_url:window.location.href,offer:runtimeOffer})}).catch(function(){});
+      fetch("/api/leads/intake",{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({source_type:"website",source_name:"Main Website",source_slug:"root",first_name:firstNameField?firstNameField.value.trim():"",last_name:lastNameField?lastNameField.value.trim():"",email:emailField?emailField.value.trim():"",phone:normalizedPhoneForPayload,zip:zipValue,marketing_opt_in:smsOptIn,source_url:window.location.href,offer:runtimeOffer})}).catch(function(){});
       showSuccessBox();
     } catch (error) {
       alert("Something went wrong submitting the form. Please call or text us at 954-302-3889 and we’ll help you activate the offer.");
@@ -757,7 +785,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const partnerName=runtimePage.partner||${partnerName};
     const runtimeOffer=(runtimePage.trialType&&runtimePage.trialCost)?(runtimePage.trialType+" for "+runtimePage.trialCost):${trialOffer};
     const payload={_subject:"New Partner Lead: "+fullName.trim()+" - "+partnerName,_template:"table",_captcha:"false","Lead Source":"Partner Website - "+partnerName,"Offer":runtimeOffer,"Partner":partnerName,"Full Name":fullName.trim(),"first_name":firstNameField?firstNameField.value.trim():"","last_name":lastNameField?lastNameField.value.trim():"","email":emailField?emailField.value.trim():"","phone":normalizedPhoneForPayload,"zip_code":zipValue,"local_residency_eligibility":true,"local_residency_eligibility_timestamp":timestamp,"terms_privacy_acknowledged":true,"terms_privacy_acknowledged_timestamp":timestamp,"terms_privacy_version":"${partnerTermsVersion}","terms_privacy_disclosure":"I agree to F45 Training Pompano Beach’s Terms & Conditions and acknowledge the Privacy Policy.","sms_opt_in":smsOptIn,"sms_consent_timestamp":timestamp,"source_url":window.location.origin+window.location.pathname,"consent_version":"${partnerConsentVersion}","consent_language":${consentLanguage}};
-    try{const configuredRecipients=Object.prototype.hasOwnProperty.call(runtimeGlobal,"leadNotificationEmails")?runtimeGlobal.leadNotificationEmails:["pompanobeach@f45training.com"];const notificationEmails=Array.isArray(configuredRecipients)?configuredRecipients.map(function(email){return String(email||"").trim().toLowerCase();}).filter(function(email){return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);}):[];if(notificationEmails.length){const primaryEmail=notificationEmails[0],ccEmails=notificationEmails.slice(1);if(ccEmails.length)payload._cc=ccEmails.join(",");const response=await fetch("https://formsubmit.co/ajax/"+primaryEmail,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});if(!response.ok)throw new Error("FormSubmit did not accept the submission");}fetch("/api/leads/intake",{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({source_type:"partner",source_name:partnerName,source_slug:(runtimeLanding.slug||window.location.pathname.split("/").filter(Boolean).pop()||partnerName),first_name:firstNameField?firstNameField.value.trim():"",last_name:lastNameField?lastNameField.value.trim():"",email:emailField?emailField.value.trim():"",phone:normalizedPhoneForPayload,zip:zipValue,marketing_opt_in:smsOptIn,source_url:window.location.href,offer:runtimeOffer})}).catch(function(){});showSuccessBox();}catch(error){alert("Something went wrong submitting the form. Please call or text us at "+${phone}+" and we’ll help you activate the offer.");if(submitButton){submitButton.disabled=false;submitButton.textContent=${submitDefault};}}
+    try{const configuredRecipients=Object.prototype.hasOwnProperty.call(runtimeGlobal,"leadNotificationEmails")?runtimeGlobal.leadNotificationEmails:["pompanobeach@f45training.com"];const notificationEmails=Array.isArray(configuredRecipients)?configuredRecipients.map(function(email){return String(email||"").trim().toLowerCase();}).filter(function(email){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);}):[];if(notificationEmails.length){const primaryEmail=notificationEmails[0],ccEmails=notificationEmails.slice(1);if(ccEmails.length)payload._cc=ccEmails.join(",");const response=await fetch("https://formsubmit.co/ajax/"+primaryEmail,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});if(!response.ok)throw new Error("FormSubmit did not accept the submission");}fetch("/api/leads/intake",{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({source_type:"partner",source_name:partnerName,source_slug:(runtimeLanding.slug||window.location.pathname.split("/").filter(Boolean).pop()||partnerName),first_name:firstNameField?firstNameField.value.trim():"",last_name:lastNameField?lastNameField.value.trim():"",email:emailField?emailField.value.trim():"",phone:normalizedPhoneForPayload,zip:zipValue,marketing_opt_in:smsOptIn,source_url:window.location.href,offer:runtimeOffer})}).catch(function(){});showSuccessBox();}catch(error){alert("Something went wrong submitting the form. Please call or text us at "+${phone}+" and we’ll help you activate the offer.");if(submitButton){submitButton.disabled=false;submitButton.textContent=${submitDefault};}}
   });
 });
 </script>
