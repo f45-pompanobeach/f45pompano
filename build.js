@@ -39,7 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
-const SITE_VERSION = "v2026.09.22.1";
+const SITE_VERSION = "v2026.09.22.2";
 
 const rootLeadCaptureCss = String.raw`
 
@@ -236,82 +236,54 @@ const rootLeadCaptureHtml = String.raw`
     </div>
   </div>
 
-  <div class="root-claim-form-card">
-    <div class="root-claim-form-header">
+  <div class="screenshot-offer-card form-overlay-card">
+    <div class="partner-exclusive-header">
       <h2>Reserve 3 for $30 Trial</h2>
-      <p>Submit your info first. Then your trial offer will unlock.</p>
+      <p>Submit your info first. Then your 3 Classes for $30 offer will unlock.</p>
     </div>
 
-    <form id="rootLeadForm" class="root-lead-form" action="https://formsubmit.co/ajax/pompanobeach@f45training.com" method="POST">
+    <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/ajax/pompanobeach@f45training.com" method="POST">
       <input type="hidden" name="_subject" value="New Root Website Lead: 3 Classes for $30">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="Lead Source" value="Root Website - f45pompano.com">
       <input type="hidden" name="Offer" value="3 Classes for $30">
-      <input type="hidden" id="rootFullNameHidden" name="Full Name" value="">
-      <input type="hidden" id="rootSmsOptInHidden" name="sms_opt_in" value="false">
-      <input type="hidden" id="rootSmsConsentTimestampHidden" name="sms_consent_timestamp" value="">
+      <input type="hidden" id="fullNameHidden" name="Full Name" value="">
+      <input type="hidden" id="partnerSmsOptInHidden" name="sms_opt_in" value="false">
+      <input type="hidden" id="partnerSmsConsentTimestampHidden" name="sms_consent_timestamp" value="">
       <input type="hidden" name="source_url" value="https://f45pompano.com/">
       <input type="hidden" name="consent_version" value="2026-08-29-v1">
       <input type="hidden" name="consent_language" value="I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. Privacy Policy | Terms & Conditions. Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes.">
 
-      <div class="form-row">
-        <label for="rootFirstName">First Name *</label>
-        <input id="rootFirstName" name="first_name" type="text" autocomplete="given-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters.">
-      </div>
+      <div class="form-row"><label for="firstName">First Name *</label><input id="firstName" name="first_name" type="text" autocomplete="given-name" required minlength="2" pattern="[A-Za-z][A-Za-z\\s\\-']{1,}" title="Please enter at least 2 letters."></div>
+      <div class="form-row"><label for="lastName">Last Name *</label><input id="lastName" name="last_name" type="text" autocomplete="family-name" required minlength="2" pattern="[A-Za-z][A-Za-z\\s\\-']{1,}" title="Please enter at least 2 letters."></div>
+      <div class="form-row"><label for="email">Email *</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+      <div class="form-row"><label for="phone">Mobile Phone *</label><input id="phone" name="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="(954) 555-1234" title="Please enter a valid U.S. phone number."></div>
+      <div class="form-row full"><label for="zipCode">ZIP Code *</label><input id="zipCode" name="zip_code" type="text" required inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" placeholder="5-digit ZIP code"></div>
 
-      <div class="form-row">
-        <label for="rootLastName">Last Name *</label>
-        <input id="rootLastName" name="last_name" type="text" autocomplete="family-name" required minlength="2" pattern="[A-Za-z][A-Za-z\s\-']{1,}" title="Please enter at least 2 letters.">
-      </div>
+      <p class="partner-inquiry-disclosure">By submitting this form, you agree that F45 Training Pompano Beach may contact you by phone or email to respond to your inquiry and help you with this offer.</p>
 
-      <div class="form-row">
-        <label for="rootEmail">Email *</label>
-        <input id="rootEmail" name="email" type="email" autocomplete="email" required>
-      </div>
+      <label class="terms-privacy-row"><input id="partnerTermsPrivacy" type="checkbox" name="terms_privacy_acknowledged" value="yes" required><span>I agree to F45 Training Pompano Beach’s <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a> and acknowledge the <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+      <p id="partnerTermsPrivacyError" class="partner-form-error">Please agree to the Terms &amp; Conditions and acknowledge the Privacy Policy before continuing.</p>
 
-      <div class="form-row">
-        <label for="rootPhone">Mobile Phone *</label>
-        <input id="rootPhone" name="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="(954) 555-1234" title="Please enter a valid U.S. phone number.">
-      </div>
+      <label class="eligibility-confirm-row"><input id="partnerEligibilityConfirm" type="checkbox" name="local_residency_eligibility" value="yes" required><span>I confirm that I am a first-time visitor and live in one of these ZIP codes (${shared.qualifiedZipCodes}), and am able to verify residency for this offer.</span></label>
+      <p id="partnerEligibilityError" class="partner-form-error">Please confirm first-time visitor and local residency eligibility before continuing.</p>
 
-      <div class="form-row">
-        <label for="rootZipCode">ZIP Code on your ID *</label>
-        <input id="rootZipCode" name="zip_code_on_id" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" required title="Please enter the 5-digit ZIP code shown on your ID.">
-      </div>
-
-      <label class="terms-privacy-row eligibility-confirm-row">
-        <input id="rootResidencyConfirm" type="checkbox" name="first_time_local_resident" value="yes" required>
-        <span>I confirm that I am a first-time visitor, a local resident, and able to verify residency for this offer.</span>
-      </label>
-
-      <p class="root-inquiry-disclosure">By submitting this form, you agree that F45 Training Pompano Beach may contact you by phone or email to respond to your inquiry and help you with this trial offer.</p>
-
-      <label class="terms-privacy-row">
-        <input id="rootTermsPrivacy" type="checkbox" name="terms_privacy_acknowledged" value="yes" required>
-        <span>I agree to F45 Training Pompano Beach’s <a href="https://f45pompano.com/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a> and acknowledge the <a href="https://f45pompano.com/privacy/" target="_blank" rel="noopener">Privacy Policy</a>.</span>
-      </label>
-
-      <p id="rootTermsPrivacyError" class="terms-privacy-error">Please agree to the Terms &amp; Conditions and acknowledge the Privacy Policy before continuing.</p>
-
-      <label class="sms-consent-row">
-        <input id="rootSmsConsent" type="checkbox" name="sms_consent_checkbox" value="yes">
-        <span>I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> | <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span>
-      </label>
-
+      <label class="sms-consent-row"><input id="partnerSmsConsent" type="checkbox" name="sms_consent_checkbox" value="yes"><span>I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> | <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span></label>
       <p class="sms-no-share-note">Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes.</p>
 
-      <button type="submit" class="root-claim-submit">Submit &amp; Unlock Offer</button>
-
-      <p class="root-form-small-note">First-time local residents only. Valid for a limited time. Must book first class in advance.</p>
+      <button type="submit" class="claim-submit">Submit &amp; Unlock Offer</button>
+      <p class="form-small-note">First-time local residents only. Eligibility will be verified before your first class.</p>
     </form>
 
-    <div id="rootClaimSuccess" class="root-claim-success" tabindex="-1">
-      <div class="root-success-label">Offer unlocked!</div>
+    <div id="claimSuccess" class="claim-success" tabindex="-1">
+      <div class="success-unlocked-label">Offer unlocked!</div>
       <h3>Your 3 Classes for $30 offer is ready.</h3>
-      <p>Continue to activate your trial. Eligibility will be verified before your first class.</p>
-      <a class="promo-claim-btn" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" rel="noopener">Activate Trial Offer</a>
-      <p class="root-mindbody-help-note">Use the same email you entered here. If your account already exists, choose “Forgot Password” or call/text us at 954-302-3889.</p>
+      <p>Continue to Mindbody to create your account and activate your trial. Eligibility will be verified before your first class.</p>
+      <div class="claim-success-actions">
+        <a class="screenshot-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001" target="_blank" rel="noopener">Continue to Mindbody — $30 Trial</a>
+      </div>
+      <p class="mindbody-help-note">Use the same email you entered here. If your account already exists, choose “Forgot Password” or call/text us at 954-302-3889.</p>
     </div>
   </div>
 </div>
@@ -334,181 +306,41 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  const form = document.getElementById("rootLeadForm");
-  const successBox = document.getElementById("rootClaimSuccess");
-  if (!form) return;
+  const form=document.getElementById("partnerLeadForm");
+  const successBox=document.getElementById("claimSuccess");
+  if(!form)return;
 
-  function showSuccessBox() {
-    if (!successBox) return;
-    const parent = form.parentNode;
-    if (parent && successBox.parentNode === parent) {
-      parent.insertBefore(successBox, form);
-    }
-    form.remove();
-    successBox.style.setProperty("display", "block", "important");
-    successBox.setAttribute("tabindex", "-1");
-    requestAnimationFrame(function () {
-      successBox.focus({ preventScroll: true });
-      const rect = successBox.getBoundingClientRect();
-      const fullyVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
-      if (!fullyVisible) {
-        const targetY = window.scrollY + rect.top - Math.max(20, (window.innerHeight - Math.min(rect.height, window.innerHeight - 40)) / 2);
-        window.scrollTo({ top: Math.max(0, targetY), left: 0, behavior: "smooth" });
-      }
-    });
-  }
+  function showSuccessBox(){if(!successBox)return;const parent=form.parentNode;if(parent&&successBox.parentNode===parent){parent.insertBefore(successBox,form);}form.remove();successBox.classList.add("is-visible");successBox.setAttribute("tabindex","-1");requestAnimationFrame(function(){successBox.focus({preventScroll:true});const rect=successBox.getBoundingClientRect();const fullyVisible=rect.top>=0&&rect.bottom<=window.innerHeight;if(!fullyVisible){const targetY=window.scrollY+rect.top-Math.max(20,(window.innerHeight-Math.min(rect.height,window.innerHeight-40))/2);window.scrollTo({top:Math.max(0,targetY),left:0,behavior:"smooth"});}});}
 
-  form.addEventListener("submit", async function (event) {
+  form.addEventListener("submit",async function(event){
     event.preventDefault();
+    const firstNameField=form.querySelector("#firstName"),lastNameField=form.querySelector("#lastName"),emailField=form.querySelector("#email"),phoneField=form.querySelector("#phone"),zipField=form.querySelector("#zipCode"),termsCheckbox=form.querySelector("#partnerTermsPrivacy"),eligibilityCheckbox=form.querySelector("#partnerEligibilityConfirm"),smsCheckbox=form.querySelector("#partnerSmsConsent"),termsError=form.querySelector("#partnerTermsPrivacyError"),eligibilityError=form.querySelector("#partnerEligibilityError"),fullNameHidden=form.querySelector("#fullNameHidden"),smsOptInHidden=form.querySelector("#partnerSmsOptInHidden"),smsTimestampHidden=form.querySelector("#partnerSmsConsentTimestampHidden");
+    const validName=function(value){return /^[A-Za-z][A-Za-z\\s\\-']{1,}$/.test((value||"").trim());};
+    if(!validName(firstNameField&&firstNameField.value)){alert("Please enter your full first name with at least 2 letters.");if(firstNameField)firstNameField.focus();return;}
+    if(!validName(lastNameField&&lastNameField.value)){alert("Please enter your full last name with at least 2 letters.");if(lastNameField)lastNameField.focus();return;}
 
-    const firstNameField = form.querySelector("#rootFirstName");
-    const lastNameField = form.querySelector("#rootLastName");
-    const emailField = form.querySelector("#rootEmail");
-    const phoneField = form.querySelector("#rootPhone");
-    const zipField = form.querySelector("#rootZipCode");
-    const residencyCheckbox = form.querySelector("#rootResidencyConfirm");
-    const smsCheckbox = form.querySelector("#rootSmsConsent");
-    const termsPrivacyCheckbox = form.querySelector("#rootTermsPrivacy");
-    const termsPrivacyError = form.querySelector("#rootTermsPrivacyError");
-    const fullNameHidden = form.querySelector("#rootFullNameHidden");
-    const smsOptInHidden = form.querySelector("#rootSmsOptInHidden");
-    const smsTimestampHidden = form.querySelector("#rootSmsConsentTimestampHidden");
+    const runtimeLanding=(window.__LANDING_CONFIG__||{}),runtimeGlobal=(runtimeLanding.global||{}),runtimePage={...runtimeGlobal,...(runtimeLanding.page||{})};
+    const zipValue=zipField?zipField.value.trim():"";
+    if(!/^\\d{5}$/.test(zipValue)){alert("Please enter your 5-digit ZIP code.");if(zipField)zipField.focus();return;}
+    if(!termsCheckbox||!termsCheckbox.checked){if(termsError)termsError.style.display="block";if(termsCheckbox)termsCheckbox.focus();return;}if(termsError)termsError.style.display="none";
+    if(!eligibilityCheckbox||!eligibilityCheckbox.checked){if(eligibilityError)eligibilityError.style.display="block";if(eligibilityCheckbox)eligibilityCheckbox.focus();return;}if(eligibilityError)eligibilityError.style.display="none";
 
-    const validName = function (value) {
-      return /^[A-Za-z][A-Za-z\s\-']{1,}$/.test((value || "").trim());
-    };
+    if(phoneField){const phoneDigits=phoneField.value.replace(/\\D/g,"");const valid=phoneDigits.length===10||(phoneDigits.length===11&&phoneDigits.charAt(0)==="1");if(!valid){alert("Please enter a valid U.S. phone number so we can contact you about your offer.");phoneField.focus();return;}const normalized=phoneDigits.length===11?phoneDigits.substring(1):phoneDigits;phoneField.value="("+normalized.substring(0,3)+") "+normalized.substring(3,6)+"-"+normalized.substring(6);}
 
-    if (termsPrivacyError) {
-      termsPrivacyError.style.setProperty("display", "none", "important");
-    }
+    const fullName=((firstNameField&&firstNameField.value.trim())||"")+" "+((lastNameField&&lastNameField.value.trim())||"");const timestamp=new Date().toISOString();const smsOptIn=!!(smsCheckbox&&smsCheckbox.checked);const normalizedPhoneForPayload=phoneField?phoneField.value.replace(/\\D/g,"").replace(/^1(?=\\d{10}$)/,""):"";
+    if(fullNameHidden)fullNameHidden.value=fullName.trim();if(smsOptInHidden)smsOptInHidden.value=smsOptIn?"true":"false";if(smsTimestampHidden)smsTimestampHidden.value=timestamp;
 
-    if (!termsPrivacyCheckbox || !termsPrivacyCheckbox.checked) {
-      if (termsPrivacyError) {
-        termsPrivacyError.style.setProperty("display", "block", "important");
-      }
-      if (termsPrivacyCheckbox) termsPrivacyCheckbox.focus();
-      return;
-    }
+    const submitButton=form.querySelector("button[type='submit']");if(submitButton){submitButton.disabled=true;submitButton.textContent="Submitting...";}
+    const runtimeOffer=(runtimePage.trialType&&runtimePage.trialCost)?(runtimePage.trialType+" for "+runtimePage.trialCost):"3 Classes for $30";
+    const payload={_subject:"New Root Website Lead: "+fullName.trim()+" - "+runtimeOffer,_template:"table",_captcha:"false","Lead Source":"Root Website - f45pompano.com","Offer":runtimeOffer,"Full Name":fullName.trim(),"first_name":firstNameField?firstNameField.value.trim():"","last_name":lastNameField?lastNameField.value.trim():"","email":emailField?emailField.value.trim():"","phone":normalizedPhoneForPayload,"zip_code":zipValue,"local_residency_eligibility":true,"local_residency_eligibility_timestamp":timestamp,"terms_privacy_acknowledged":true,"terms_privacy_acknowledged_timestamp":timestamp,"terms_privacy_version":"2026-09-01-v1","terms_privacy_disclosure":"I agree to F45 Training Pompano Beach’s Terms & Conditions and acknowledge the Privacy Policy.","sms_opt_in":smsOptIn,"sms_consent_timestamp":timestamp,"source_url":window.location.origin+window.location.pathname,"consent_version":"2026-08-29-v1","consent_language":"I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. Privacy Policy | Terms & Conditions. Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes."};
 
-    if (!validName(firstNameField && firstNameField.value)) {
-      alert("Please enter your full first name with at least 2 letters.");
-      if (firstNameField) firstNameField.focus();
-      return;
-    }
-
-    if (!validName(lastNameField && lastNameField.value)) {
-      alert("Please enter your full last name with at least 2 letters.");
-      if (lastNameField) lastNameField.focus();
-      return;
-    }
-
-    const zipValue = zipField ? zipField.value.trim() : "";
-    if (!/^\d{5}$/.test(zipValue)) {
-      alert("Please enter the 5-digit ZIP code shown on your ID.");
-      if (zipField) zipField.focus();
-      return;
-    }
-
-    if (!residencyCheckbox || !residencyCheckbox.checked) {
-      alert("Please confirm that you are a first-time local resident and can verify residency for this offer.");
-      if (residencyCheckbox) residencyCheckbox.focus();
-      return;
-    }
-
-    if (phoneField) {
-      const phoneDigits = phoneField.value.replace(/\D/g, "");
-      const isValidUSPhone = phoneDigits.length === 10 || (phoneDigits.length === 11 && phoneDigits.charAt(0) === "1");
-
-      if (!isValidUSPhone) {
-        alert("Please enter a valid U.S. phone number so we can contact you about your trial.");
-        phoneField.focus();
-        return;
-      }
-
-      const normalizedPhone = phoneDigits.length === 11 ? phoneDigits.substring(1) : phoneDigits;
-      phoneField.value = "(" + normalizedPhone.substring(0, 3) + ") " + normalizedPhone.substring(3, 6) + "-" + normalizedPhone.substring(6);
-    }
-
-    const fullName = ((firstNameField && firstNameField.value.trim()) || "") + " " + ((lastNameField && lastNameField.value.trim()) || "");
-    const smsOptIn = !!(smsCheckbox && smsCheckbox.checked);
-    const timestamp = new Date().toISOString();
-    const normalizedPhoneForPayload = phoneField ? phoneField.value.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "") : "";
-
-    if (fullNameHidden) fullNameHidden.value = fullName.trim();
-    if (smsOptInHidden) smsOptInHidden.value = smsOptIn ? "true" : "false";
-    if (smsTimestampHidden) smsTimestampHidden.value = timestamp;
-
-    const submitButton = form.querySelector("button[type='submit']");
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = "Submitting...";
-    }
-
-    const runtimeLandingConfig = window.__LANDING_CONFIG__ || {};
-    const runtimeLandingPage = {...(runtimeLandingConfig.global || {}), ...(runtimeLandingConfig.page || {})};
-    const runtimeTrialType = runtimeLandingPage.trialType || "3 Classes";
-    const runtimeTrialCost = runtimeLandingPage.trialCost || "$30";
-    const runtimeOffer = runtimeTrialType + " for " + runtimeTrialCost;
-
-    const payload = {
-      _subject: "New Root Website Lead: " + fullName.trim() + " - " + runtimeOffer,
-      _template: "table",
-      _captcha: "false",
-      "Lead Source": "Root Website - f45pompano.com",
-      "Offer": runtimeOffer,
-      "Full Name": fullName.trim(),
-      "first_name": firstNameField ? firstNameField.value.trim() : "",
-      "last_name": lastNameField ? lastNameField.value.trim() : "",
-      "email": emailField ? emailField.value.trim() : "",
-      "phone": normalizedPhoneForPayload,
-      "ZIP Code": zipValue,
-      "First-time Local Resident": "Yes",
-      "Residency Verification Confirmed": "Yes",
-      "terms_privacy_acknowledged": true,
-      "terms_privacy_acknowledged_timestamp": timestamp,
-      "terms_privacy_version": "2026-09-01-v1",
-      "terms_privacy_disclosure": "I agree to F45 Training Pompano Beach’s Terms & Conditions and acknowledge the Privacy Policy.",
-      "sms_opt_in": smsOptIn,
-      "sms_consent_timestamp": timestamp,
-      "source_url": "https://f45pompano.com/",
-      "consent_version": "2026-08-29-v1",
-      "consent_language": "I agree to receive recurring customer care and marketing text messages from F45 Training Pompano Beach at the mobile number provided, including messages sent using automated technology. Message frequency may vary. Message and data rates may apply. Consent is not a condition of purchase. Reply STOP to opt out or HELP for help. Privacy Policy | Terms & Conditions. Your mobile information and SMS opt-in consent will not be sold or shared with third parties for promotional or marketing purposes."
-    };
-
-    try {
-      const configuredRecipients = runtimeLandingConfig.global && Object.prototype.hasOwnProperty.call(runtimeLandingConfig.global, "leadNotificationEmails")
-        ? runtimeLandingConfig.global.leadNotificationEmails
-        : ["pompanobeach@f45training.com"];
-      const notificationEmails = Array.isArray(configuredRecipients)
-        ? configuredRecipients.map(function (email) { return String(email || "").trim().toLowerCase(); }).filter(function (email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); })
-        : [];
-
-      if (notificationEmails.length) {
-        const primaryEmail = notificationEmails[0];
-        const ccEmails = notificationEmails.slice(1);
-        if (ccEmails.length) payload._cc = ccEmails.join(",");
-
-        const response = await fetch("https://formsubmit.co/ajax/" + primaryEmail, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) throw new Error("FormSubmit did not accept the submission");
-      }
-
+    try{
+      const configuredRecipients=Object.prototype.hasOwnProperty.call(runtimeGlobal,"leadNotificationEmails")?runtimeGlobal.leadNotificationEmails:["pompanobeach@f45training.com"];
+      const notificationEmails=Array.isArray(configuredRecipients)?configuredRecipients.map(function(email){return String(email||"").trim().toLowerCase();}).filter(function(email){return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);}):[];
+      if(notificationEmails.length){const primaryEmail=notificationEmails[0],ccEmails=notificationEmails.slice(1);if(ccEmails.length)payload._cc=ccEmails.join(",");const response=await fetch("https://formsubmit.co/ajax/"+primaryEmail,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});if(!response.ok)throw new Error("FormSubmit did not accept the submission");}
       fetch("/api/leads/intake",{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({source_type:"website",source_name:"Main Website",source_slug:"root",first_name:firstNameField?firstNameField.value.trim():"",last_name:lastNameField?lastNameField.value.trim():"",email:emailField?emailField.value.trim():"",phone:normalizedPhoneForPayload,zip:zipValue,marketing_opt_in:smsOptIn,source_url:window.location.href,offer:runtimeOffer})}).catch(function(){});
       showSuccessBox();
-    } catch (error) {
-      alert("Something went wrong submitting the form. Please call or text us at 954-302-3889 and we’ll help you activate the offer.");
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent = "Submit & Unlock Offer";
-      }
-    }
+    }catch(error){alert("Something went wrong submitting the form. Please call or text us at 954-302-3889 and we’ll help you activate the offer.");if(submitButton){submitButton.disabled=false;submitButton.textContent="Submit & Unlock Offer";}}
   });
 });
 </script>
@@ -524,6 +356,7 @@ function addRootLeadCapture(html) {
   html = html.replaceAll("Complete the short form to unlock Mindbody® checkout", "Complete the short form to unlock your trial offer");
 
   html = html.replace(`</style>`, `${rootLeadCaptureCss}\n</style>`);
+  html = html.replace(`</head>`, `${partnerRootFormCss}\n</head>`);
   html = html.replace(`</body>`, `${rootLeadCaptureJs}\n</body>`);
   return html;
 }
