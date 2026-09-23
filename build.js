@@ -39,7 +39,7 @@ function addLocalComplianceLinks(html) {
 }
 
 const mindbodyTrialUrl = "https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=653001";
-const SITE_VERSION = "v2026.09.22.3";
+const SITE_VERSION = "v2026.09.22.4";
 
 const rootLeadCaptureCss = String.raw`
 
@@ -336,7 +336,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try{
       const configuredRecipients=Object.prototype.hasOwnProperty.call(runtimeGlobal,"leadNotificationEmails")?runtimeGlobal.leadNotificationEmails:["pompanobeach@f45training.com"];
-      const notificationEmails=Array.isArray(configuredRecipients)?configuredRecipients.map(function(email){return String(email||"").trim().toLowerCase();}).filter(function(email){return /^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(email);}):[];
+      let notificationEmails=Array.isArray(configuredRecipients)?configuredRecipients.map(function(email){return String(email||"").trim().toLowerCase();}).filter(function(email){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);}):[];if(!notificationEmails.length)notificationEmails=["pompanobeach@f45training.com"];
       if(notificationEmails.length){const primaryEmail=notificationEmails[0],ccEmails=notificationEmails.slice(1);if(ccEmails.length)payload._cc=ccEmails.join(",");const response=await fetch("https://formsubmit.co/ajax/"+primaryEmail,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});if(!response.ok)throw new Error("FormSubmit did not accept the submission");}
       fetch("/api/leads/intake",{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({source_type:"website",source_name:"Main Website",source_slug:"root",first_name:firstNameField?firstNameField.value.trim():"",last_name:lastNameField?lastNameField.value.trim():"",email:emailField?emailField.value.trim():"",phone:normalizedPhoneForPayload,zip:zipValue,marketing_opt_in:smsOptIn,source_url:window.location.href,offer:runtimeOffer})}).catch(function(){});
       showSuccessBox();
