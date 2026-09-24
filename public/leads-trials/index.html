@@ -58,7 +58,7 @@
     <div id="adminWho" class="who"></div>
   </section>
 </main>
-<div class="version">v0.1.15</div>
+<div class="version">v0.1.16</div>
 
 <div id="pinBack" class="modalBack hidden" role="dialog" aria-modal="true">
   <section class="modal">
@@ -121,7 +121,7 @@ function showDashboard(role,user,rawCode=''){
   $('leadManagementSection').classList.toggle('hidden',!showLeadManagement);
   $('administrationSection').classList.toggle('hidden',!showAdministration);
   $('adminIntakeBtn').classList.toggle('hidden',!perms.includes('intake_admin'));
-  $('adminIntakeBtn').href='/api/leads/handoff/intake'+(role==='user'?'?staff=1':'');
+  $('adminIntakeBtn').href='/api/leads/handoff/intake';
   $('adminTableEventsTile').classList.toggle('hidden',!perms.includes('table_event_admin'));
   $('partnerPagesTile').classList.toggle('hidden',!perms.includes('partner_pages'));
   $('leadsTile').classList.toggle('hidden',!perms.includes('leads'));
