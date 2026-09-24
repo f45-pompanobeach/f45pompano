@@ -38,8 +38,10 @@ export async function onRequestGet({request,env}){
   if(result.error)return result.error;
   const u=new URL(request.url);
   const asStaff=u.searchParams.get('staff')==='1';
-  const target='https://intake.f45pompano.com/?handoff='+encodeURIComponent(result.token)+(asStaff?'&staff=1':'');
-  return Response.redirect(target,302);
+  const target='https://intake.f45pompano.com/?'+(asStaff?'staff=1&':'admin=1&')+'hub=1';
+  const headers=new Headers({'location':target,'cache-control':'no-store, max-age=0'});
+  headers.append('set-cookie',`f45_intake_handoff=${result.token}; Domain=.f45pompano.com; Path=/; Max-Age=120; HttpOnly; Secure; SameSite=Lax`);
+  return new Response(null,{status:302,headers});
 }
 
 export function onRequest(){return json({ok:false,error:'method_not_allowed'},405)}
