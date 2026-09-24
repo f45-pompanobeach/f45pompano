@@ -27,7 +27,7 @@
   <section id="staffHome">
     <div class="hero"><h1>Staff Hub</h1><p>Choose what you need.</p></div>
     <div id="staffPrimary" class="grid">
-      <a class="tile red" href="https://intake.f45pompano.com/?staff=1">Trial Intake</a>
+      <button id="staffTrialIntakeBtn" class="tile red" type="button">Trial Intake</button>
       <button id="staffTableEventsBtn" class="tile white" type="button">Table Events</button>
     </div>
   </section>
@@ -58,7 +58,7 @@
     <div id="adminWho" class="who"></div>
   </section>
 </main>
-<div class="version">v0.1.12</div>
+<div class="version">v0.1.13</div>
 
 <div id="pinBack" class="modalBack hidden" role="dialog" aria-modal="true">
   <section class="modal">
@@ -78,6 +78,17 @@ const ADMIN_PERMS=['intake_admin','table_event_admin','partner_pages','leads'];
 function openPin(kind){mode=kind;$('pinTitle').textContent=kind==='event'?'Table Event Access':'Admin Access';$('pinHelp').textContent=kind==='event'?'Enter the 4-digit code for the event you are working.':'Enter your 4-digit PIN.';$('pin').value='';$('pinMsg').textContent='';$('pinBack').classList.remove('hidden');setTimeout(()=>$('pin').focus(),20)}
 function closePin(){$('pinBack').classList.add('hidden')}
 async function auth(code){const r=await fetch('/api/leads/auth',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code})});const j=await r.json().catch(()=>({}));return {r,j}}
+async function launchTrialIntake(){
+  const b=$('staffTrialIntakeBtn');
+  if(b)b.disabled=true;
+  try{
+    const j=validIntakeHandoff()?intakeHandoff:await prefetchIntakeHandoff();
+    intakeHandoff=null;
+    location.href='https://intake.f45pompano.com/?handoff='+encodeURIComponent(j.token)+'&staff=1';
+  }catch(e){
+    location.href='https://intake.f45pompano.com/?staff=1';
+  }
+}
 function validIntakeHandoff(){
   return intakeHandoff&&intakeHandoff.token&&Number(intakeHandoff.expires_at||0)>Math.floor(Date.now()/1000)+5;
 }
@@ -177,10 +188,10 @@ async function restore(){
   try{
     const r=await fetch('/api/leads/auth',{cache:'no-store'}),j=await r.json().catch(()=>({}));
     if(r.ok&&j.ok&&(j.role==='admin'||j.role==='user')){showDashboard(j.role,j.user);return}
-  }catch{}
-  showStaff();
+    if(!cached)showStaff();
+  }catch{if(!cached)showStaff()}
 }
-$('adminBtn').onclick=()=>openPin('admin');$('staffTableEventsBtn').onclick=()=>openPin('event');$('adminIntakeBtn').onclick=launchIntakeAdmin;$('pinCancel').onclick=closePin;$('pinGo').onclick=submitPin;$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')submitPin()});$('pinBack').addEventListener('click',e=>{if(e.target===$('pinBack'))closePin()});
+$('adminBtn').onclick=()=>openPin('admin');$('staffTrialIntakeBtn').onclick=launchTrialIntake;$('staffTableEventsBtn').onclick=()=>openPin('event');$('adminIntakeBtn').onclick=launchIntakeAdmin;$('pinCancel').onclick=closePin;$('pinGo').onclick=submitPin;$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')submitPin()});$('pinBack').addEventListener('click',e=>{if(e.target===$('pinBack'))closePin()});
 $('logoutBtn').onclick=()=>{clearIdentity();sessionStorage.removeItem('table_access_code');sessionStorage.removeItem('table_admin_code');sessionStorage.removeItem('table_event_code');sessionStorage.removeItem('landingAdminPin');showStaff();fetch('/api/leads/auth',{method:'DELETE',cache:'no-store',keepalive:true}).catch(()=>{})};
 if('serviceWorker'in navigator)navigator.serviceWorker.register('/leads-trials/sw.js',{scope:'/leads-trials/'}).catch(()=>{});
 restore();
