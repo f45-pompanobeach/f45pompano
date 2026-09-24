@@ -58,7 +58,7 @@
     <div id="adminWho" class="who"></div>
   </section>
 </main>
-<div class="version">v0.1.10</div>
+<div class="version">v0.1.11</div>
 
 <div id="pinBack" class="modalBack hidden" role="dialog" aria-modal="true">
   <section class="modal">
@@ -169,7 +169,7 @@ async function restore(){
   showStaff();
 }
 $('adminBtn').onclick=()=>openPin('admin');$('staffTableEventsBtn').onclick=()=>openPin('event');$('adminIntakeBtn').onclick=launchIntakeAdmin;$('pinCancel').onclick=closePin;$('pinGo').onclick=submitPin;$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')submitPin()});$('pinBack').addEventListener('click',e=>{if(e.target===$('pinBack'))closePin()});
-$('logoutBtn').onclick=async()=>{clearIdentity();try{await fetch('/api/leads/auth',{method:'DELETE',cache:'no-store'})}catch{}sessionStorage.removeItem('table_access_code');sessionStorage.removeItem('table_admin_code');sessionStorage.removeItem('table_event_code');sessionStorage.removeItem('landingAdminPin');showStaff()};
+$('logoutBtn').onclick=()=>{clearIdentity();sessionStorage.removeItem('table_access_code');sessionStorage.removeItem('table_admin_code');sessionStorage.removeItem('table_event_code');sessionStorage.removeItem('landingAdminPin');showStaff();fetch('/api/leads/auth',{method:'DELETE',cache:'no-store',keepalive:true}).catch(()=>{})};
 if('serviceWorker'in navigator)navigator.serviceWorker.register('/leads-trials/sw.js',{scope:'/leads-trials/'}).catch(()=>{});
 restore();
 })();
