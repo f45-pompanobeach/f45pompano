@@ -5,7 +5,7 @@ function randomToken(){
   return btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 
-export async function onRequestPost({request,env}){
+async function createIntakeHandoff(request,env){
   let userKey='super-admin';
   let allowed=await adminAuthorized(request,env);
   if(!allowed){
@@ -15,7 +15,7 @@ export async function onRequestPost({request,env}){
       userKey=user.user_key;
     }
   }
-  if(!allowed)return json({ok:false,error:'unauthorized'},401);
+  if(!allowed)return {error:json({ok:false,error:'unauthorized'},401)};
 
   const db=eventDb(env),token=randomToken(),hash=await sha256Hex(token);
   const now=Math.floor(Date.now()/1000),expires=now+120,iso=new Date().toISOString();
@@ -24,7 +24,22 @@ export async function onRequestPost({request,env}){
     db.prepare('INSERT INTO admin_handoff_tokens(token_hash,user_key,target,expires_at,created_at) VALUES(?,?,?,?,?)').bind(hash,userKey,'intake_admin',expires,iso)
   ]);
   try{await write()}catch{await ensureSchema(env);await write()}
-  return json({ok:true,token,expires_at:expires,user_key:userKey,target:'intake_admin'});
+  return {token,expires,userKey};
+}
+
+export async function onRequestPost({request,env}){
+  const result=await createIntakeHandoff(request,env);
+  if(result.error)return result.error;
+  return json({ok:true,token:result.token,expires_at:result.expires,user_key:result.userKey,target:'intake_admin'});
+}
+
+export async function onRequestGet({request,env}){
+  const result=await createIntakeHandoff(request,env);
+  if(result.error)return result.error;
+  const u=new URL(request.url);
+  const asStaff=u.searchParams.get('staff')==='1';
+  const target='https://intake.f45pompano.com/?handoff='+encodeURIComponent(result.token)+(asStaff?'&staff=1':'');
+  return Response.redirect(target,302);
 }
 
 export function onRequest(){return json({ok:false,error:'method_not_allowed'},405)}
