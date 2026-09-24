@@ -58,7 +58,7 @@
     <div id="adminWho" class="who"></div>
   </section>
 </main>
-<div class="version">v0.1.11</div>
+<div class="version">v0.1.12</div>
 
 <div id="pinBack" class="modalBack hidden" role="dialog" aria-modal="true">
   <section class="modal">
@@ -73,18 +73,28 @@
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-let mode='admin',currentRole='';
+let mode='admin',currentRole='',intakeHandoff=null,intakeHandoffPromise=null;
 const ADMIN_PERMS=['intake_admin','table_event_admin','partner_pages','leads'];
 function openPin(kind){mode=kind;$('pinTitle').textContent=kind==='event'?'Table Event Access':'Admin Access';$('pinHelp').textContent=kind==='event'?'Enter the 4-digit code for the event you are working.':'Enter your 4-digit PIN.';$('pin').value='';$('pinMsg').textContent='';$('pinBack').classList.remove('hidden');setTimeout(()=>$('pin').focus(),20)}
 function closePin(){$('pinBack').classList.add('hidden')}
 async function auth(code){const r=await fetch('/api/leads/auth',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code})});const j=await r.json().catch(()=>({}));return {r,j}}
+function validIntakeHandoff(){
+  return intakeHandoff&&intakeHandoff.token&&Number(intakeHandoff.expires_at||0)>Math.floor(Date.now()/1000)+5;
+}
+function prefetchIntakeHandoff(){
+  if(validIntakeHandoff())return Promise.resolve(intakeHandoff);
+  if(intakeHandoffPromise)return intakeHandoffPromise;
+  intakeHandoffPromise=fetch('/api/leads/handoff/intake',{method:'POST',headers:{'content-type':'application/json'},body:'{}'})
+    .then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok||!j.token)throw new Error('Could not open Intake Admin.');intakeHandoff=j;return j})
+    .finally(()=>{intakeHandoffPromise=null});
+  return intakeHandoffPromise;
+}
 async function launchIntakeAdmin(){
   const b=$('adminIntakeBtn');
   if(b)b.disabled=true;
   try{
-    const r=await fetch('/api/leads/handoff/intake',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});
-    const j=await r.json().catch(()=>({}));
-    if(!r.ok||!j.ok||!j.token)throw new Error('Could not open Intake Admin.');
+    const j=validIntakeHandoff()?intakeHandoff:await prefetchIntakeHandoff();
+    intakeHandoff=null;
     location.href='https://intake.f45pompano.com/?handoff='+encodeURIComponent(j.token)+(currentRole==='user'?'&staff=1':'');
   }catch(e){
     alert(e.message||'Could not open Intake Admin.');
@@ -104,6 +114,7 @@ async function prefetchAccessUsers(){
 function clearIdentity(){try{localStorage.removeItem('f45_staff_identity')}catch{}}
 function cachedIdentity(){try{const v=JSON.parse(localStorage.getItem('f45_staff_identity')||'null');return v&&['admin','user'].includes(v.role)?v:null}catch{return null}}
 function showStaff(){
+  intakeHandoff=null;intakeHandoffPromise=null;
   $('staffHome').classList.remove('hidden');
   $('adminHome').classList.add('hidden');
   $('trialsSection').classList.add('hidden');
@@ -141,6 +152,7 @@ function showDashboard(role,user,rawCode=''){
 
   $('adminWho').textContent=superAdmin?'Super Admin':`Signed in as ${user?.display_name||'User'}`;
   cacheIdentity(role,user);
+  if(perms.includes('intake_admin'))prefetchIntakeHandoff().catch(()=>{});
   if(superAdmin)prefetchAccessUsers();
   if(/^\d{4}$/.test(rawCode)&&superAdmin){
     sessionStorage.setItem('table_admin_code',rawCode);
