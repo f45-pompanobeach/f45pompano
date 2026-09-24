@@ -150,12 +150,14 @@ export async function createNamedUserSession(env,userKey){
   return {token,expires};
 }
 export async function namedUserFromRequest(request,env){
-  if(!await ensureSchema(env))return null;
   const token=cookieValue(request,'f45_user_session');if(!token)return null;
+  const db=eventDb(env);if(!db)return null;
   const hash=await sha256Hex(token),now=Math.floor(Date.now()/1000);
-  const row=await eventDb(env).prepare(`SELECT u.user_key,u.display_name,u.enabled,u.permissions_json,s.expires_at
+  const run=()=>db.prepare(`SELECT u.user_key,u.display_name,u.enabled,u.permissions_json,s.expires_at
     FROM admin_user_sessions s JOIN admin_users u ON u.user_key=s.user_key
     WHERE s.token_hash=? AND s.expires_at>? AND u.enabled=1 LIMIT 1`).bind(hash,now).first();
+  let row;
+  try{row=await run()}catch{if(!await ensureSchema(env))return null;row=await run()}
   if(!row)return null;
   let permissions=[];try{permissions=normalizePermissions(JSON.parse(row.permissions_json||'[]'))}catch{}
   return {user_key:row.user_key,display_name:row.display_name,permissions};
