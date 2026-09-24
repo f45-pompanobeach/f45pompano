@@ -46,8 +46,10 @@ export async function onRequestGet({request,env}){
   if(event)return json({ok:true,role:'event',event});
   return json({ok:false,error:'unauthorized'},401);
 }
-export async function onRequestDelete({request,env}){
-  await deleteNamedUserSession(request,env);
+export async function onRequestDelete(context){
+  const {request,env}=context;
+  if(typeof context.waitUntil==='function')context.waitUntil(deleteNamedUserSession(request,env).catch(()=>{}));
+  else deleteNamedUserSession(request,env).catch(()=>{});
   const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
   headers.append('set-cookie','f45_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
   headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
