@@ -379,7 +379,7 @@ $('newPageBtn').onclick=()=>{
 
 $('pageForm').addEventListener('submit',async e=>{
   e.preventDefault();if(state.publishing||$('savePageBtn').disabled)return;
-  const page=formPage();if(!page.slug){showStatus($('pageStatus'),'Enter a page slug.',true);return}if(page.slug==='social-trial'){showStatus($('pageStatus'),'social-trial cannot be edited here.',true);return}
+  const page=formPage();if(!page.slug){showStatus($('pageStatus'),'Enter a page slug.',true);return}
   const isNew=!state.selected?.isDefault&&!state.selected?.isStored;
   const btn=$('savePageBtn');state.publishing=true;btn.disabled=true;btn.textContent=isNew?'Creating Page…':'Saving…';
   showStatus($('pageStatus'),isNew?'Creating and publishing the new partner page…':'Saving page settings…',false,true);
