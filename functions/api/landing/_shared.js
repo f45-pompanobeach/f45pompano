@@ -39,9 +39,11 @@ export function sanitizeGlobal(input={}){
 
 export function sanitizePage(input={},existingSlug=''){
   const slug=cleanSlug(input.slug||existingSlug);
-  if(!slug||slug==='social-trial')throw new Error('invalid_slug');
-  const pageKind=input.pageKind==='root'?'root':'partner';
+  if(!slug)throw new Error('invalid_slug');
+  const pageKind=input.pageKind==='root'?'root':input.pageKind==='social'?'social':'partner';
   if(pageKind==='root'&&slug!=='root')throw new Error('invalid_root_slug');
+  if(pageKind==='social'&&slug!=='social-trial')throw new Error('invalid_social_slug');
+  if(slug==='social-trial'&&pageKind!=='social')throw new Error('invalid_social_slug');
   return {
     slug,
     pageKind,
@@ -84,7 +86,7 @@ export async function setGlobal(env,value){const v=sanitizeGlobal(value);return 
 export async function getPage(env,slug){const s=cleanSlug(slug==='root'?'root':slug);if(!s)return null;return (await readSetting(env,PAGE_PREFIX+s))?.value||null}
 export async function setPage(env,input){const value=sanitizePage(input,input.slug);return {value,updated_at:await writeSetting(env,PAGE_PREFIX+value.slug,value)}}
 export async function deletePage(env,slug){
-  const s=cleanSlug(slug);if(!s||s==='social-trial')throw new Error('invalid_slug');
+  const s=cleanSlug(slug);if(!s)throw new Error('invalid_slug');
   await ensureSchema(env);await eventDb(env).prepare('DELETE FROM lead_app_settings WHERE setting_key=?').bind(PAGE_PREFIX+s).run();return true;
 }
 export async function listPages(env){

@@ -651,7 +651,7 @@ function upgradePartnerPage(html, partnerData, options = {}) {
 }
 
 function addLandingRuntime(html) {
-  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=4"></script>\\n</body>');
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=5"></script>\\n</body>');
 }
 
 function addSiteVersion(html) {
@@ -693,6 +693,24 @@ const landingDefaults = {
     enabled: true
   }]
 };
+
+const metaDefaults = JSON.parse(fs.readFileSync(path.join(dataDir, "meta.json"), "utf8"));
+landingDefaults.pages.push({
+  slug: "social-trial",
+  pageKind: "social",
+  partner: "Meta / Social Trial",
+  promoCode: metaDefaults.promoCode || "",
+  trialType: metaDefaults.trialType || "",
+  trialCost: metaDefaults.trialCost || "",
+  trialDuration: metaDefaults.trialDuration || "",
+  firstClassBookingText: metaDefaults.firstClassBookingText || "",
+  regularPrice: metaDefaults.regularPrice || "",
+  percentageSavings: metaDefaults.percentageSavings || "",
+  videoUrl: "",
+  mindbodyUrl: "",
+  offerOverrideEnabled: false,
+  enabled: true
+});
 
 for (const file of fs.readdirSync(dataDir)) {
   if (!file.endsWith(".json") || file === "shared.json" || file === "generic.json" || file === "meta.json") continue;
@@ -740,8 +758,8 @@ for (const file of fs.readdirSync(dataDir)) {
     renderedPartnerPage = upgradePartnerPage(renderedPartnerPage, partnerData, {
       sandsHarbor: file === "sands-harbor.json"
     });
-    renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
   }
+  renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
 
   renderedPartnerPage = addSiteVersion(renderedPartnerPage);
   fs.writeFileSync(path.join(distDir, `${partnerData.slug}.html`), renderedPartnerPage);

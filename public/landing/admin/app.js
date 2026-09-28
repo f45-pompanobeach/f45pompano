@@ -50,7 +50,7 @@ function mergePages(){
   const by=new Map();
   for(const p of state.defaults?.pages||[])by.set(p.slug,{...p,isDefault:true});
   for(const p of state.stored)by.set(p.slug,{...(by.get(p.slug)||{}),...p,isStored:true});
-  return [...by.values()].filter(p=>p.slug!=='social-trial');
+  return [...by.values()];
 }
 function urlFor(p){
   if(!p)return'';
@@ -239,7 +239,7 @@ function selectPage(p){
   $('pageEnabled').checked=p.enabled!==false;
 
   const locked=p.isDefault||p.slug==='root';
-  $('pageSlug').disabled=locked;$('pagePartner').disabled=p.slug==='root';
+  $('pageSlug').disabled=locked;$('pagePartner').disabled=p.slug==='root'||p.slug==='social-trial';
   $('slugHelp').textContent=locked?'URL slug is fixed for existing pages.':'New page URL will use /landing/'+(p.slug||'your-slug')+'/';
   $('resetPageBtn').textContent=p.isDefault||p.slug==='root'?'Reset Override':'Delete Page';
   syncOfferInheritanceFields();
@@ -256,7 +256,8 @@ function formPage(){
   const slug=base.isDefault||base.slug==='root'?base.slug:cleanSlug($('pageSlug').value);
   const inherit=$('inheritGlobalOffer').checked;
   const offer=inherit?(state.pageOfferDraft||globalOfferFields()):readOfferFields();
-  return {slug,pageKind:slug==='root'?'root':'partner',partner:slug==='root'?'Main Website':$('pagePartner').value.trim(),trialType:offer.trialType,trialCost:offer.trialCost,trialDuration:offer.trialDuration,promoCode:$('promoCode').value.trim(),regularPrice:offer.regularPrice,percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:offer.firstClassBookingText,videoUrl:$('videoUrl').value.trim(),mindbodyUrl:offer.mindbodyUrl,offerOverrideEnabled:!inherit,enabled:$('pageEnabled').checked};
+  const pageKind=slug==='root'?'root':base.pageKind==='social'||slug==='social-trial'?'social':'partner';
+  return {slug,pageKind,partner:slug==='root'?'Main Website':slug==='social-trial'?'Meta / Social Trial':$('pagePartner').value.trim(),trialType:offer.trialType,trialCost:offer.trialCost,trialDuration:offer.trialDuration,promoCode:$('promoCode').value.trim(),regularPrice:offer.regularPrice,percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:offer.firstClassBookingText,videoUrl:$('videoUrl').value.trim(),mindbodyUrl:offer.mindbodyUrl,offerOverrideEnabled:!inherit,enabled:$('pageEnabled').checked};
 }
 
 async function uploadVideo(file,targetInput,statusEl,button){

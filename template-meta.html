@@ -2020,7 +2020,7 @@ body{
   scroll-margin-top:120px;
 }
 
-/* Direct $15 trial success state */
+/* Direct social trial success state */
 .claim-success-actions{
   justify-content:center !important;
 }
@@ -4809,7 +4809,7 @@ body{
       <div class="claim-form-header overlay-claim-header">
         <h2>Reserve Your {{trialType}} for {{trialCost}}</h2>
         <p>
-          Activate your $15 trial and book your first class through our official Mindbody checkout. Eligibility will be verified before your first class.
+          Activate your {{trialCost}} trial and book your first class through our official Mindbody checkout. Eligibility will be verified before your first class.
         </p>
       </div>
 
@@ -4821,8 +4821,10 @@ body{
         </label>
 
         <a class="screenshot-cta meta-direct-cta" href="https://clients.mindbodyonline.com/classic/ws?studioid=616914&stype=43&prodid=110702" target="_blank" rel="noopener">
-          Activate Your $15 Trial
+          Activate Your {{trialCost}} Trial
         </a>
+
+        <div class="mindbody-help-note meta-direct-note meta-global-booking-note">{{firstClassBookingText}}</div>
 
         <div class="mindbody-help-note meta-direct-note meta-mindbody-help">
           <strong>Mindbody checkout tip:</strong> You may be asked to sign in or create an account before checkout. Use the same email from your Meta lead form. If your account already exists, choose “Forgot Password” or call/text us at {{phone}}.
@@ -5089,8 +5091,8 @@ body{
     <div class="faq-grid">
 
       <div class="faq-item">
-        <div class="faq-q"><span class="faq-q-label">Q</span><h4>What if I can't use all {{trialType}} in 7 days?</h4></div>
-        <div class="faq-a"><span class="faq-a-label">A</span><p>Since this is a special trial offer, the {{trialType}} must be used within 7 days of your first session — no extensions. Most members tell us they knew F45 was for them after just 1 or 2 classes!</p></div>
+        <div class="faq-q"><span class="faq-q-label">Q</span><h4>What if I can't use all {{trialType}} in {{trialDuration}}?</h4></div>
+        <div class="faq-a"><span class="faq-a-label">A</span><p>Since this is a special trial offer, the {{trialType}} must be used within {{trialDuration}} of your first session — no extensions. Most members tell us they knew F45 was for them after just 1 or 2 classes!</p></div>
       </div>
 
       <div class="faq-item">

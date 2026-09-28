@@ -35,6 +35,7 @@
     if(!usePageOfferOverrides)for(const key of offerKeys)delete effectiveStored[key];
     const page={...global,...effectiveStored};
     const isRoot=cfg.slug==='root'||storedPage.pageKind==='root';
+    const isSocial=cfg.slug==='social-trial'||storedPage.pageKind==='social';
     if(page.enabled===false&&!isRoot){
       document.body.innerHTML='<main style="font-family:system-ui;padding:48px 20px;text-align:center"><h1>This offer is currently unavailable.</h1><p>Please contact F45 Training Pompano Beach for current options.</p></main>';
       return;
@@ -54,7 +55,18 @@
 
       document.querySelectorAll('.mid-cta-sub').forEach(el=>{el.textContent=page.trialType+' for '+page.trialCost;});
 
-      if(isRoot){
+      if(isSocial){
+        const h=document.querySelector('.claim-form-header h2');
+        if(h)h.textContent='Reserve Your '+page.trialType+' for '+page.trialCost;
+        const intro=document.querySelector('.claim-form-header p');
+        if(intro)intro.textContent='Activate your '+page.trialCost+' trial and book your first class through our official Mindbody checkout. Eligibility will be verified before your first class.';
+        const cta=document.querySelector('.meta-direct-cta');
+        if(cta){cta.textContent='Activate Your '+page.trialCost+' Trial';if(page.mindbodyUrl)cta.href=page.mindbodyUrl;}
+        const booking=document.querySelector('.meta-global-booking-note');
+        if(booking&&page.firstClassBookingText)booking.textContent=page.firstClassBookingText;
+        const trialFaq=[...document.querySelectorAll('.faq-item')].find(item=>/what if i can't use all/i.test(item.querySelector('.faq-q h4')?.textContent||''));
+        if(trialFaq){const q=trialFaq.querySelector('.faq-q h4');const a=trialFaq.querySelector('.faq-a p');if(q)q.textContent="What if I can't use all "+page.trialType+' in '+(page.trialDuration||'the trial period')+'?';if(a)a.textContent='Since this is a special trial offer, the '+page.trialType+' must be used within '+(page.trialDuration||'the trial period')+' of your first session — no extensions. Most members tell us they knew F45 was for them after just 1 or 2 classes!';}
+      }else if(isRoot){
         const h=document.querySelector('.root-claim-form-header h2');
         if(h)h.textContent='Reserve '+count+' for '+page.trialCost+' Trial';
         const offerInput=document.querySelector('#rootLeadForm input[name="Offer"]');
@@ -97,6 +109,8 @@
     if(zips.length){
       const eligibility=document.querySelector('.eligibility-confirm-row span');
       if(eligibility)eligibility.textContent='I confirm that I am a first-time visitor and live in one of these ZIP codes ('+zips.join(', ')+'), and am able to verify residency for this offer.';
+      const metaEligibility=document.querySelector('.meta-eligibility-check span');
+      if(metaEligibility)metaEligibility.textContent='I confirm I am a first-time visitor, live in one of these ZIP codes ('+zips.join(', ')+'), and am able to verify residency for this offer.';
 
       document.querySelectorAll('.faq-item').forEach(item=>{
         const q=item.querySelector('.faq-q h4');
@@ -108,7 +122,6 @@
   }
 
   const slug=slugFromPath();
-  if(slug==='social-trial')return;
   if(window.__LANDING_PRELOADED__){
     apply(window.__LANDING_PRELOADED__);
     return;
