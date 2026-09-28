@@ -385,8 +385,9 @@ $('pageForm').addEventListener('submit',async e=>{
   showStatus($('pageStatus'),isNew?'Creating and publishing the new partner page…':'Saving page settings…',false,true);
   try{
     const r=await api('/api/landing/admin/pages',{method:'POST',body:JSON.stringify({action:'save',page})});
-    const saved={...r.page,isStored:true,isDefault:false};
-    const testUrl=saved.slug==='root'?'/':'/landing/'+saved.slug+'/';
+    const isDefaultPage=Boolean((state.defaults?.pages||[]).some(x=>x.slug===r.page.slug));
+    const saved={...r.page,isStored:true,isDefault:isDefaultPage};
+    const testUrl=saved.slug==='root'?'/':saved.isDefault?'/'+saved.slug+'/':'/landing/'+saved.slug+'/';
     if(isNew)await waitForPublished(testUrl);
     state.stored=state.stored.filter(x=>x.slug!==saved.slug);state.stored.push(saved);
     const merged=mergePages().find(x=>x.slug===saved.slug)||saved;selectPage(merged);
