@@ -54,7 +54,7 @@ jobs:
             grep -q '/tableleads/admin/app.js?v=10' <<<"$events" || missing+=("events-v10")
             grep -q '← Admin' <<<"$events" || missing+=("events-back")
             grep -q '/admin/event/app.js?v=1' <<<"$staff" || missing+=("staff-app")
-            grep -q '/landing/admin/app.js?v=14' <<<"$partner" || missing+=("partner-v14")
+            grep -q '/landing/admin/app.js?v=17' <<<"$partner" || missing+=("partner-v14")
             grep -q 'admin-handoff' <<<"$partner" || missing+=("partner-handoff")
             grep -q '← Admin' <<<"$partner" || missing+=("partner-back")
             grep -q 'Access Management' <<<"$staffaccess" || missing+=("access-page")
