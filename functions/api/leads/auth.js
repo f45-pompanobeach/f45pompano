@@ -39,7 +39,7 @@ export async function onRequestPost({request,env}){
   return json({ok:false,error:'unauthorized',message:'That code is not valid.'},401);
 }
 export async function onRequestGet({request,env}){
-  if(await adminAuthorized(request,env))return json({ok:true,role:'admin',user:{display_name:'Super Admin',permissions:['trial_intake','intake_admin','table_events','table_event_admin','partner_pages','leads','access_management']}});
+  if(await adminAuthorized(request,env))return json({ok:true,role:'admin',user:{display_name:'Super Admin',permissions:['trial_intake','intake_admin','table_events','table_event_admin','partner_pages','leads','page_tracking','access_management']}});
   const user=await namedUserFromRequest(request,env);
   if(user)return json({ok:true,role:'user',user});
   const event=await staffEventFromRequest(request,env);
