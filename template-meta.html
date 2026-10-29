@@ -5179,5 +5179,16 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });</script>
 
+<script>
+/* First-party, non-blocking Meta landing visit history. No redirects or third-party tracking. */
+(function(){
+  try{
+    if(navigator.webdriver || document.visibilityState==='hidden')return;
+    var key='f45_meta_landing_session',sid=sessionStorage.getItem(key);
+    if(!sid){sid=Array.from(crypto.getRandomValues(new Uint8Array(16)),function(x){return x.toString(16).padStart(2,'0')}).join('');sessionStorage.setItem(key,sid)}
+    fetch('/api/meta-visit/',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({page:'social-trial',session:sid}),keepalive:true,credentials:'same-origin'}).catch(function(){});
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
