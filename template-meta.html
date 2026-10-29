@@ -5180,14 +5180,16 @@ document.addEventListener("DOMContentLoaded", function () {
 });</script>
 
 <script>
-/* First-party, non-blocking Meta landing visit history. No redirects or third-party tracking. */
+/* First-party page visit history; tracking never blocks the landing page. */
 (function(){
-  try{
-    if(navigator.webdriver || document.visibilityState==='hidden')return;
-    var key='f45_meta_landing_session',sid=sessionStorage.getItem(key);
-    if(!sid){sid=Array.from(crypto.getRandomValues(new Uint8Array(16)),function(x){return x.toString(16).padStart(2,'0')}).join('');sessionStorage.setItem(key,sid)}
-    fetch('/api/meta-visit/',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({page:'social-trial',session:sid}),keepalive:true,credentials:'same-origin'}).catch(function(){});
-  }catch(e){}
+ try{
+  if(navigator.webdriver||document.visibilityState==='hidden')return;
+  var path=location.pathname.split('/').filter(Boolean),page=path[0]||'root';
+  if(!/^[a-z0-9][a-z0-9-]{0,63}$/.test(page))return;
+  var key='f45_page_tracking_session',sid=sessionStorage.getItem(key);
+  if(!sid){sid=Array.from(crypto.getRandomValues(new Uint8Array(16)),function(x){return x.toString(16).padStart(2,'0')}).join('');sessionStorage.setItem(key,sid)}
+  fetch('/api/page-tracking/',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({page:page,session:sid}),credentials:'same-origin',keepalive:true}).catch(function(){});
+ }catch(e){}
 })();
 </script>
 </body>
