@@ -3,7 +3,7 @@ const TZ='America/New_York';
 export const GENERAL_EVENT_KEY='general';
 export const QR_KITS=['A','B','C','D'];
 export const FOLLOWUP_STATUSES=['new','contacted','scheduled','attended','redeemed','not_interested'];
-export const USER_PERMISSIONS=['trial_intake','intake_admin','table_events','table_event_admin','partner_pages','leads'];
+export const USER_PERMISSIONS=['trial_intake','intake_admin','table_events','table_event_admin','partner_pages','leads','page_tracking'];
 export const LOCAL_ZIPS=new Set(['33062','33060','33064','33069','33334','33308','33309','33441']);
 const enc=new TextEncoder();
 
