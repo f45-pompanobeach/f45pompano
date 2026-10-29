@@ -6,15 +6,6 @@
 <main class="page">
 <section class="filters"><input id="search" type="search" placeholder="Search name, phone, email, ZIP"><select id="source"><option value="all">All sources</option><option value="event">Table Events</option><option value="partner">Partner Pages</option><option value="website">Website</option><option value="general">General Leads</option></select><select id="tracking"><option value="all">All Leads</option><option value="open">Needs Follow-Up</option><option value="tracked">Handled</option></select></section>
 <div class="stats"><span id="total" class="pill">0 leads</span><span id="openCount" class="pill">0 needs follow-up</span><span id="trackedCount" class="pill">0 handled</span></div>
-<section id="metaVisitPanel" style="background:#fff;border-radius:16px;padding:16px;margin:0 0 16px;box-shadow:0 8px 24px rgba(0,0,0,.07)">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-    <h2 style="font-size:19px;margin:0">Meta Landing Page — Visit History</h2>
-    <button id="metaVisitRefresh" type="button" style="background:#1C1C2E;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer">Refresh</button>
-  </div>
-  <p style="font-size:12px;color:#6b7280;margin:8px 0">Times shown in Pompano Beach local time (Eastern). Compare with Meta inquiry emails by time only; visits are not verified matches to individual leads. Counts may include repeat visits and automated traffic.</p>
-  <div id="metaVisitSummary" class="stats" style="margin:12px 0">Loading visit history…</div>
-  <div style="max-height:350px;overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Visit date/time (Eastern)</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Session</th></tr></thead><tbody id="metaVisitRows"><tr><td colspan="2" style="padding:10px">Loading…</td></tr></tbody></table></div>
-</section>
 <div id="list" class="list"></div>
 </main>
 <script>
@@ -31,24 +22,4 @@ async function load(){try{const j=await api('/api/leads/admin/all');leads=j.lead
 ['search','source','tracking'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
 (async()=>{if(!/^\d{4}$/.test(code)){try{const r=await fetch('/api/leads/auth',{cache:'no-store'}),j=await r.json().catch(()=>({}));if(!r.ok||j.role!=='admin'){location.replace('/leads-trials/');return}}catch{location.replace('/leads-trials/');return}}load()})();
 })();
-</script><script>
-(function(){
-  const summary=document.getElementById('metaVisitSummary'),rows=document.getElementById('metaVisitRows');
-  function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-  async function refresh(){
-    summary.textContent='Loading…';
-    try{
-      const code=sessionStorage.getItem('table_admin_code')||sessionStorage.getItem('table_access_code')||'';
-      const headers={};if(/^\d{4}$/.test(code))headers['x-table-code']=code;
-      const r=await fetch('/api/meta-visit/admin/',{headers,cache:'no-store'});
-      if(!r.ok)throw new Error('Unable to load visit history ('+r.status+')');
-      const d=await r.json();
-      summary.textContent=d.total+' recorded visits · '+d.sessions+' browser sessions · showing latest '+d.visits.length;
-      rows.innerHTML=d.visits.map(v=>'<tr><td style="padding:9px;border-bottom:1px solid #eee">'+escapeHtml(new Date(v.visited_at).toLocaleString('en-US',{timeZone:'America/New_York',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit'}))+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+escapeHtml(v.session_id.slice(0,8))+'…</td></tr>').join('')||'<tr><td colspan="2" style="padding:10px">No visits recorded yet.</td></tr>';
-    }catch(e){summary.textContent=e.message;rows.innerHTML='';}
-  }
-  document.getElementById('metaVisitRefresh').addEventListener('click',refresh);
-  refresh();
-})();
-</script>
-</body></html>
+</script></body></html>
