@@ -45,6 +45,7 @@
       <div class="grid">
         <a id="adminTableEventsTile" class="tile white hidden" href="/tableleads/admin/">Table Events</a>
         <a id="partnerPagesTile" class="tile white hidden" href="/landing/admin/">Partner Pages</a>
+        <a id="pageTrackingTile" class="tile white hidden" href="/leads-trials/page-tracking/">Page Tracking</a>
         <a id="leadsTile" class="tile white hidden" href="/admin/leads/">Leads</a>
       </div>
     </section>
@@ -74,7 +75,7 @@
 (()=>{
 const $=id=>document.getElementById(id);
 let mode='admin',currentRole='';
-const ADMIN_PERMS=['intake_admin','table_event_admin','partner_pages','leads'];
+const ADMIN_PERMS=['intake_admin','table_event_admin','partner_pages','leads','page_tracking'];
 function openPin(kind){mode=kind;$('pinTitle').textContent=kind==='event'?'Table Event Access':'Admin Access';$('pinHelp').textContent=kind==='event'?'Enter the 4-digit code for the event you are working.':'Enter your 4-digit PIN.';$('pin').value='';$('pinMsg').textContent='';$('pinBack').classList.remove('hidden');setTimeout(()=>$('pin').focus(),20)}
 function closePin(){$('pinBack').classList.add('hidden')}
 async function auth(code){const r=await fetch('/api/leads/auth',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code})});const j=await r.json().catch(()=>({}));return {r,j}}
@@ -115,7 +116,7 @@ function showDashboard(role,user,rawCode=''){
   const superAdmin=role==='admin';
   const perms=superAdmin?ADMIN_PERMS:((user&&user.permissions)||[]);
   const showTrials=perms.includes('intake_admin');
-  const showLeadManagement=perms.includes('table_event_admin')||perms.includes('partner_pages')||perms.includes('leads');
+  const showLeadManagement=perms.includes('table_event_admin')||perms.includes('partner_pages')||perms.includes('leads')||perms.includes('page_tracking');
   const showAdministration=superAdmin;
   $('trialsSection').classList.toggle('hidden',!showTrials);
   $('leadManagementSection').classList.toggle('hidden',!showLeadManagement);
@@ -125,6 +126,7 @@ function showDashboard(role,user,rawCode=''){
   $('adminTableEventsTile').classList.toggle('hidden',!perms.includes('table_event_admin'));
   $('partnerPagesTile').classList.toggle('hidden',!perms.includes('partner_pages'));
   $('leadsTile').classList.toggle('hidden',!perms.includes('leads'));
+  $('pageTrackingTile').classList.toggle('hidden',!perms.includes('page_tracking'));
   $('accessTile').classList.toggle('hidden',!superAdmin);
 
   $('adminWho').textContent=superAdmin?'Super Admin':`Signed in as ${user?.display_name||'User'}`;
