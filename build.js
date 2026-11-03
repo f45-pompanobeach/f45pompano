@@ -242,7 +242,7 @@ const rootLeadCaptureHtml = String.raw`
       <p>Submit your info first. Then your 3 Classes for $30 offer will unlock.</p>
     </div>
 
-    <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/ajax/pompanobeach@f45training.com" method="POST">
+    <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="/api/leads/intake" method="POST">
       <input type="hidden" name="_subject" value="New Root Website Lead: 3 Classes for $30">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
@@ -549,7 +549,7 @@ function buildPartnerHero(partnerData, isSandsHarbor) {
         <h2>${partner} Exclusive</h2>
         <p>Submit your info first. Then your exclusive ${trialType} for ${trialCost} offer will unlock.</p>
       </div>
-      <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="https://formsubmit.co/ajax/pompanobeach@f45training.com" method="POST">
+      <form id="partnerLeadForm" class="partner-lead-form overlay-partner-form" action="/api/leads/intake" method="POST">
         <input type="hidden" name="_subject" value="New Partner Lead: ${partner}">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
