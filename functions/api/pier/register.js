@@ -1,3 +1,4 @@
+import {sendGatewayEmail} from '../leads/_email_gateway.js';
 import {findLeadByPhone,insertLead,refreshLeadConfirmation,updateLeadSms} from './_shared.js';
 
 const LOCAL_ZIPS = new Set(['33062','33060','33064','33069','33334','33308','33309','33441']);
@@ -26,6 +27,7 @@ async function sign(value, secret){const key=await crypto.subtle.importKey('raw'
 async function token(firstName,isLocal,secret){const p=`${b64text(firstName.slice(0,24))}.${isLocal?'1':'0'}.${Math.floor(Date.now()/1000+1200).toString(36)}.${nonce()}`;return `${p}.${await sign(p,secret)}`}
 
 async function emailLead(lead){
+  if(env.EMAIL_GATEWAY_ENABLED==='true'){const fields={'Lead Source':'Pompano Beach Pier Cleanup - 2026-09-12','Event Coach':'Jonathan','First Name':lead.first_name,'Last Name':lead.last_name,Email:lead.email,Phone:lead.phone,ZIP:lead.zip,'Confirmation Code':lead.confirmation_code,'Local ZIP':lead.is_local?'Yes':'No','Grand Prize Eligible':lead.is_local?'Yes':'No','Confirmation SMS':'Accepted','SMS Delivery Status':lead.delivery_status||'unknown','Marketing SMS Opt-In':lead.marketing_opt_in?'Yes':'No','Submitted At':lead.submitted_at};return sendGatewayEmail(env,{idempotencyKey:'pier-lead-'+lead.id,to:'pompanobeach@f45training.com',subject:'PIER Lead - '+lead.first_name+' '+lead.last_name,fields});}
   const body=new URLSearchParams({
     _subject:`PIER Lead - ${lead.first_name} ${lead.last_name}`,_template:'table',_captcha:'false',
     'Lead Source':'Pompano Beach Pier Cleanup - 2026-09-12','Event Coach':'Jonathan','First Name':lead.first_name,'Last Name':lead.last_name,
@@ -109,7 +111,7 @@ export async function onRequestPost(context){
   }
 
   if(!isRepeat){
-    const lead={first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:createdAt,delivery_status:state.status||'accepted'};
+    const lead={id:leadId,first_name:firstName,last_name:lastName,email:e,phone:p,zip:z,confirmation_code:confirmationCode,is_local:isLocal,marketing_opt_in:d.marketing_opt_in===true,submitted_at:createdAt,delivery_status:state.status||'accepted'};
     context.waitUntil(emailLead(lead).catch(()=>{}));
   }
   return reply({ok:true,sent:true,duplicate:isRepeat,reissued:isRepeat,lead_id:leadId,first_name:tokenFirstName,local_zip:isLocal,confirmation_code:confirmationCode,expires_minutes:20,message_id:messageId,delivery_status:state.status||'accepted',delivered:FINAL_SUCCESS.has(state.status)});
