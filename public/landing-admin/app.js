@@ -236,7 +236,7 @@ function selectPage(p){
   $('promoCode').value=p.promoCode||'';
   $('percentageSavings').value=p.percentageSavings||'';
   $('videoUrl').value=p.videoUrl||'';
-  $('pageEnabled').checked=p.enabled!==false;
+  $('pageEnabled').checked=p.enabled!==false;$('pageTrackingMode').value=p.trackingMode||'all';
 
   const locked=p.isDefault||p.slug==='root';
   $('pageSlug').disabled=locked;$('pagePartner').disabled=p.slug==='root'||p.slug==='social-trial';
@@ -257,7 +257,7 @@ function formPage(){
   const inherit=$('inheritGlobalOffer').checked;
   const offer=inherit?(state.pageOfferDraft||globalOfferFields()):readOfferFields();
   const pageKind=slug==='root'?'root':base.pageKind==='social'||slug==='social-trial'?'social':'partner';
-  return {slug,pageKind,partner:slug==='root'?'Main Website':slug==='social-trial'?'Meta / Social Trial':$('pagePartner').value.trim(),trialType:offer.trialType,trialCost:offer.trialCost,trialDuration:offer.trialDuration,promoCode:$('promoCode').value.trim(),regularPrice:offer.regularPrice,percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:offer.firstClassBookingText,videoUrl:$('videoUrl').value.trim(),mindbodyUrl:offer.mindbodyUrl,offerOverrideEnabled:!inherit,enabled:$('pageEnabled').checked};
+  return {slug,pageKind,partner:slug==='root'?'Main Website':slug==='social-trial'?'Meta / Social Trial':$('pagePartner').value.trim(),trialType:offer.trialType,trialCost:offer.trialCost,trialDuration:offer.trialDuration,promoCode:$('promoCode').value.trim(),regularPrice:offer.regularPrice,percentageSavings:$('percentageSavings').value.trim(),firstClassBookingText:offer.firstClassBookingText,videoUrl:$('videoUrl').value.trim(),mindbodyUrl:offer.mindbodyUrl,offerOverrideEnabled:!inherit,enabled:$('pageEnabled').checked,trackingMode:$('pageTrackingMode').value};
 }
 
 async function uploadVideo(file,targetInput,statusEl,button){
