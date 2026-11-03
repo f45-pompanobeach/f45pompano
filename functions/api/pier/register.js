@@ -26,15 +26,8 @@ function smsState(data){
 async function sign(value, secret){const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);const sig=new Uint8Array(await crypto.subtle.sign('HMAC',key,enc.encode(value)));return b64(sig.slice(0,12))}
 async function token(firstName,isLocal,secret){const p=`${b64text(firstName.slice(0,24))}.${isLocal?'1':'0'}.${Math.floor(Date.now()/1000+1200).toString(36)}.${nonce()}`;return `${p}.${await sign(p,secret)}`}
 
-async function emailLead(lead){
-  if(env.EMAIL_GATEWAY_ENABLED==='true'){const fields={'Lead Source':'Pompano Beach Pier Cleanup - 2026-09-12','Event Coach':'Jonathan','First Name':lead.first_name,'Last Name':lead.last_name,Email:lead.email,Phone:lead.phone,ZIP:lead.zip,'Confirmation Code':lead.confirmation_code,'Local ZIP':lead.is_local?'Yes':'No','Grand Prize Eligible':lead.is_local?'Yes':'No','Confirmation SMS':'Accepted','SMS Delivery Status':lead.delivery_status||'unknown','Marketing SMS Opt-In':lead.marketing_opt_in?'Yes':'No','Submitted At':lead.submitted_at};return sendGatewayEmail(env,{idempotencyKey:'pier-lead-'+lead.id,to:'pompanobeach@f45training.com',subject:'PIER Lead - '+lead.first_name+' '+lead.last_name,fields});}
-  const body=new URLSearchParams({
-    _subject:`PIER Lead - ${lead.first_name} ${lead.last_name}`,_template:'table',_captcha:'false',
-    'Lead Source':'Pompano Beach Pier Cleanup - 2026-09-12','Event Coach':'Jonathan','First Name':lead.first_name,'Last Name':lead.last_name,
-    Email:lead.email,Phone:lead.phone,ZIP:lead.zip,'Confirmation Code':lead.confirmation_code,'Local ZIP':lead.is_local?'Yes':'No','Grand Prize Eligible':lead.is_local?'Yes':'No',
-    'Confirmation SMS':'Accepted','SMS Delivery Status':lead.delivery_status||'unknown','Marketing SMS Opt-In':lead.marketing_opt_in?'Yes':'No','Submitted At':lead.submitted_at
-  });
-  return fetch('https://formsubmit.co/ajax/pompanobeach@f45training.com',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded;charset=UTF-8',accept:'application/json'},body:body.toString()});
+async function emailLead(env,lead){
+  const fields={'Lead Source':'Pompano Beach Pier Cleanup - 2026-09-12','Event Coach':'Jonathan','First Name':lead.first_name,'Last Name':lead.last_name,Email:lead.email,Phone:lead.phone,ZIP:lead.zip,'Confirmation Code':lead.confirmation_code,'Local ZIP':lead.is_local?'Yes':'No','Grand Prize Eligible':lead.is_local?'Yes':'No','Confirmation SMS':'Accepted','SMS Delivery Status':lead.delivery_status||'unknown','Marketing SMS Opt-In':lead.marketing_opt_in?'Yes':'No','Submitted At':lead.submitted_at};return sendGatewayEmail(env,{idempotencyKey:'pier-lead-'+lead.id,to:'pompanobeach@f45training.com',subject:'PIER Lead - '+lead.first_name+' '+lead.last_name,fields});
 }
 
 async function retrieveMessage(id, apiKey){
