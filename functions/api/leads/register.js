@@ -1,3 +1,4 @@
+import {sendGatewayEmail} from './_email_gateway.js';
 import {LOCAL_ZIPS,cleanEmail,cleanName,cleanPhone,cleanZip,json,resolveLeadEvent,saveLead,setLeadConfirmationToken,updateLeadSms} from './_shared.js';
 
 const enc=new TextEncoder();
@@ -8,6 +9,7 @@ async function sign(value,secret){const key=await crypto.subtle.importKey('raw',
 async function makeToken(payload,secret){const body=b64text(JSON.stringify(payload));return `${body}.${await sign(body,secret)}`}
 function smsState(data){const status=String(data?.to?.[0]?.status||'').toLowerCase(),error=Array.isArray(data?.errors)?data.errors[0]:null;return {status,error_code:error?.code||null}}
 async function emailLead(lead){
+  if(env.EMAIL_GATEWAY_ENABLED==='true'){const fields={'Lead Source':lead.event_name,'First Name':lead.first_name,'Last Name':lead.last_name,Email:lead.email,Phone:lead.phone,ZIP:lead.zip,'Local ZIP':lead.is_local?'Yes':'No','Marketing SMS Opt-In':lead.marketing_opt_in?'Yes':'No','Submitted At':lead.submitted_at};return sendGatewayEmail(env,{idempotencyKey:'table-lead-'+lead.id,to:'pompanobeach@f45training.com',subject:'TABLE LEAD - '+lead.event_name+' - '+lead.first_name+' '+lead.last_name,fields});}
   const body=new URLSearchParams({_subject:`TABLE LEAD - ${lead.event_name} - ${lead.first_name} ${lead.last_name}`,_template:'table',_captcha:'false','Lead Source':lead.event_name,'First Name':lead.first_name,'Last Name':lead.last_name,Email:lead.email,Phone:lead.phone,ZIP:lead.zip,'Local ZIP':lead.is_local?'Yes':'No','Marketing SMS Opt-In':lead.marketing_opt_in?'Yes':'No','Submitted At':lead.submitted_at});
   return fetch('https://formsubmit.co/ajax/pompanobeach@f45training.com',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded;charset=UTF-8',accept:'application/json'},body:body.toString()});
 }
@@ -27,7 +29,7 @@ export async function onRequestPost(context){
     const confirmationRequired=Boolean(Number(event.confirmation_enabled));
     if(confirmationRequired&&!env.TELNYX_API_KEY)return json({ok:false,error:'sms_not_configured',message:'Confirmation texting is temporarily unavailable. Please ask the F45 team for help.'},503);
     const saved=await saveLead(env,{event,first_name:firstName,last_name:lastName,email,phone,zip,is_local:LOCAL_ZIPS.has(zip),marketing_opt_in:d.marketing_opt_in===true,contact_consent:true});
-    if(!saved.duplicate){context.waitUntil(emailLead({event_name:event.name,first_name:firstName,last_name:lastName,email,phone,zip,is_local:LOCAL_ZIPS.has(zip),marketing_opt_in:d.marketing_opt_in===true,submitted_at:saved.created_at}).catch(()=>{}))}
+    if(!saved.duplicate){context.waitUntil(emailLead({id:saved.id,event_name:event.name,first_name:firstName,last_name:lastName,email,phone,zip,is_local:LOCAL_ZIPS.has(zip),marketing_opt_in:d.marketing_opt_in===true,submitted_at:saved.created_at}).catch(()=>{}))}
     if(!confirmationRequired)return json({ok:true,lead_id:saved.id,duplicate:saved.duplicate,event_key:event.event_key,event_name:event.name,confirmation_required:false});
 
     const secret=env.TABLE_LEADS_TOKEN_SECRET||env.PIER_TOKEN_SECRET||env.TELNYX_API_KEY;
