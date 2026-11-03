@@ -1,4 +1,5 @@
 import {eventDb,json} from '../leads/_shared.js';
+import {getPage} from '../landing/_shared.js';
 const fields=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id','referrer'];
 function clean(v,max=160){return String(v||'').trim().slice(0,max).replace(/[\u0000-\u001f]/g,'')}
 async function schema(db){
@@ -13,6 +14,7 @@ export async function onRequestPost({request,env}){
  let d;try{d=await request.json()}catch{return json({ok:false},400)}
  const page=String(d?.page||'').toLowerCase(),session=String(d?.session||'');
  if(!/^[a-z0-9][a-z0-9-]{0,63}$/.test(page)||!/^[a-f0-9]{32}$/.test(session))return json({ok:false},400);
+ try{const config=await getPage(env,page);const mode=config?.trackingMode||'all';if(mode==='off')return json({ok:true,tracked:false});if(mode==='utm'&&!['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'].some(k=>String(d?.[k]||'').trim()))return json({ok:true,tracked:false});}catch{return json({ok:false,error:'config_unavailable'},503)}
  const db=eventDb(env);if(!db)return json({ok:false},503);
  try{
   await schema(db);
