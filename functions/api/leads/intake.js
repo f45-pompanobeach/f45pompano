@@ -1,3 +1,4 @@
+import {sendGatewayEmail} from './_email_gateway.js';
 import {LOCAL_ZIPS,cleanEmail,cleanName,cleanPhone,cleanSlug,cleanZip,ensureSchema,eventDb,json} from './_shared.js';
 
 export async function onRequestPost({request,env}){
@@ -12,6 +13,7 @@ export async function onRequestPost({request,env}){
   const eventName=String(d.source_name||(type==='partner-page'?'Partner Page':'Main Website')).trim().slice(0,120);
   const leadSource=type==='partner-page'?'Partner Page - '+eventName:'Main Website';
   const db=eventDb(env),now=new Date().toISOString();
+  const notify=async(id)=>{if(env.EMAIL_GATEWAY_ENABLED!=='true')return {accepted:false,configured:false};const recipients=Array.isArray(d.notification_emails)?d.notification_emails.filter(x=>typeof x==='string'&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x)).slice(0,10):[];const to=recipients.length?recipients:['pompanobeach@f45training.com'];const fields={'Lead Source':leadSource,'Offer':String(d.offer||'').slice(0,160),'First Name':firstName,'Last Name':lastName,Email:email,Phone:phone,ZIP:zip,'Local ZIP':LOCAL_ZIPS.has(zip)?'Yes':'No','Marketing SMS Opt-In':d.marketing_opt_in===true?'Yes':'No','Submitted At':now,'Source URL':String(d.source_url||'').slice(0,500)};return sendGatewayEmail(env,{idempotencyKey:'website-lead-'+id,to,subject:(type==='partner-page'?'New Partner Lead: ':'New Root Website Lead: ')+firstName+' '+lastName+' - '+eventName,fields});};
   const existing=await db.prepare('SELECT id FROM event_leads WHERE event_key=? AND phone=? ORDER BY created_at ASC LIMIT 1').bind(eventKey,phone).first();
   if(existing){
     await db.prepare('UPDATE event_leads SET updated_at=?,first_name=?,last_name=?,email=?,zip=?,is_local=?,marketing_opt_in=CASE WHEN marketing_opt_in=1 OR ?=1 THEN 1 ELSE 0 END,event_name=?,lead_source=? WHERE id=?')
@@ -21,6 +23,7 @@ export async function onRequestPost({request,env}){
   const id=crypto.randomUUID();
   await db.prepare('INSERT INTO event_leads (id,event_key,event_name,event_type,lead_source,event_coach,created_at,updated_at,first_name,last_name,email,phone,zip,is_local,marketing_opt_in,event_sms_consent,metadata_json,followup_status,tracked_elsewhere) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)')
     .bind(id,eventKey,eventName,type,leadSource,null,now,now,firstName,lastName,email,phone,zip,LOCAL_ZIPS.has(zip)?1:0,d.marketing_opt_in===true?1:0,0,JSON.stringify({source_slug:slug,source_url:String(d.source_url||'').slice(0,500),offer:String(d.offer||'').slice(0,160)}),'new').run();
-  return json({ok:true,id,duplicate:false});
+  let notification={accepted:false};try{notification=await notify(id)}catch(e){notification={accepted:false,error:'gateway_submission_failed'}}
+  return json({ok:true,id,duplicate:false,notification});
 }
 export function onRequest(){return json({ok:false,error:'method_not_allowed'},405)}
