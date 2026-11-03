@@ -23,7 +23,8 @@ export async function onRequestPost({request,env}){
   const id=crypto.randomUUID();
   await db.prepare('INSERT INTO event_leads (id,event_key,event_name,event_type,lead_source,event_coach,created_at,updated_at,first_name,last_name,email,phone,zip,is_local,marketing_opt_in,event_sms_consent,metadata_json,followup_status,tracked_elsewhere) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)')
     .bind(id,eventKey,eventName,type,leadSource,null,now,now,firstName,lastName,email,phone,zip,LOCAL_ZIPS.has(zip)?1:0,d.marketing_opt_in===true?1:0,0,JSON.stringify({source_slug:slug,source_url:String(d.source_url||'').slice(0,500),offer:String(d.offer||'').slice(0,160)}),'new').run();
-  let notification={accepted:false};try{notification=await notify(id)}catch(e){notification={accepted:false,error:'gateway_submission_failed'}}
+  let notification={accepted:false};try{notification=await notify(id)}catch(e){const message=e instanceof Error?e.message:'unknown';console.error('Lead email gateway failed', {lead_id:id,reason:message});notification={accepted:false,error:/^gateway_rejected_\d+$/.test(message)?message:'gateway_submission_failed'}}
+  try{await db.prepare('UPDATE event_leads SET metadata_json=? WHERE id=?').bind(JSON.stringify({source_slug:slug,source_url:String(d.source_url||'').slice(0,500),offer:String(d.offer||'').slice(0,160),email_notification:{accepted:notification.accepted===true,gateway_id:notification.id||null,state:notification.state||null,error:notification.error||null,legacy:notification.legacy===true,attempted_at:now}}),id).run()}catch(e){console.error('Lead notification status persistence failed',id)}
   return json({ok:true,id,duplicate:false,notification});
 }
 export function onRequest(){return json({ok:false,error:'method_not_allowed'},405)}
