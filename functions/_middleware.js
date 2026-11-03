@@ -2,7 +2,7 @@
 // Keep forms, client runtime, tracking and API responses unchanged.
 import { getGlobal, getPage } from './api/landing/_shared.js';
 
-const SHARE_IMAGE = 'https://f45pompano.com/f45-coaching.webp';
+const SHARE_IMAGE = 'https://f45pompano.com/f45-pompano-share-v1.jpg';
 function escapeAttr(value) {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -42,8 +42,13 @@ export async function onRequest(context) {
   const response = await context.next();
   if (!response.ok || !response.headers.get('content-type')?.includes('text/html'))
     return response;
-  const isKnown = slug === 'root' || slug === 'social-trial' || !!page;
-  if (!isKnown) return response;
+  // Existing static partner pages may not have an individual DB record.
+  // Confirm the response is actually a trial landing page before changing its metadata.
+  const htmlSource = await response.text();
+  const isKnown = slug === 'root' || slug === 'social-trial' || !!page ||
+    htmlSource.includes('id="partnerLeadForm"') || htmlSource.includes('id="rootLeadForm"');
+  if (!isKnown) return new Response(htmlSource, response);
+
   const override = page?.offerOverrideEnabled === true;
   const trialType = override && page.trialType ? page.trialType : global.trialType;
   const trialCost = override && page.trialCost ? page.trialCost : global.trialCost;
@@ -51,12 +56,12 @@ export async function onRequest(context) {
   const title = 'F45 Training Pompano Beach | ' + trialType + ' for ' + trialCost;
   const description = 'First-time local residents: try ' + trialType + ' for ' +
     trialCost + ' at F45 Training Pompano Beach.';
-  let html = await response.text();
+  let html = htmlSource;
   for (const [name, value, kind] of [
     ['og:title', title, 'property'], ['og:description', description, 'property'],
     ['twitter:title', title, 'name'], ['twitter:description', description, 'name'],
     ['og:image', SHARE_IMAGE, 'property'], ['og:image:secure_url', SHARE_IMAGE, 'property'],
-    ['twitter:image', SHARE_IMAGE, 'name'], ['og:image:type', 'image/webp', 'property']
+    ['twitter:image', SHARE_IMAGE, 'name'], ['og:image:type', 'image/jpeg', 'property']
   ]) html = setMeta(html, name, value, kind);
   const headers = new Headers(response.headers);
   headers.delete('content-length');
