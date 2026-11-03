@@ -12,7 +12,7 @@ export async function sendGatewayEmail(env,{idempotencyKey,to,subject,fields,pri
  const text=entries.map(([k,v])=>k+': '+v).join('\n');
  const response=await fetch(url+'/send',{method:'POST',headers:{'content-type':'application/json','x-email-app':app,authorization:'Bearer '+key,'idempotency-key':idempotencyKey},body:JSON.stringify({from,to,subject,html,text,priority})});
  const result=await response.json().catch(()=>({}));
- if(response.status!==202||result.ok!==true||!result.id)throw Error('gateway_rejected_'+response.status);
+ if(response.status!==202||result.ok!==true||!result.id){const reason=typeof result.error==='string'?result.error.slice(0,120):'unspecified';const safeReason=reason.replace(/[^a-zA-Z0-9 _.-]/g,'').replace(/\s+/g,'_').toLowerCase();throw Error('gateway_rejected_'+response.status+'_'+safeReason);}
  return {configured:true,accepted:true,id:String(result.id),state:String(result.state||'pending')};
 }
 export async function gatewayStatus(env,id){
