@@ -651,7 +651,10 @@ function upgradePartnerPage(html, partnerData, options = {}) {
 }
 
 function addLandingRuntime(html) {
-  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=5"></script>\\n</body>');
+  // One shared visit tracker on every generated page; strip the old inline
+  // tracker so no page can double-count a visit.
+  html=html.replace(/<script>\s*\/\* First-party, non-blocking page and attribution tracking\. \*\/[\s\S]*?<\/script>/g,'');
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=5"></script><script defer src="/page-visit-tracker.js?v=1"></script>\\n</body>');
 }
 
 function addSiteVersion(html) {
