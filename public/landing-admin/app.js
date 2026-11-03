@@ -216,7 +216,7 @@ function selectPage(p){
   $('editorBadge').classList.toggle('hidden',!showBadge);
   if(showBadge)$('editorBadge').textContent='MAIN PAGE';
   $('editorTitle').textContent=p.slug==='root'?'Main / Root Page':(p.partner||p.slug||'New Partner');
-  const u=urlFor(p);$('editorUrl').textContent=u;const tracking=$('createTrackingLink');if(tracking){tracking.href='/leads-trials/page-tracking/?destination='+encodeURIComponent(u);tracking.classList.toggle('hidden',!u);tracking.style.display=u?'inline-flex':'none';}
+  const u=urlFor(p);$('editorUrl').textContent=u;const tracking=$('createTrackingLink');if(tracking){tracking.href='/leads-trials/page-tracking/?destination='+encodeURIComponent(u);const visible=!!u&&$('globalPanel').classList.contains('hidden');tracking.classList.toggle('hidden',!visible);tracking.style.display=visible?'inline-flex':'none';}
   if(u){$('openPageLink').href=u;$('openPageLink').classList.remove('hidden')}else{$('openPageLink').classList.add('hidden')}
 
   const g=effectiveGlobal();
@@ -246,7 +246,7 @@ function selectPage(p){
   renderList();
   if(!$('pagesPanel').classList.contains('hidden')){
     $('dockContext').textContent=p.slug==='root'?'Main / Root Page':(p.partner||p.slug||'Landing Page');
-    $('openPageLink').classList.toggle('hidden',!u);$('createTrackingLink')?.classList.toggle('hidden',!u);if($('createTrackingLink'))$('createTrackingLink').style.display=u?'inline-flex':'none';
+    $('openPageLink').classList.toggle('hidden',!u);const tracking=$('createTrackingLink');if(tracking){const visible=!!u&&$('globalPanel').classList.contains('hidden');tracking.classList.toggle('hidden',!visible);tracking.style.display=visible?'inline-flex':'none';}
     $('savePageBtn').classList.remove('hidden');
   }
   setPageBaseline();
