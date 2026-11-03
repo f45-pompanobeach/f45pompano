@@ -4937,15 +4937,17 @@ body{
 </script>
 
 <script>
-/* First-party page visit history; tracking never blocks the landing page. */
+/* First-party, non-blocking page and attribution tracking. */
 (function(){
  try{
   if(navigator.webdriver||document.visibilityState==='hidden')return;
-  var path=location.pathname.split('/').filter(Boolean),page=path[0]||'root';
+  var parts=location.pathname.split('/').filter(Boolean),page=parts[0]==='landing'?(parts[1]||'landing'):parts[0]||'root';
   if(!/^[a-z0-9][a-z0-9-]{0,63}$/.test(page))return;
   var key='f45_page_tracking_session',sid=sessionStorage.getItem(key);
   if(!sid){sid=Array.from(crypto.getRandomValues(new Uint8Array(16)),function(x){return x.toString(16).padStart(2,'0')}).join('');sessionStorage.setItem(key,sid)}
-  fetch('/api/page-tracking/',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({page:page,session:sid}),credentials:'same-origin',keepalive:true}).catch(function(){});
+  var q=new URLSearchParams(location.search),data={page:page,session:sid,referrer:document.referrer||''};
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id'].forEach(function(k){data[k]=(q.get(k)||'').slice(0,160)});
+  fetch('/api/page-tracking/',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data),credentials:'same-origin',keepalive:true}).catch(function(){});
  }catch(e){}
 })();
 </script>
