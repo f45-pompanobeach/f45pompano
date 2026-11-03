@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..', 'dist');
-const image = 'https://f45pompano.com/f45-pompano-share-v1.jpg';
+const image = 'https://f45pompano.com/f45-pompano-share-v2.jpg';
 let changed = 0;
 function visit(folder) {
   for (const item of fs.readdirSync(folder, { withFileTypes: true })) {
