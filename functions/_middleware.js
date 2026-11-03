@@ -2,7 +2,7 @@
 // Keep forms, client runtime, tracking and API responses unchanged.
 import { getGlobal, getPage } from './api/landing/_shared.js';
 
-const SHARE_IMAGE = 'https://f45pompano.com/f45-pompano-share-v1.jpg';
+const SHARE_IMAGE = 'https://f45pompano.com/f45-pompano-share-v2.jpg';
 function escapeAttr(value) {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;');
