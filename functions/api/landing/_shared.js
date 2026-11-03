@@ -58,6 +58,7 @@ export function sanitizePage(input={},existingSlug=''){
     videoUrl:cleanUrl(input.videoUrl),
     mindbodyUrl:cleanUrl(input.mindbodyUrl),
     offerOverrideEnabled:input.offerOverrideEnabled===true,
+    trackingMode:['all','utm','off'].includes(input.trackingMode)?input.trackingMode:'all',
     enabled:bool(input.enabled,true)
   };
 }
