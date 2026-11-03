@@ -308,6 +308,12 @@ function showAdminTab(tab){
   $('saveGlobalBtn').classList.toggle('hidden',!globalMode);
   $('savePageBtn').classList.toggle('hidden',globalMode||!state.selected);
   $('openPageLink').classList.toggle('hidden',globalMode||!state.selected||!urlFor(state.selected));
+  const trackingLink=$('createTrackingLink');
+  if(trackingLink){
+    const showTracking=!globalMode&&!!state.selected&&!!urlFor(state.selected);
+    trackingLink.classList.toggle('hidden',!showTracking);
+    trackingLink.style.display=showTracking?'inline-flex':'none';
+  }
   $('dockContext').textContent=globalMode?'Global Settings':(state.selected?(state.selected.slug==='root'?'Main / Root Page':state.selected.partner||state.selected.slug):'Landing Pages');
   $('dockStatus').textContent='';
   updateSaveStates();
