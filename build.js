@@ -735,9 +735,29 @@ for (const file of fs.readdirSync(dataDir)) {
 }
 fs.writeFileSync(path.join(distDir, "landing-defaults.json"), JSON.stringify(landingDefaults, null, 2));
 
+// Social-sharing preview only. No changes to visible offers, forms, tracking, or email.
+function updateIntroSharePreview(html) {
+  const title = "F45 Training Pompano Beach | 5 Classes for $25";
+  const description = "First-time local residents: try 5 classes for $25 at F45 Training Pompano Beach.";
+  // An existing on-site coaching photo, with no outdated offer printed in the image.
+  const image = "https://f45pompano.com/f45-coaching.webp";
+  const setTag = (source, key, value) => source.replace(
+    new RegExp('(<meta\\s+(?:property|name)="' + key + '"\\s+content=")[^"]*(")', 'i'),
+    (_, before, after) => before + value + after
+  );
+  for (const [key, value] of [
+    ["og:title", title], ["og:description", description],
+    ["twitter:title", title], ["twitter:description", description],
+    ["og:image", image], ["og:image:secure_url", image], ["twitter:image", image]
+  ]) html = setTag(html, key, value);
+  // The source artwork is WebP; do not advertise it as JPEG.
+  html = setTag(html, "og:image:type", "image/webp");
+  return html;
+}
+
 // Default homepage
 const genericData = { ...shared, ...generic };
-const renderedGenericPage = addSiteVersion(addLandingRuntime(addLocalComplianceLinks(addRootLeadCapture(render(genericTemplate, genericData)))));
+const renderedGenericPage = updateIntroSharePreview(addSiteVersion(addLandingRuntime(addLocalComplianceLinks(addRootLeadCapture(render(genericTemplate, genericData))))));
 fs.writeFileSync(path.join(distDir, "index.html"), renderedGenericPage);
 
 // Partner pages
@@ -761,6 +781,7 @@ for (const file of fs.readdirSync(dataDir)) {
       sandsHarbor: file === "sands-harbor.json"
     });
   }
+  if (file === "meta.json") renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
 
   renderedPartnerPage = addSiteVersion(renderedPartnerPage);
