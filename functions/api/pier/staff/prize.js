@@ -7,10 +7,8 @@ function smsState(data){
   const error=errors[0]||null;
   return {status:status||'accepted',error_code:error?.code||null};
 }
-async function emailPrize(lead,prize,at){
-  if(env.EMAIL_GATEWAY_ENABLED==='true'){const fields={Event:'Pompano Beach Pier Cleanup - 2026-09-12',Name:lead.first_name+' '+lead.last_name,Phone:lead.phone,Email:lead.email,ZIP:lead.zip,'Local ZIP':lead.is_local?'Yes':'No',Prize:prize,'Recorded At':at};return sendGatewayEmail(env,{idempotencyKey:'pier-prize-'+lead.id+'-'+at.replace(/[^0-9]/g,''),to:'pompanobeach@f45training.com',subject:'PIER PRIZE - '+lead.first_name+' '+lead.last_name+' - '+prize,fields});}
-  const body=new URLSearchParams({_subject:`PIER PRIZE - ${lead.first_name} ${lead.last_name} - ${prize}`,_template:'table',_captcha:'false','Event':'Pompano Beach Pier Cleanup - 2026-09-12','Name':`${lead.first_name} ${lead.last_name}`,'Phone':lead.phone,'Email':lead.email,'ZIP':lead.zip,'Local ZIP':lead.is_local?'Yes':'No','Prize':prize,'Recorded At':at});
-  return fetch('https://formsubmit.co/ajax/pompanobeach@f45training.com',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded;charset=UTF-8',accept:'application/json'},body:body.toString()});
+async function emailPrize(env,lead,prize,at){
+  const fields={Event:'Pompano Beach Pier Cleanup - 2026-09-12',Name:lead.first_name+' '+lead.last_name,Phone:lead.phone,Email:lead.email,ZIP:lead.zip,'Local ZIP':lead.is_local?'Yes':'No',Prize:prize,'Recorded At':at};return sendGatewayEmail(env,{idempotencyKey:'pier-prize-'+lead.id+'-'+at.replace(/[^0-9]/g,''),to:'pompanobeach@f45training.com',subject:'PIER PRIZE - '+lead.first_name+' '+lead.last_name+' - '+prize,fields});
 }
 function smsSafe(v){
   return String(v||'').replace(/[–—]/g,'-').replace(/[’‘]/g,"'").replace(/[“”]/g,'"').normalize('NFKD').replace(/[^\x20-\x7E]/g,'').trim();
@@ -69,7 +67,7 @@ export async function onRequestPost(context){
       receipt=await sendPrizeText(env,lead,prize,correction,bonus);
       await db.prepare(`UPDATE event_leads SET prize_text_status=?,prize_text_message_id=?,prize_text_error_code=?,updated_at=? WHERE id=? AND event_key=?`).bind(receipt.status,receipt.message_id,receipt.error_code,new Date().toISOString(),id,EVENT_KEY).run();
     }
-    context.waitUntil(emailPrize(lead,prize,now).catch(()=>{}));
+    context.waitUntil(emailPrize(env,lead,prize,now).catch(()=>{}));
     return json({ok:true,lead_id:id,prize,correction,prize_text_status:receipt.status,prize_text_message_id:receipt.message_id,prize_text_error_code:receipt.error_code});
   }catch(e){return json({ok:false,error:'save_failed',message:'Could not save this prize.'},500)}
 }
