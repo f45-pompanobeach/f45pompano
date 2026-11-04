@@ -802,7 +802,7 @@ for (const file of fs.readdirSync(dataDir)) {
     if(videoStart < 0 || videoClose < 0 || videoStart >= start)throw new Error('Social hero background video missing');
     renderedPartnerPage = renderedPartnerPage.slice(0,start) + newCard + renderedPartnerPage.slice(end);
     renderedPartnerPage = renderedPartnerPage.replace('src="trial-video.mp4"','src="/trial-video.mp4"');
-    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=8">\n</head>');
+    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=9">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
