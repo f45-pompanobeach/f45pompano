@@ -85,6 +85,8 @@
     panel.setAttribute('aria-label','F45 class workout video');
     video.classList.add('screenshot-hero-video');
     panel.appendChild(video);
+    var soundToggle=hero.querySelector('#soundToggle');
+    if(soundToggle)panel.appendChild(soundToggle);
     shell.append(left,panel);
     shell.classList.add('lead-pilot-shell');
     hero.classList.add('screenshot-hero','lead-pilot-hero');
