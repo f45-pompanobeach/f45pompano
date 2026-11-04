@@ -16,9 +16,12 @@ on:
       - 'data/*.json'
       - 'scripts/lead-form-pilot.js'
       - 'scripts/partner-page-polish.js'
+      - 'scripts/root-lead-design.js'
       - 'public/partner-form-checkboxes.css'
       - 'public/lead-form-pilot.js'
       - 'public/lead-form-pilot.css'
+      - 'public/root-lead-design.js'
+      - 'public/root-lead-design.css'
       - 'public/landing-runtime.js'
       - 'functions/api/leads/**'
       - 'functions/tableleads/**'
@@ -51,6 +54,8 @@ jobs:
           node --check build.js
           node --check scripts/lead-form-pilot.js
           node --check scripts/partner-page-polish.js
+          node --check scripts/root-lead-design.js
+          node --check public/root-lead-design.js
           node --check public/lead-form-pilot.js
           node --check public/landing-runtime.js
           node --check functions/api/leads/_shared.js
@@ -139,12 +144,23 @@ jobs:
               throw Error(file+' checkout link missing');
             }
           }
-          for(const file of ['dist/social-trial/index.html','dist/index.html']){
-            const html=fs.readFileSync(file,'utf8');
-            if(html.includes('lead-form-pilot.css?v=3')||
-               html.includes('lead-form-pilot.js?v=3'))
-              throw Error(file+' partner redesign leaked onto other page');
+          const social=fs.readFileSync('dist/social-trial/index.html','utf8');
+          if(social.includes('lead-form-pilot.css?v=3')||
+             social.includes('lead-form-pilot.js?v=3'))
+            throw Error('Social Trial must retain its own direct-checkout design');
+          const homepage=fs.readFileSync('dist/index.html','utf8');
+          for(const marker of ['class="lead-form-pilot root-lead-design"',
+            'lead-pilot-nav-book','lead-pilot-mobile-bar',
+            '/root-lead-design.css?v=1','/root-lead-design.js?v=1',
+            '/lead-form-pilot.js?v=3','/partner-form-checkboxes.css?v=1']){
+            if(!homepage.includes(marker))throw Error('Homepage missing '+marker);
           }
+          if(!homepage.includes('root-hero-lead-overlay')||
+             !homepage.includes('partnerLeadForm')||
+             !homepage.includes('partnerTermsPrivacy')||
+             !homepage.includes('partnerEligibilityConfirm')||
+             !homepage.includes('partnerSmsConsent'))
+            throw Error('Homepage lost existing consent/form initialization');
           console.log('Checked '+targets.length+' generated partner pages and the dynamic partner template.');
           NODE
       - name: Parse generated homepage inline scripts
