@@ -1,18 +1,27 @@
-/* Post-build experiment: Sarpino's lead form only.
- * Reuse the existing validated form and success markup without modifying
- * its fields, consent controls, API submission, Mindbody URL or tracking.
- * Future partner pages can opt in using the same transform. */
+/* Shared partner lead-form presentation, promoted from the validated Sarpino's
+ * pilot. Uses page data to preserve partner names, offers, and custom
+ * post-submit outcomes. Does not modify submitted fields, consent, tracking,
+ * email or Mindbody URLs. The root website and Social Trial use separate flows. */
 const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const partner = JSON.parse(fs.readFileSync(path.join(root, 'data', 'sarpinos.json'), 'utf8'));
+const dataDir = path.join(root, 'data');
+const pages = fs.readdirSync(dataDir).filter(name => name.endsWith('.json') &&
+  !['shared.json', 'generic.json', 'meta.json'].includes(name))
+  .map(name => JSON.parse(fs.readFileSync(path.join(dataDir, name), 'utf8')));
+const neutral = {
+  slug: '_landing-template',
+  partner: 'Partner',
+  trialType: '3 Classes',
+  trialCost: '$30'
+};
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
-function transform(html) {
+function transform(html, partner) {
   if (!html.includes('id="partnerLeadForm"')) throw Error('Pilot requires the existing lead form');
   const heroStart = html.indexOf('<section class="screenshot-hero" id="offer">');
   const heroEnd = heroStart < 0 ? -1 : html.indexOf('</section>', heroStart);
@@ -60,7 +69,9 @@ function transform(html) {
     '</span><br>for <span class="lead-pilot-price">' + escapeHtml(partner.trialCost) + '</span></h1>');
   copy = copy.replace(
     'Fill out the quick form to unlock your trial offer for F45 Training Pompano Beach.',
-    'Ready to get started? Complete the short form to unlock your offer and continue to Mindbody.'
+    partner.slug === 'sands-harbor'
+      ? 'Ready to get started? Complete the short form and our team will contact you to help you get set up.'
+      : 'Ready to get started? Complete the short form to unlock your offer and continue to Mindbody.'
   );
   copy = copy.replace(/<div class="partner-hero-proof-row"[\s\S]*?<\/div>/, '');
 
@@ -114,11 +125,21 @@ function transform(html) {
   return html;
 }
 
-for (const relative of ['sarpinos.html', 'sarpinos/index.html']) {
+const targets = pages.flatMap(page => [
+  {relative: page.slug + '.html', page},
+  {relative: page.slug + '/index.html', page}
+]);
+targets.push({relative: '_landing-template/index.html', page: neutral});
+const seen = new Set();
+for (const {relative, page} of targets) {
   const target = path.join(root, 'dist', relative);
-  if (!fs.existsSync(target)) throw Error('Expected generated page missing: ' + relative);
+  if (!fs.existsSync(target)) throw Error('Expected generated partner page missing: ' + relative);
   const before = fs.readFileSync(target, 'utf8');
-  const after = transform(before);
+  const after = transform(before, page);
   fs.writeFileSync(target, after);
-  console.log('Applied lead-form pilot to ' + relative);
+  if (!seen.has(page.slug)) seen.add(page.slug);
+  console.log('Applied approved lead-form layout to ' + relative);
 }
+if (seen.size !== pages.length + 1)
+  throw Error('Some partner or dynamic landing page templates were not updated');
+console.log('Upgraded ' + pages.length + ' existing partners plus the dynamic landing template.');
