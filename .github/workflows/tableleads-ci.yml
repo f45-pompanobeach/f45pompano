@@ -170,6 +170,15 @@ jobs:
              !homepage.includes('class="lead-pilot-offer-column"') ||
              !homepage.includes('class="lead-pilot-video-panel"'))
             throw Error('Homepage must have static layout before JavaScript runs');
+          const eligibilityRow=homepage.match(/<label class="eligibility-confirm-row">[\\s\\S]*?<\\/label>/)?.[0]||'';
+          if(!eligibilityRow.includes("I'm a first-time visitor and a qualifying local resident.") ||
+             eligibilityRow.includes('one of these ZIP codes'))
+            throw Error('Homepage must use the short checkbox wording');
+          if(!homepage.includes('class="lead-pilot-eligible-zips"') ||
+             !homepage.includes('class="lead-pilot-eligibility-details"'))
+            throw Error('Homepage ZIP details dropdown missing');
+          if(!homepage.includes('/landing-runtime.js?v=12'))
+            throw Error('Homepage must load fresh eligibility runtime');
           console.log('Checked '+targets.length+' generated partner pages and the dynamic partner template.');
           NODE
       - name: Parse generated homepage inline scripts
