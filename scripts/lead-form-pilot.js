@@ -73,6 +73,11 @@ function transform(html) {
     '<link rel="stylesheet" href="/lead-form-pilot.css?v=1">\n</head>');
   html = html.replace('</body>',
     '<script defer src="/lead-form-pilot.js?v=1"></script>\n</body>');
+  // Refresh the runtime only for this pilot; leave all other pages' assets
+  // and cache keys untouched.
+  if (!html.includes('/landing-runtime.js?v=9'))
+    throw Error('Expected landing runtime script missing');
+  html = html.replace('/landing-runtime.js?v=9', '/landing-runtime.js?v=10');
 
   for (const needle of ['id="partnerLeadForm"', 'id="claimSuccess"', 'id="partnerEligibilityConfirm"',
     'id="partnerTermsPrivacy"', 'id="partnerSmsConsent"', 'id="offer-video"',
