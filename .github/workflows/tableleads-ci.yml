@@ -12,6 +12,12 @@ on:
       - 'public/landing/admin/**'
       - 'public/landing-admin/**'
       - 'build.js'
+      - 'package.json'
+      - 'data/sarpinos.json'
+      - 'scripts/lead-form-pilot.js'
+      - 'public/lead-form-pilot.js'
+      - 'public/lead-form-pilot.css'
+      - 'public/landing-runtime.js'
       - 'functions/api/leads/**'
       - 'functions/tableleads/**'
       - '.github/workflows/tableleads-ci.yml'
@@ -41,6 +47,9 @@ jobs:
           node --check public/admin/sw.js
           node --check public/landing/admin/app.js
           node --check build.js
+          node --check scripts/lead-form-pilot.js
+          node --check public/lead-form-pilot.js
+          node --check public/landing-runtime.js
           node --check functions/api/leads/_shared.js
           node --check functions/api/leads/auth.js
           node --check functions/api/leads/register.js
@@ -56,6 +65,33 @@ jobs:
           node --check functions/tableleads/confirm.js
       - name: Build site
         run: npm run build
+      - name: Check generated Sarpino lead-form pilot
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          for (const p of ['dist/sarpinos.html', 'dist/sarpinos/index.html']) {
+            const html = fs.readFileSync(p, 'utf8');
+            for (const name of ['partnerLeadForm', 'claimSuccess', 'partnerEligibilityConfirm',
+                'partnerTermsPrivacy', 'partnerSmsConsent', 'offer-video', 'claim-form']) {
+              if ((html.match(new RegExp('id="' + name + '"', 'g')) || []).length !== 1)
+                throw Error(p + ': expected one ' + name);
+            }
+            for (const field of ['lead-pilot-offer-column','lead-pilot-video-panel',
+                'lead-pilot-mobile-bar', '/lead-form-pilot.css?v=1',
+                '/lead-form-pilot.js?v=1', '/landing-runtime.js?v=10',
+                'action="/api/leads/intake"', 'Continue to Mindbody']) {
+              if (!html.includes(field)) throw Error(p + ': missing ' + field);
+            }
+            if (html.indexOf('lead-pilot-offer-column') > html.indexOf('id="partnerLeadForm"'))
+              throw Error(p + ': form not in pilot offer column');
+          }
+          for (const p of ['dist/social-trial/index.html', 'dist/foxtail/index.html']) {
+            const html=fs.readFileSync(p, 'utf8');
+            if (html.includes('lead-form-pilot.css?v=1') || html.includes('lead-form-pilot.js?v=1'))
+              throw Error(p + ': pilot leaked to unrelated page');
+          }
+          console.log('Sarpino pilot rendered with form, consent, checkout and isolated assets.');
+          NODE
       - name: Parse generated homepage inline scripts
         run: |
           node - <<'NODE'
