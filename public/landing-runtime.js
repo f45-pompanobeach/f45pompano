@@ -57,11 +57,11 @@
 
       if(isSocial){
         const h=document.querySelector('.claim-form-header h2');
-        if(h)h.textContent='Reserve Your '+page.trialType+' for '+page.trialCost;
+        if(h)h.textContent='Try '+page.trialType+' for '+page.trialCost;
         const intro=document.querySelector('.claim-form-header p');
-        if(intro)intro.textContent='Activate your '+page.trialCost+' trial and book your first class through our official Mindbody checkout. Eligibility will be verified before your first class.';
+        if(intro)intro.textContent='Ready to get started? Confirm your eligibility below, then continue to our secure Mindbody checkout.';
         const cta=document.querySelector('.meta-direct-cta');
-        if(cta){cta.textContent='Activate Your '+page.trialCost+' Trial';if(page.mindbodyUrl)cta.href=page.mindbodyUrl;}
+        if(cta){cta.textContent='Get '+page.trialType+' for '+page.trialCost;if(page.mindbodyUrl)cta.href=page.mindbodyUrl;}
         const booking=document.querySelector('.meta-global-booking-note');
         if(booking&&page.firstClassBookingText)booking.textContent=page.firstClassBookingText;
         const trialFaq=[...document.querySelectorAll('.faq-item')].find(item=>/what if i can't use all/i.test(item.querySelector('.faq-q h4')?.textContent||''));
@@ -110,7 +110,8 @@
       const eligibility=document.querySelector('.eligibility-confirm-row span');
       if(eligibility)eligibility.textContent='I confirm that I am a first-time visitor and live in one of these ZIP codes ('+zips.join(', ')+'), and am able to verify residency for this offer.';
       const metaEligibility=document.querySelector('.meta-eligibility-check span');
-      if(metaEligibility)metaEligibility.textContent='I confirm I am a first-time visitor, live in one of these ZIP codes ('+zips.join(', ')+'), and am able to verify residency for this offer.';
+      if(metaEligibility&&!document.querySelector('.social-refresh-card'))metaEligibility.textContent='I confirm I am a first-time visitor, live in one of these ZIP codes ('+zips.join(', ')+'), and am able to verify residency for this offer.';
+      const socialZips=document.querySelector('.social-eligible-zips');if(socialZips)socialZips.textContent=zips.join(', ');
 
       document.querySelectorAll('.faq-item').forEach(item=>{
         const q=item.querySelector('.faq-q h4');
