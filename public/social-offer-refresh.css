@@ -295,3 +295,38 @@
   }
   .social-refresh-card .social-checkout-help{margin:0 18px 20px !important}
 }
+
+/* v6: keep the approved single-box flow, left-aligned dynamic ribbon,
+   original logo without its white rectangular background, and playing video. */
+.social-refresh-card .social-brand-logo{
+  background:transparent !important;
+  filter:grayscale(1) invert(1) contrast(2.2) !important;
+  mix-blend-mode:screen !important;
+  object-fit:contain !important;
+}
+.social-refresh-card .social-brand{isolation:isolate !important}
+.social-refresh-card .social-hero-copy{
+  display:flex !important;flex-direction:column !important;align-items:flex-start !important;
+  text-align:left !important;
+}
+.social-refresh-card .claim-partner-ribbon.social-refresh-ribbon{
+  align-self:flex-start !important;
+  display:inline-flex !important;
+  justify-content:flex-start !important;
+  text-align:left !important;
+  width:auto !important;
+  max-width:100% !important;
+  margin-left:0 !important;margin-right:auto !important;
+  position:relative !important;left:0 !important;right:auto !important;
+  transform:none !important;
+}
+.social-refresh-card .meta-eligibility-check span{display:block !important}
+.social-refresh-card .social-eligibility-details summary{font-weight:800 !important}
+.social-refresh-card .social-eligibility-details p{line-height:1.6 !important}
+.social-refresh-card .social-visual-hero>.screenshot-hero-video{
+  display:block !important;visibility:visible !important;opacity:1 !important;
+  z-index:0 !important;object-fit:cover !important;
+}
+.social-refresh-card .social-visual-hero::before{z-index:1 !important}
+.social-refresh-card .social-visual-hero>.social-brand,
+.social-refresh-card .social-visual-hero>.social-hero-copy{z-index:2 !important}
