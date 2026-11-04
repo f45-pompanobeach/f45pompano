@@ -151,7 +151,7 @@ jobs:
           const homepage=fs.readFileSync('dist/index.html','utf8');
           for(const marker of ['class="lead-form-pilot root-lead-design"',
             'lead-pilot-nav-book','lead-pilot-mobile-bar',
-            '/root-lead-design.css?v=2','class="lead-pilot-shell"',
+            '/root-lead-design.css?v=2','class="root-hero-lead-overlay lead-pilot-shell"',
             '/lead-form-pilot.js?v=3','/partner-form-checkboxes.css?v=1']){
             if(!homepage.includes(marker))throw Error('Homepage missing '+marker);
           }
