@@ -790,7 +790,7 @@ for (const file of fs.readdirSync(dataDir)) {
     if (start < 0 || end < 0) throw new Error('Social offer card markers missing');
     const newCard = render(fs.readFileSync('social-offer-card.html','utf8'),partnerData);
     renderedPartnerPage = renderedPartnerPage.slice(0,start) + newCard + renderedPartnerPage.slice(end);
-    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=1">\n</head>');
+    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=2">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
