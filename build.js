@@ -795,19 +795,14 @@ for (const file of fs.readdirSync(dataDir)) {
       heroBadgeText: partnerData.heroBadgeText || 'Local Resident Exclusive',
       socialBrandLogo: logoMatch ? logoMatch[1] : '/og-image.jpg'
     });
-    // Keep the original configured autoplay video, but make it the actual hero
-    // background. It must never sit behind a separate outer page/card layer.
+    // Restore the same section-wide autoplay video structure as the other landing pages.
+    // The configured video must be a direct child of the hero section (not embedded in the card).
     const videoStart = renderedPartnerPage.indexOf('<video class="screenshot-hero-video"');
-    const videoClose = videoStart < 0 ? -1 : renderedPartnerPage.indexOf('</video>', videoStart);
-    if (videoStart < 0 || videoClose < 0) throw new Error('Social trial video not found');
-    const videoMarkup = renderedPartnerPage.slice(videoStart, videoClose + '</video>'.length).replace('src="trial-video.mp4"','src="/trial-video.mp4"');
-    renderedPartnerPage = renderedPartnerPage.slice(0, videoStart) + renderedPartnerPage.slice(videoClose + '</video>'.length);
-    const videoHeroCard = newCard.replace(
-      '<div class="social-visual-hero">',
-      '<div class="social-visual-hero">' + videoMarkup
-    );
-    renderedPartnerPage = renderedPartnerPage.slice(0,start - videoMarkup.length) + videoHeroCard + renderedPartnerPage.slice(end - videoMarkup.length);
-    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=6">\\n</head>');
+    const videoClose = videoStart < 0 ? -1 : renderedPartnerPage.indexOf('</video>',videoStart);
+    if(videoStart < 0 || videoClose < 0 || videoStart >= start)throw new Error('Social hero background video missing');
+    renderedPartnerPage = renderedPartnerPage.slice(0,start) + newCard + renderedPartnerPage.slice(end);
+    renderedPartnerPage = renderedPartnerPage.replace('src="trial-video.mp4"','src="/trial-video.mp4"');
+    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=7">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
