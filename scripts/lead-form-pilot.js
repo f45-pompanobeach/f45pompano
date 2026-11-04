@@ -26,7 +26,28 @@ function transform(html) {
     throw Error('Pilot source structure changed');
 
   let copy = hero.slice(copyStart, cardStart).trim();
-  const card = hero.slice(cardStart, shellEnd).trim();
+  let card = hero.slice(cardStart, shellEnd).trim();
+
+  // The hero already announces the Sarpino's offer. Remove the duplicate.
+  const redundant = /<div class="partner-exclusive-header">[\s\S]*?<\/div>\s*/;
+  if (!redundant.test(card)) throw Error('Expected redundant partner heading missing');
+  card = card.replace(redundant, '');
+
+  // Keep the required residency checkbox and its ID/name/validation.
+  // Put detailed ZIP requirements in an accessible, expandable panel.
+  const eligibilityText = /(<label class="eligibility-confirm-row">[\s\S]*?<span>)[\s\S]*?(<\/span><\/label>)/;
+  const originalEligibility = card.match(eligibilityText);
+  if (!originalEligibility) throw Error('Required residency checkbox missing');
+  const zipList = originalEligibility[0].match(/\((\d{5}(?:\s*,\s*\d{5})+)\)/);
+  if (!zipList) throw Error('ZIP list missing in original eligibility label');
+  card = card.replace(eligibilityText, (_, begin, end) =>
+    begin + "I'm a first-time visitor and a qualifying local resident." + end +
+    '\n        <details class="lead-pilot-eligibility-details">' +
+    '<summary>Eligibility details &amp; eligible ZIP codes</summary>' +
+    '<p>We’ll verify eligibility before your first class. You must be a first-time visitor, ' +
+    'live in one of these eligible ZIP codes: <strong class="lead-pilot-eligible-zips">' +
+    escapeHtml(zipList[1]) + '</strong>, and be able to verify residency.</p></details>'
+  );
 
   copy = copy.replace(
     '<div class="partner-hero-eyebrow">First-time local residents only</div>',
@@ -70,18 +91,19 @@ function transform(html) {
   // CSS loads after original partner layout rules. The source templates and
   // their other partner pages remain identical.
   html = html.replace('</head>',
-    '<link rel="stylesheet" href="/lead-form-pilot.css?v=1">\n</head>');
+    '<link rel="stylesheet" href="/lead-form-pilot.css?v=2">\n</head>');
   html = html.replace('</body>',
     '<script defer src="/lead-form-pilot.js?v=2"></script>\n</body>');
   // Refresh the runtime only for this pilot; leave all other pages' assets
   // and cache keys untouched.
   if (!html.includes('/landing-runtime.js?v=9'))
     throw Error('Expected landing runtime script missing');
-  html = html.replace('/landing-runtime.js?v=9', '/landing-runtime.js?v=10');
+  html = html.replace('/landing-runtime.js?v=9', '/landing-runtime.js?v=11');
 
   for (const needle of ['id="partnerLeadForm"', 'id="claimSuccess"', 'id="partnerEligibilityConfirm"',
     'id="partnerTermsPrivacy"', 'id="partnerSmsConsent"', 'id="offer-video"',
-    'class="lead-pilot-video-panel"', 'class="lead-pilot-mobile-bar"']) {
+    'class="lead-pilot-video-panel"', 'class="lead-pilot-mobile-bar"',
+    'class="lead-pilot-eligibility-details"']) {
     if (!html.includes(needle)) throw Error('Pilot lost required markup: ' + needle);
   }
   if ((html.match(/id="partnerLeadForm"/g) || []).length !== 1 ||
