@@ -796,14 +796,16 @@ for (const file of fs.readdirSync(dataDir)) {
     });
     // Keep the original configured autoplay video, but make it the actual hero
     // background. It must never sit behind a separate outer page/card layer.
-    const videoMarkup = renderedPartnerPage.match(/<video class="screenshot-hero-video"[\\s\\S]*?<\\/video>/);
-    if (!videoMarkup) throw new Error('Social trial video not found');
-    renderedPartnerPage = renderedPartnerPage.replace(videoMarkup[0], '');
+    const videoStart = renderedPartnerPage.indexOf('<video class="screenshot-hero-video"');
+    const videoClose = videoStart < 0 ? -1 : renderedPartnerPage.indexOf('</video>', videoStart);
+    if (videoStart < 0 || videoClose < 0) throw new Error('Social trial video not found');
+    const videoMarkup = renderedPartnerPage.slice(videoStart, videoClose + '</video>'.length);
+    renderedPartnerPage = renderedPartnerPage.slice(0, videoStart) + renderedPartnerPage.slice(videoClose + '</video>'.length);
     const videoHeroCard = newCard.replace(
       '<div class="social-visual-hero">',
-      '<div class="social-visual-hero">' + videoMarkup[0]
+      '<div class="social-visual-hero">' + videoMarkup
     );
-    renderedPartnerPage = renderedPartnerPage.slice(0,start - videoMarkup[0].length) + videoHeroCard + renderedPartnerPage.slice(end - videoMarkup[0].length);
+    renderedPartnerPage = renderedPartnerPage.slice(0,start - videoMarkup.length) + videoHeroCard + renderedPartnerPage.slice(end - videoMarkup.length);
     renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=5">\\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
