@@ -208,6 +208,7 @@ jobs:
           assert(page.includes('value="activity">View Activity'));
           assert(page.includes('value="delete">Delete Visit'));
           assert(page.includes('id="activityContext"'));
+          assert(page.includes('id="activityContactStatus"'));
           assert(!page.includes('<th data-sort="session_id"'), 'Session should not be a standalone column');
           for(const match of page.matchAll(/<script>([\s\S]*?)<\/script>/g))
             new vm.Script(match[1]);
@@ -215,6 +216,10 @@ jobs:
           assert(browser.includes('Optional: Save my unfinished contact details'));
           assert(browser.includes('if(safeFields.has(key)&&optIn'));
           assert(browser.includes('pagehide'));
+          assert(browser.includes("snapshotContactFields(form,'consent_snapshot')"));
+          assert(browser.includes("snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot')"));
+          assert(browser.includes("'zip_code_on_id'"));
+          assert(browser.includes("queue.forEach(function(event){delete event.value;event.consented=false;})"));
           assert(!browser.includes('input[type=password]'));
           console.log('Universal events, opt-in and timeline dialog checked.');
           NODE
@@ -226,6 +231,12 @@ jobs:
             value:'visitor@example.com',consented:false}).field_value,null);
           assert.equal(sanitizeEvent({id,event:'field_edited',field:'email',
             value:'visitor@example.com',consented:true}).field_value,'visitor@example.com');
+          assert.equal(sanitizeEvent({id,event:'field_edited',field:'zip',
+            value:'33062',consented:true}).field_value,'33062');
+          assert.equal(sanitizeEvent({id,event:'field_edited',field:'first_name',
+            value:'Jamie',consented:true}).field_value,'Jamie');
+          assert.equal(sanitizeEvent({id,event:'field_edited',field:'zip',
+            value:'33062',consented:false}).field_value,null);
           assert.equal(sanitizeEvent({id,event:'field_edited',field:'password',
             value:'secret',consented:true}).field_value,null);
           assert.equal(sanitizeEvent({id,event:'keyboard_log'}),null);
