@@ -411,3 +411,110 @@
     margin-top:12px !important;
   }
 }
+
+
+/* Social Trial v18 — desktop: soft video transition into offer;
+   mobile: genuinely edge-to-edge cropped video, then offer below. */
+.social-refresh-card .social-hero-topline{
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  gap:13px !important;
+  width:100% !important;
+  min-height:67px !important;
+  margin:0 0 12px !important;
+}
+.social-refresh-card .social-hero-topline .social-brand{
+  display:flex !important;
+  position:static !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  flex:0 0 155px !important;
+  width:155px !important;
+  height:67px !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+.social-refresh-card .social-hero-topline .social-brand-logo{
+  width:155px !important;
+  height:67px !important;
+  max-width:100% !important;
+  object-fit:contain !important;
+  object-position:right center !important;
+  background:transparent !important;
+  filter:none !important;
+  mix-blend-mode:normal !important;
+}
+.social-refresh-card .social-hero-topline .social-refresh-ribbon{
+  display:inline-flex !important;
+  align-items:center !important;
+  flex:0 1 auto !important;
+  max-width:calc(100% - 166px) !important;
+  margin:0 !important;
+  text-align:left !important;
+}
+.social-refresh-card .social-video-panel{
+  background:linear-gradient(180deg,#101a35 0%,#101a35 55%,#fff 64%,#fff 100%) !important;
+}
+.social-refresh-card .social-video-panel>.screenshot-hero-video{
+  object-fit:cover !important;
+  object-position:center center !important;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.28) 12%,#000 36%) !important;
+  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.28) 12%,#000 36%) !important;
+}
+/* On smaller screens, a portrait video is cropped as a full-width horizontal
+   banner. The complete offer appears immediately below the footage. */
+@media(max-width:860px){
+  .screenshot-hero:has(>.social-refresh-card){
+    padding:0 0 20px !important;
+  }
+  .screenshot-hero>.social-refresh-card{
+    width:100% !important;
+    max-width:none !important;
+    border-radius:0 0 17px 17px !important;
+  }
+  .social-refresh-card .social-video-panel{
+    height:clamp(190px,55vw,260px) !important;
+    min-height:0 !important;
+    width:100% !important;
+    background:#101a35 !important;
+  }
+  .social-refresh-card .social-video-panel>.screenshot-hero-video{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+    object-position:center 43% !important;
+    -webkit-mask-image:none !important;
+    mask-image:none !important;
+  }
+  .social-refresh-card .social-visual-hero{
+    padding:13px 17px 17px !important;
+  }
+  .social-refresh-card .social-hero-topline{
+    min-height:53px !important;
+    margin:0 0 7px !important;
+    gap:8px !important;
+  }
+  .social-refresh-card .social-hero-topline .social-brand{
+    flex:0 0 119px !important;
+    width:119px !important;
+    height:53px !important;
+    margin:0 !important;
+  }
+  .social-refresh-card .social-hero-topline .social-brand-logo{
+    width:119px !important;
+    height:53px !important;
+    max-width:100% !important;
+  }
+  .social-refresh-card .social-hero-topline .social-refresh-ribbon{
+    max-width:calc(100% - 128px) !important;
+    padding:7px 9px !important;
+    margin:0 !important;
+    font-size:clamp(11px,2.9vw,14px) !important;
+    line-height:1.2 !important;
+  }
+  .social-refresh-card .claim-form-header h2{
+    margin:0 0 9px !important;
+  }
+}
