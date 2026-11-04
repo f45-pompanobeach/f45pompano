@@ -23,6 +23,9 @@ on:
       - 'public/root-lead-design.js'
       - 'public/root-lead-design.css'
       - 'public/landing-runtime.js'
+      - 'public/page-visit-tracker.js'
+      - 'public/visitor-activity.js'
+      - 'functions/api/page-tracking/**'
       - 'functions/api/leads/**'
       - 'functions/tableleads/**'
       - '.github/workflows/tableleads-ci.yml'
@@ -58,6 +61,13 @@ jobs:
           node --check public/root-lead-design.js
           node --check public/lead-form-pilot.js
           node --check public/landing-runtime.js
+          node --check public/page-visit-tracker.js
+          node --check public/visitor-activity.js
+          node --check functions/api/page-tracking/index.js
+          node --check functions/api/page-tracking/_activity.js
+          node --check functions/api/page-tracking/activity/index.js
+          node --check functions/api/page-tracking/admin/index.js
+          node --check functions/api/page-tracking/admin/activity/index.js
           node --check functions/api/leads/_shared.js
           node --check functions/api/leads/auth.js
           node --check functions/api/leads/register.js
@@ -180,6 +190,41 @@ jobs:
           if(!homepage.includes('/landing-runtime.js?v=12'))
             throw Error('Homepage must load fresh eligibility runtime');
           console.log('Checked '+targets.length+' generated partner pages and the dynamic partner template.');
+          NODE
+      - name: Verify universal tracking and page-tracking activity popup
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+          for(const file of ['dist/index.html','dist/social-trial/index.html',
+            'dist/sarpinos/index.html','dist/_landing-template/index.html']){
+            const html=fs.readFileSync(file,'utf8');
+            for(const asset of ['/page-visit-tracker.js?v=4','/visitor-activity.js?v=1'])
+              assert(html.includes(asset),file+' missing '+asset);
+          }
+          const page=fs.readFileSync('dist/leads-trials/page-tracking/index.html','utf8');
+          assert(page.includes('id="activityDialog"'));
+          assert(page.includes('class="activity-open"'));
+          for(const match of page.matchAll(/<script>([\s\S]*?)<\/script>/g))
+            new vm.Script(match[1]);
+          const browser=fs.readFileSync('public/visitor-activity.js','utf8');
+          assert(browser.includes('Optional: Save my unfinished contact details'));
+          assert(browser.includes('if(safeFields.has(key)&&optIn'));
+          assert(browser.includes('pagehide'));
+          assert(!browser.includes('input[type=password]'));
+          console.log('Universal events, opt-in and timeline dialog checked.');
+          NODE
+          node --input-type=module - <<'NODE'
+          import assert from 'node:assert/strict';
+          import {sanitizeEvent} from './functions/api/page-tracking/_activity.js';
+          const id='f179d53e-68cb-4ce3-97a9-0e0ae37b580a';
+          assert.equal(sanitizeEvent({id,event:'field_edited',field:'email',
+            value:'visitor@example.com',consented:false}).field_value,null);
+          assert.equal(sanitizeEvent({id,event:'field_edited',field:'email',
+            value:'visitor@example.com',consented:true}).field_value,'visitor@example.com');
+          assert.equal(sanitizeEvent({id,event:'field_edited',field:'password',
+            value:'secret',consented:true}).field_value,null);
+          assert.equal(sanitizeEvent({id,event:'keyboard_log'}),null);
+          console.log('Server protects non-consented values and rejects unapproved events.');
           NODE
       - name: Parse generated homepage inline scripts
         run: |
