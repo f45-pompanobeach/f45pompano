@@ -57,6 +57,23 @@ export async function onRequest(context) {
   const description = 'First-time local residents: try ' + trialType + ' for ' +
     trialCost + ' at F45 Training Pompano Beach.';
   let html = htmlSource;
+  // The server already has the exact saved settings. Give them to the page
+  // before its deferred runtime runs, so it never paints a different offer.
+  // Hide the offer-specific region only until the runtime applies those settings.
+  // This keeps the rest of the landing page visible and avoids layout shifts.
+  const initialConfig = JSON.stringify({slug,global,page:page||{}})
+    .replace(/</g,'\\u003c').replace(/>/g,'\\u003e')
+    .replace(/&/g,'\\u0026').replace(/\\u2028/g,'\\u2028').replace(/\\u2029/g,'\\u2029');
+  const preload = `<style>
+html.landing-offer-pending .screenshot-hero,
+html.landing-offer-pending .root-hero-copy,
+html.landing-offer-pending .root-claim-form,
+html.landing-offer-pending .partner-hero-copy,
+html.landing-offer-pending .partner-exclusive-header,
+html.landing-offer-pending .claim-form-section,
+html.landing-offer-pending .mid-cta-sub {visibility:hidden !important}
+</style><script>document.documentElement.classList.add('landing-offer-pending');window.__LANDING_PRELOADED__=${initialConfig};</script>`;
+  html = html.replace(/<head([^>]*)>/i, (tag)=>tag+preload);
   for (const [name, value, kind] of [
     ['og:title', title, 'property'], ['og:description', description, 'property'],
     ['twitter:title', title, 'name'], ['twitter:description', description, 'name'],
