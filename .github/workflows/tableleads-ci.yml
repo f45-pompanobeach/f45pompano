@@ -203,7 +203,12 @@ jobs:
           }
           const page=fs.readFileSync('dist/leads-trials/page-tracking/index.html','utf8');
           assert(page.includes('id="activityDialog"'));
-          assert(page.includes('class="activity-open"'));
+          assert(page.includes('class="visit-table"'));
+          assert(page.includes('class="visit-action-select"'));
+          assert(page.includes('value="activity">View Activity'));
+          assert(page.includes('value="delete">Delete Visit'));
+          assert(page.includes('id="activityContext"'));
+          assert(!page.includes('<th data-sort="session_id"'), 'Session should not be a standalone column');
           for(const match of page.matchAll(/<script>([\s\S]*?)<\/script>/g))
             new vm.Script(match[1]);
           const browser=fs.readFileSync('public/visitor-activity.js','utf8');
