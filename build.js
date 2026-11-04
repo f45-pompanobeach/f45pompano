@@ -831,8 +831,11 @@ for (const file of fs.readdirSync(dataDir)) {
     renderedPartnerPage = renderedPartnerPage.replace(socialNavEnd,
       '    </nav>\n' +
       '    <div class="social-nav-actions">' +
-      '<button class="social-nav-book" type="button" hidden aria-label="Return to video and trial offer">↑ Book Trial</button>' +
-      '</div>\n  </header>');
+      '<button class="social-nav-book" type="button" aria-label="Return to video and trial offer">Book Trial</button>' +
+      '</div>\n  </header>\n' +
+      '<div class="social-mobile-book-bar" hidden>' +
+      '<button class="social-mobile-book-button" type="button" aria-label="Back to video and trial offer">↑ Book Trial</button>' +
+      '</div>');
     // iOS Safari may smoothly restore a previous scroll position on reload,
     // especially with the original template's html scroll-behavior:smooth.
     // Disable history restoration for reloading this page only, and reset once
@@ -863,32 +866,48 @@ for (const file of fs.readdirSync(dataDir)) {
     },{once:true});
   }
   document.addEventListener('DOMContentLoaded',function(){
-    var btn=document.querySelector('.social-nav-book');
-    var header=document.querySelector('.fixed-top-header');
+    var desktopBtn=document.querySelector('.social-nav-book');
+    var mobileBar=document.querySelector('.social-mobile-book-bar');
+    var mobileBtn=document.querySelector('.social-mobile-book-button');
+    var nav=document.querySelector('.fixed-top-header .screenshot-nav');
+    var spacer=document.querySelector('.fixed-header-spacer');
     var original=document.querySelector('.social-refresh-card .meta-direct-cta');
-    if(!btn||!header||!original)return;
-    var requested=false;
+    if(!desktopBtn||!mobileBar||!mobileBtn||!nav||!spacer||!original)return;
+    var mobile=window.matchMedia('(max-width:860px)');
+    var scheduled=false;
+    var extraHeight=64;
+    function top(){
+      // Keep desktop's original permanent navigation button.
+      mobileBar.hidden=true;
+      document.documentElement.classList.remove('social-mobile-book-visible');
+      window.scrollTo({top:0,left:0,behavior:'smooth'});
+    }
+    desktopBtn.addEventListener('click',top);
+    mobileBtn.addEventListener('click',top);
     function refresh(){
-      requested=false;
+      scheduled=false;
+      if(!mobile.matches){
+        mobileBar.hidden=true;
+        document.documentElement.classList.remove('social-mobile-book-visible');
+        return;
+      }
+      var open=!mobileBar.hidden;
+      // When the bar is visible, the spacer pushes the page down by extraHeight.
+      // Normalize against that shift to avoid show/hide oscillation.
       var cta=original.getBoundingClientRect();
-      var nav=header.getBoundingClientRect();
-      // Only show once visitor has passed the actual offer button.
-      // At initial page load, the button can be below the fold; stay hidden.
-      var pastOffer=window.scrollY>40 && cta.bottom<=nav.bottom+2;
-      btn.hidden=!pastOffer;
-      btn.setAttribute('aria-hidden',pastOffer?'false':'true');
+      var naturalBottom=cta.bottom-(open?extraHeight:0);
+      var threshold=nav.getBoundingClientRect().bottom;
+      var visible=window.scrollY>32 && naturalBottom<=threshold+1;
+      if(open!==visible){
+        mobileBar.hidden=!visible;
+        document.documentElement.classList.toggle('social-mobile-book-visible',visible);
+      }
     }
     function schedule(){
-      if(requested)return;
-      requested=true;
+      if(scheduled)return;
+      scheduled=true;
       requestAnimationFrame(refresh);
     }
-    btn.addEventListener('click',function(){
-      btn.hidden=true;
-      btn.setAttribute('aria-hidden','true');
-      window.scrollTo({top:0,left:0,behavior:'smooth'});
-      schedule();
-    });
     window.addEventListener('scroll',schedule,{passive:true});
     window.addEventListener('resize',schedule,{passive:true});
     window.addEventListener('pageshow',schedule);
@@ -901,7 +920,7 @@ for (const file of fs.readdirSync(dataDir)) {
     if((renderedPartnerPage.match(/id="offer-video"/g)||[]).length !== 1)
       throw new Error('Social trial requires exactly one video');
     renderedPartnerPage = renderedPartnerPage.replace('</head>',
-      '<link rel="stylesheet" href="/social-offer-refresh.css?v=23">\n</head>');
+      '<link rel="stylesheet" href="/social-offer-refresh.css?v=24">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
