@@ -11,8 +11,16 @@
       sid=Array.from(crypto.getRandomValues(new Uint8Array(16)),function(x){return x.toString(16).padStart(2,'0')}).join('');
       try{sessionStorage.setItem('f45_page_tracking_session',sid)}catch(e){}
     }
+    // Random first-party visitor ID links visits on returning browsers.
+    // It is not an email, phone number, fingerprint or advertising ID.
+    var visitor='';
+    try{visitor=localStorage.getItem('f45_visitor_id')||''}catch(e){}
+    if(!/^[a-f0-9]{32}$/.test(visitor)){
+      visitor=Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
+      try{localStorage.setItem('f45_visitor_id',visitor)}catch(e){}
+    }
     var q=new URLSearchParams(location.search);
-    var data={page:page,session:sid,referrer:document.referrer||''};
+    var data={page:page,session:sid,visitor:visitor,referrer:document.referrer||''};
     ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id'].forEach(function(k){data[k]=(q.get(k)||'').slice(0,160)});
     window.__f45PageVisitSent=true;
     fetch('/api/page-tracking/',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data),credentials:'same-origin',keepalive:true}).catch(function(){});
