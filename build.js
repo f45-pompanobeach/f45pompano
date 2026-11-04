@@ -795,26 +795,31 @@ for (const file of fs.readdirSync(dataDir)) {
       heroBadgeText: partnerData.heroBadgeText || 'Local Resident Exclusive',
       socialBrandLogo: logoMatch ? logoMatch[1] : '/og-image.jpg'
     });
-    // Keep the configured looping video inside the visual hero, ending exactly
-    // before the white checkout card. This affects only meta.json/social-trial.
+    // Desktop: separate portrait video panel on the right. Mobile: video
+    // panel appears above the offer so the headline is visible immediately.
+    // Keep the original video element/id and settings-driven source intact.
     const videoStart = renderedPartnerPage.indexOf('<video class="screenshot-hero-video"');
     const videoClose = videoStart < 0 ? -1 : renderedPartnerPage.indexOf('</video>',videoStart);
-    if(videoStart < 0 || videoClose < 0 || videoStart >= start)throw new Error('Social hero video missing');
+    if(videoStart < 0 || videoClose < 0 || videoStart >= start)
+      throw new Error('Social trial video missing');
     const videoMarkup = renderedPartnerPage.slice(videoStart,videoClose+8)
       .replace('src="trial-video.mp4"','src="/trial-video.mp4"');
     const withoutVideo = renderedPartnerPage.slice(0,videoStart)
       + renderedPartnerPage.slice(videoClose+8);
     const offerBegin = withoutVideo.indexOf(offerStart);
     const offerEnd = withoutVideo.indexOf(endMarker,offerBegin);
-    if(offerBegin < 0 || offerEnd < 0)throw new Error('Social card replacement markers missing');
-    const cardWithVideo = newCard.replace('<div class="social-visual-hero">',
-      '<div class="social-visual-hero">' + videoMarkup);
+    if(offerBegin < 0 || offerEnd < 0)
+      throw new Error('Social trial offer section not found');
+    const videoSlot = '<div class="social-video-panel" aria-label="F45 class video">';
+    if(!newCard.includes(videoSlot))
+      throw new Error('Social trial video panel missing');
+    const cardWithVideo = newCard.replace(videoSlot,videoSlot+videoMarkup);
     renderedPartnerPage = withoutVideo.slice(0,offerBegin) + cardWithVideo
       + withoutVideo.slice(offerEnd);
     if((renderedPartnerPage.match(/id="offer-video"/g)||[]).length !== 1)
-      throw new Error('Social hero requires exactly one video');
+      throw new Error('Social trial requires exactly one video');
     renderedPartnerPage = renderedPartnerPage.replace('</head>',
-      '<link rel="stylesheet" href="/social-offer-refresh.css?v=16">\\n</head>');
+      '<link rel="stylesheet" href="/social-offer-refresh.css?v=17">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
