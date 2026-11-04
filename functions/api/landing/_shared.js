@@ -48,6 +48,7 @@ export function sanitizePage(input={},existingSlug=''){
     slug,
     pageKind,
     partner:cleanText(input.partner,pageKind==='root'?80:100),
+    heroBadgeText:cleanText(input.heroBadgeText,100),
     promoCode:cleanText(input.promoCode,60),
     trialType:cleanText(input.trialType,80)||'3 Classes',
     trialCost:cleanCost(input.trialCost)||'$30',
