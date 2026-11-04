@@ -1,96 +1,144 @@
-/* Social-trial-only design experiment. No other landing-page selectors affected. */
+/* Social-trial-only hero and checkout design. Other landing pages are unchanged. */
 .screenshot-hero:has(.social-refresh-card){
-  background:#111b33 !important;
-  background-image:linear-gradient(135deg,rgba(13,22,47,.84),rgba(17,27,51,.74)),url('/f45-coaching.webp') !important;
-  background-size:cover !important;
-  background-position:center !important;
-  padding:42px 16px 52px !important;
-  min-height:0 !important;
+  background:#f4f5f8 !important;background-image:none !important;
+  display:block !important;min-height:0 !important;height:auto !important;
+  padding:0 0 42px !important;overflow:visible !important;
 }
-.screenshot-hero:has(.social-refresh-card) .screenshot-hero-video{opacity:.09 !important}
+.screenshot-hero:has(.social-refresh-card)::after,
+.screenshot-hero:has(.social-refresh-card)::before,
+.screenshot-hero:has(.social-refresh-card)>.screenshot-hero-video{display:none !important}
 .screenshot-hero .social-refresh-card{
-  width:min(680px,96vw) !important;max-width:680px !important;
-  background:#fff !important;border:0 !important;border-radius:22px !important;
-  box-shadow:0 20px 55px rgba(7,12,35,.24) !important;
-  padding:0 !important;overflow:hidden !important;position:relative !important
+  position:relative !important;inset:auto !important;transform:none !important;
+  width:min(100%,780px) !important;max-width:780px !important;margin:0 auto !important;
+  padding:0 !important;height:auto !important;max-height:none !important;
+  border:0 !important;box-shadow:none !important;overflow:visible !important;
+  background:transparent !important;border-radius:0 !important;z-index:2 !important
 }
-.social-refresh-card .social-refresh-ribbon{
-  background:#ffda27 !important;color:#101b37 !important;display:block !important;
-  font-weight:900 !important;font-size:clamp(14px,2.7vw,18px) !important;
-  letter-spacing:.06em !important;padding:15px 24px !important;
-  text-transform:uppercase !important;text-align:center !important
+.social-refresh-card .social-visual-hero{
+  position:relative;min-height:530px;display:flex;flex-direction:column;
+  background-color:#101c35;
+  background-image:linear-gradient(90deg,#0c1630 0%,rgba(12,22,48,.97) 20%,rgba(12,22,48,.77) 47%,rgba(12,22,48,.07) 100%),url('/f45-coaching.webp');
+  background-size:cover;background-position:center;
+  padding:30px 32px 136px;box-sizing:border-box;color:#fff;isolation:isolate;
+}
+.social-refresh-card .social-brand{display:flex;align-items:center;gap:15px;position:relative;z-index:1}
+.social-refresh-card .social-brand-mark{display:flex;flex-direction:column;line-height:1;align-items:center;color:#fff}
+.social-refresh-card .social-brand-mark strong{
+  font-size:52px;font-weight:1000;font-style:italic;letter-spacing:-5px;
+  color:white;text-shadow:1px 2px 0 #243455;
+}
+.social-refresh-card .social-brand-mark small{font-size:12px;font-weight:900;letter-spacing:4px}
+.social-refresh-card .social-brand-slash{width:4px;height:62px;background:#ed2939;transform:skew(-17deg)}
+.social-refresh-card .social-brand-location{font-weight:900;font-size:25px;line-height:1.02;color:white}
+.social-refresh-card .social-hero-copy{margin-top:48px;max-width:600px;z-index:1;position:relative}
+.social-refresh-card .claim-partner-ribbon.social-refresh-ribbon{
+  display:inline-block !important;width:auto !important;max-width:100%;
+  margin:0 0 22px !important;padding:10px 18px !important;line-height:1.1 !important;
+  background:#ffe534 !important;border-radius:10px !important;color:#07132f !important;
+  font-size:clamp(14px,2.4vw,21px) !important;font-weight:950 !important;
+  text-transform:uppercase !important;font-style:italic !important;letter-spacing:0 !important
 }
 .social-refresh-card .claim-form-header{
-  background:#fff !important;color:#101b37 !important;text-align:center !important;
-  padding:28px 26px 14px !important;border-radius:0 !important
+  background:none !important;color:white !important;padding:0 !important;
+  margin:0 !important;text-align:left !important;border:0 !important;border-radius:0 !important
 }
 .social-refresh-card .claim-form-header h2{
-  font-size:clamp(32px,5.2vw,46px) !important;line-height:1.12 !important;
-  color:#101b37 !important;font-weight:900 !important;margin:0 0 15px !important;
-  letter-spacing:-.04em !important
+  color:#fff !important;text-align:left !important;
+  font-size:clamp(44px,7vw,69px) !important;line-height:1.01 !important;
+  letter-spacing:-.055em !important;font-weight:1000 !important;
+  font-style:italic !important;text-shadow:0 2px 8px rgba(0,0,0,.16);
+  margin:0 0 22px !important;max-width:600px !important
 }
+.social-refresh-card .social-hero-price{color:#ffe500 !important}
 .social-refresh-card .claim-form-header p{
-  font-size:clamp(15px,2vw,17px) !important;line-height:1.55 !important;
-  color:#40475c !important;max-width:490px !important;margin:0 auto !important
+  color:#fff !important;text-align:left !important;
+  font-size:clamp(15px,2.2vw,20px) !important;font-weight:500 !important;
+  line-height:1.43 !important;max-width:560px !important;
+  margin:0 !important;text-shadow:0 1px 4px #0d1932
+}
+.social-refresh-card .social-white-card{
+  width:calc(100% - 38px);position:relative;margin:-88px auto 0;z-index:3;
+  background:#fff;border-radius:24px;box-shadow:0 12px 32px rgba(8,18,45,.14);
+  padding:20px;box-sizing:border-box;
 }
 .social-refresh-card .meta-direct-cta-block{
-  display:flex !important;flex-direction:column !important;
-  text-align:left !important;align-items:stretch !important;gap:0 !important;
-  padding:16px 26px 30px !important;background:#fff !important
+  display:flex !important;flex-direction:column !important;align-items:stretch !important;
+  text-align:left !important;padding:0 !important;background:#fff !important
 }
 .social-refresh-card .meta-eligibility-check{
-  display:flex !important;gap:13px !important;align-items:flex-start !important;
-  background:#fff !important;border:1px solid #dde2eb !important;
-  color:#131d3e !important;border-radius:12px !important;
-  padding:18px !important;margin:0 !important;font-size:clamp(15px,2vw,18px) !important;
-  font-weight:800 !important;line-height:1.42 !important;text-transform:none !important
+  display:flex !important;gap:16px !important;align-items:flex-start !important;
+  width:100% !important;margin:0 0 16px !important;padding:15px 12px 5px !important;
+  background:#fff !important;border:0 !important;border-radius:0 !important;
+  color:#071437 !important;text-align:left !important;
+  font-size:clamp(18px,3vw,25px) !important;line-height:1.16 !important;
+  font-weight:900 !important;letter-spacing:-.02em !important
 }
 .social-refresh-card .meta-eligibility-check input{
-  width:23px !important;height:23px !important;min-width:23px !important;
-  margin:1px 0 0 !important;accent-color:#e8272a !important
+  width:27px !important;height:27px !important;min-width:27px !important;
+  margin:2px 0 0 !important;accent-color:#e8272a !important
 }
 .social-refresh-card .social-verify-note{
-  font-size:13px !important;color:#596171 !important;line-height:1.5 !important;
-  margin:7px 4px 16px 48px !important;text-align:left !important
+  display:block;margin:8px 0 0 !important;font-size:clamp(12px,1.8vw,15px) !important;
+  font-style:italic !important;line-height:1.45 !important;color:#646875 !important;
+  font-weight:400 !important;letter-spacing:normal !important
 }
 .social-refresh-card .social-eligibility-details,
 .social-refresh-card .social-checkout-help{
-  background:#f4f6f9 !important;border:1px solid #e4e8ef !important;
-  border-radius:12px !important;color:#101b37 !important;width:100% !important
+  border:0 !important;border-radius:14px !important;background:#f1f3f7 !important;
+  color:#121c37 !important;width:100% !important;box-sizing:border-box
 }
-.social-refresh-card .social-eligibility-details{margin:0 0 20px !important}
+.social-refresh-card .social-eligibility-details{margin:6px 0 20px !important}
 .social-refresh-card details summary{
-  cursor:pointer;list-style:none;padding:15px 17px !important;
-  font-size:14px !important;font-weight:800 !important;line-height:1.4 !important
+  display:block;cursor:pointer;padding:17px 19px !important;list-style:none;
+  font-size:clamp(13px,2vw,16px) !important;font-weight:800 !important;line-height:1.3 !important
 }
 .social-refresh-card details summary::-webkit-details-marker{display:none}
-.social-refresh-card details summary::after{content:'⌄';float:right;font-size:21px;line-height:13px}
+.social-refresh-card details summary::after{content:'⌄';float:right;font-size:24px;line-height:.8}
 .social-refresh-card details[open] summary::after{content:'⌃'}
-.social-refresh-card details p{
-  padding:0 17px 17px !important;font-size:13px !important;line-height:1.6 !important;
-  color:#374151 !important;margin:0 !important
-}
+.social-refresh-card details p{margin:0 !important;padding:0 19px 18px !important;
+ font-size:14px !important;color:#364054 !important;line-height:1.5 !important}
 .social-refresh-card .meta-direct-cta{
-  width:100% !important;max-width:none !important;display:flex !important;
-  box-sizing:border-box !important;text-align:center !important;
-  margin:0 0 14px !important;border-radius:13px !important;
-  background:#e8272a !important;color:white !important;
-  font-size:clamp(17px,2.4vw,23px) !important;font-weight:900 !important;
-  line-height:1.25 !important;min-height:65px !important;
-  padding:18px 15px !important;white-space:normal !important;text-decoration:none !important
+  width:100% !important;max-width:none !important;margin:0 0 16px !important;
+  padding:21px 14px !important;min-height:70px !important;box-sizing:border-box !important;
+  display:flex !important;align-items:center !important;justify-content:center !important;
+  border-radius:17px !important;background:#e60026 !important;color:#fff !important;
+  text-align:center !important;text-transform:none !important;font-style:italic !important;
+  font-size:clamp(18px,3vw,27px) !important;font-weight:900 !important;
+  line-height:1.2 !important;white-space:normal !important;text-decoration:none !important
 }
+.social-refresh-card .meta-direct-cta::after{content:'→' !important;position:static !important;
+ display:inline !important;width:auto !important;height:auto !important;
+ margin-left:12px !important;background:none !important;animation:none !important;transform:none !important;
+ color:#fff !important;font-size:28px !important;font-style:normal !important}
 .social-refresh-card .meta-direct-cta:hover{background:#c91f22 !important}
 .social-refresh-card .meta-global-booking-note{
-  width:100% !important;border:0 !important;background:#fff !important;
-  text-align:center !important;padding:0 7px !important;margin:0 0 18px !important;
-  color:#616776 !important;font-size:13px !important;line-height:1.5 !important
+  background:#fff !important;border:0 !important;width:100% !important;
+  padding:2px 8px 3px !important;margin:0 !important;text-align:center !important;
+  color:#666b77 !important;font-size:clamp(12px,1.8vw,14px) !important;
+  line-height:1.45 !important;font-style:italic !important
 }
-.social-refresh-card .social-checkout-help{margin:0 !important}
-.social-refresh-card .social-checkout-help a{color:#101b37 !important;font-weight:700 !important}
+.social-refresh-card .social-checkout-help{
+  width:calc(100% - 38px) !important;margin:19px auto 0 !important;
+  box-shadow:none !important;border:0 !important
+}
+.social-refresh-card .social-checkout-help a{color:#0d1d40 !important;font-weight:800 !important}
 @media(max-width:640px){
-  .screenshot-hero:has(.social-refresh-card){padding:22px 11px 30px !important}
-  .screenshot-hero .social-refresh-card{width:100% !important;border-radius:17px !important}
-  .social-refresh-card .claim-form-header{padding:24px 18px 12px !important}
-  .social-refresh-card .meta-direct-cta-block{padding:13px 17px 22px !important}
-  .social-refresh-card .social-verify-note{margin-left:4px !important}
+  .screenshot-hero:has(.social-refresh-card){padding:0 0 28px !important}
+  .screenshot-hero .social-refresh-card{width:100% !important}
+  .social-refresh-card .social-visual-hero{min-height:440px;padding:21px 18px 121px;
+    background-position:center right}
+  .social-refresh-card .social-brand-mark strong{font-size:37px;letter-spacing:-4px}
+  .social-refresh-card .social-brand-mark small{font-size:9px;letter-spacing:2.8px}
+  .social-refresh-card .social-brand-location{font-size:18px}
+  .social-refresh-card .social-brand-slash{height:44px}
+  .social-refresh-card .social-hero-copy{margin-top:38px}
+  .social-refresh-card .claim-form-header h2{font-size:clamp(39px,10vw,57px) !important;
+    max-width:390px !important;margin-bottom:18px !important}
+  .social-refresh-card .claim-form-header p{font-size:15px !important;max-width:310px !important}
+  .social-refresh-card .social-white-card{width:calc(100% - 24px);margin:-79px auto 0;
+    padding:10px 13px 17px;border-radius:19px}
+  .social-refresh-card .meta-eligibility-check{padding:15px 8px 3px !important;
+    font-size:clamp(17px,4.6vw,23px) !important;gap:13px !important}
+  .social-refresh-card .meta-eligibility-check input{width:23px !important;height:23px !important;min-width:23px !important}
+  .social-refresh-card .social-checkout-help{width:calc(100% - 24px) !important}
 }
