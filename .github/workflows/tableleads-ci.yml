@@ -77,11 +77,18 @@ jobs:
                 throw Error(p + ': expected one ' + name);
             }
             for (const field of ['lead-pilot-offer-column','lead-pilot-video-panel',
-                'lead-pilot-mobile-bar', '/lead-form-pilot.css?v=1',
-                '/lead-form-pilot.js?v=2', '/landing-runtime.js?v=10',
+                'lead-pilot-mobile-bar', '/lead-form-pilot.css?v=2',
+                '/lead-form-pilot.js?v=2', '/landing-runtime.js?v=11',
                 'action="/api/leads/intake"', 'Continue to Mindbody']) {
               if (!html.includes(field)) throw Error(p + ': missing ' + field);
             }
+            if (!html.includes('<details class="lead-pilot-eligibility-details">') ||
+                !html.includes('class="lead-pilot-eligible-zips"') ||
+                !html.includes('I\'m a first-time visitor and a qualifying local resident.'))
+              throw Error(p + ': pilot ZIP details are missing');
+            if (html.includes('class="partner-exclusive-header"') ||
+                html.includes('Submit your info first. Then your exclusive'))
+              throw Error(p + ': duplicate offer section still visible');
             if (html.indexOf('lead-pilot-offer-column') > html.indexOf('id="partnerLeadForm"'))
               throw Error(p + ': form not in pilot offer column');
           }
