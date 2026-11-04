@@ -74,7 +74,7 @@ body{font:15px Inter,Arial,sans-serif;background:#f4f5f7;color:#1c1c2e;margin:0;
      ?'Visitor turned off Save Progress; previously saved contact values were cleared.'
      :hasSavedValue
       ?'Contact values shown below were saved with the visitor’s permission.'
-      :'No contact text saved. Visitors must select the optional Save Progress checkbox for unfinished contact values to appear.';
+      :'No contact text was saved for this visit.';
    el('activityTimeline').innerHTML=events.map(e=>'<li><strong>'+esc(activityTitles[e.event_name]||e.event_name)+'</strong>'+
      '<small>'+esc(activityDate(e.created_at))+(e.field_name?' · '+esc(e.field_name.replace(/_/g,' ')):'')+
      (e.detail?' · '+esc(e.detail.replace(/_/g,' ')):'')+'</small>'+
