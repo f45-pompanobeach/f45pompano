@@ -198,7 +198,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=4','/visitor-activity.js?v=2'])
+            for(const asset of ['/page-visit-tracker.js?v=4','/visitor-activity.js?v=3'])
               assert(html.includes(asset),file+' missing '+asset);
           }
           const page=fs.readFileSync('dist/leads-trials/page-tracking/index.html','utf8');
@@ -213,13 +213,11 @@ jobs:
           for(const match of page.matchAll(/<script>([\s\S]*?)<\/script>/g))
             new vm.Script(match[1]);
           const browser=fs.readFileSync('public/visitor-activity.js','utf8');
-          assert(browser.includes('Optional: Save my unfinished contact details'));
+          assert(!browser.includes('askProgressConsent'), 'Extra progress checkbox must not be injected');
           assert(browser.includes('if(safeFields.has(key)&&optIn'));
           assert(browser.includes('pagehide'));
-          assert(browser.includes("snapshotContactFields(form,'consent_snapshot')"));
           assert(browser.includes("snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot')"));
           assert(browser.includes("'zip_code_on_id'"));
-          assert(browser.includes("queue.forEach(function(event){delete event.value;event.consented=false;})"));
           assert(!browser.includes('input[type=password]'));
           console.log('Universal events, opt-in and timeline dialog checked.');
           NODE
