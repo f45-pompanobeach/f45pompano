@@ -93,6 +93,12 @@ html=html.replace('</head>',
   '<link rel="stylesheet" href="/root-lead-design.css?v=2">\n</head>');
 html=html.replace('</body>',
   '<script defer src="/lead-form-pilot.js?v=3"></script>\n</body>');
+// Home previously served v9 of the shared runtime, which some browsers cache
+// despite the current build containing updated eligibility dropdown behavior.
+// Refresh only the homepage runtime; leave all other landing pages alone.
+if(!html.includes('/landing-runtime.js?v=9'))
+  throw Error('Expected homepage landing runtime version missing');
+html=html.replace('/landing-runtime.js?v=9','/landing-runtime.js?v=12');
 // Unlike the former client adapter, the form and layout exist on the first
 // paint. The legacy DOMContentLoaded submit listener sees #claim-form already
 // present and attaches normally, without duplicating the form.
@@ -105,6 +111,12 @@ for(const needle of ['class="root-hero-lead-overlay lead-pilot-shell"', 'id="par
 }
 if(!html.includes('id="heroVideo"') || !html.includes('id="soundToggle"'))
   throw Error('Homepage video and sound toggle missing');
+const compactRow = html.match(/<label class="eligibility-confirm-row">[\s\S]*?<\/label>/)?.[0] || '';
+if(!compactRow.includes("I'm a first-time visitor and a qualifying local resident.") ||
+   compactRow.includes('one of these ZIP codes'))
+  throw Error('Homepage checkbox must stay compact with ZIPs only in dropdown');
+if(!html.includes('/landing-runtime.js?v=12'))
+  throw Error('Homepage runtime cache-busting not applied');
 if(!html.includes('action="/api/leads/intake"'))
   throw Error('Homepage lead form action missing');
 fs.writeFileSync(target,html);
