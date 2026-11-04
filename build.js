@@ -653,7 +653,7 @@ function addLandingRuntime(html) {
   // One shared visit tracker on every generated page; strip the old inline
   // tracker so no page can double-count a visit.
   html=html.replace(/<script>\s*\/\* First-party, non-blocking page and attribution tracking\. \*\/[\s\S]*?<\/script>/g,'');
-  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=7"></script><script defer src="/page-visit-tracker.js?v=3"></script>\\n</body>');
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=8"></script><script defer src="/page-visit-tracker.js?v=3"></script>\\n</body>');
 }
 
 function addSiteVersion(html) {
@@ -800,7 +800,7 @@ for (const file of fs.readdirSync(dataDir)) {
     const videoStart = renderedPartnerPage.indexOf('<video class="screenshot-hero-video"');
     const videoClose = videoStart < 0 ? -1 : renderedPartnerPage.indexOf('</video>', videoStart);
     if (videoStart < 0 || videoClose < 0) throw new Error('Social trial video not found');
-    const videoMarkup = renderedPartnerPage.slice(videoStart, videoClose + '</video>'.length);
+    const videoMarkup = renderedPartnerPage.slice(videoStart, videoClose + '</video>'.length).replace('src="trial-video.mp4"','src="/trial-video.mp4"');
     renderedPartnerPage = renderedPartnerPage.slice(0, videoStart) + renderedPartnerPage.slice(videoClose + '</video>'.length);
     const videoHeroCard = newCard.replace(
       '<div class="social-visual-hero">',
