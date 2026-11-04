@@ -808,7 +808,7 @@ for (const file of fs.readdirSync(dataDir)) {
     const offerEnd = withoutVideo.indexOf(endMarker,offerBegin);
     if(offerBegin < 0 || offerEnd < 0)throw new Error('Social card replacement markers missing');
     const cardWithVideo = newCard.replace('<div class="social-visual-hero">',
-      '<div class="social-visual-hero">\\n' + videoMarkup);
+      '<div class="social-visual-hero">' + videoMarkup);
     renderedPartnerPage = withoutVideo.slice(0,offerBegin) + cardWithVideo
       + withoutVideo.slice(offerEnd);
     if((renderedPartnerPage.match(/id="offer-video"/g)||[]).length !== 1)
