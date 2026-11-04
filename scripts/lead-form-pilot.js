@@ -41,12 +41,14 @@ function transform(html) {
   const zipList = originalEligibility[0].match(/\((\d{5}(?:\s*,\s*\d{5})+)\)/);
   if (!zipList) throw Error('ZIP list missing in original eligibility label');
   card = card.replace(eligibilityText, (_, begin, end) =>
+    '<div class="lead-pilot-eligibility-group">\n        ' +
     begin + "I'm a first-time visitor and a qualifying local resident." + end +
     '\n        <details class="lead-pilot-eligibility-details">' +
     '<summary>Eligibility details &amp; eligible ZIP codes</summary>' +
     '<p>We’ll verify eligibility before your first class. You must be a first-time visitor, ' +
     'live in one of these eligible ZIP codes: <strong class="lead-pilot-eligible-zips">' +
-    escapeHtml(zipList[1]) + '</strong>, and be able to verify residency.</p></details>'
+    escapeHtml(zipList[1]) + '</strong>, and be able to verify residency.</p></details>' +
+    '\n        </div>'
   );
 
   copy = copy.replace(
@@ -91,7 +93,7 @@ function transform(html) {
   // CSS loads after original partner layout rules. The source templates and
   // their other partner pages remain identical.
   html = html.replace('</head>',
-    '<link rel="stylesheet" href="/lead-form-pilot.css?v=2">\n</head>');
+    '<link rel="stylesheet" href="/lead-form-pilot.css?v=3">\n</head>');
   html = html.replace('</body>',
     '<script defer src="/lead-form-pilot.js?v=2"></script>\n</body>');
   // Refresh the runtime only for this pilot; leave all other pages' assets
