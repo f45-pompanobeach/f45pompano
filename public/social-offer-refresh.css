@@ -73,8 +73,8 @@
   display:block !important;
   position:absolute !important;
   inset:0 !important;
-  background:linear-gradient(90deg,rgba(7,15,38,.65),rgba(7,15,38,.12)),
-             linear-gradient(180deg,rgba(7,15,38,.07),rgba(7,15,38,.31) 42%,rgba(7,15,38,.86) 100%) !important;
+  background:linear-gradient(90deg,rgba(7,15,38,.46),rgba(7,15,38,.07)),
+             linear-gradient(180deg,rgba(7,15,38,.03),rgba(7,15,38,.16) 42%,rgba(7,15,38,.56) 100%) !important;
   pointer-events:none !important;
   z-index:1 !important;
 }
