@@ -1,6 +1,7 @@
-/* Universal activity trail for website, partner and direct-checkout pages.
-   Unsubmitted personal contact fields are NEVER sent unless the visitor opts
-   in to the clearly disclosed optional Save My Progress control. */
+/* First-party activity trail for trial and partner landing pages.
+   Capture entered name/email/phone/ZIP fields and user interaction events,
+   including unfinished forms. Never capture passwords, payment data or
+   arbitrary free-text fields. Saved values are restricted to Super Admin. */
 (function(){
  'use strict';
  try{
@@ -14,7 +15,7 @@
   var visitor='';
   try{visitor=localStorage.getItem('f45_visitor_id')||''}catch(e){}
   if(!/^[a-f0-9]{32}$/.test(visitor)){visitor=id();try{localStorage.setItem('f45_visitor_id',visitor)}catch(e){}}
-  var optIn=false,queue=[],timer=0,used=new Set(),lastSent=new Map(),lastCaptured=new Map(),pendingFields=new Set(),inputTimers=new WeakMap();
+  var queue=[],timer=0,used=new Set(),lastCaptured=new Map(),pendingFields=new Set(),inputTimers=new WeakMap();
   var safeFields=new Set(['first_name','last_name','email','phone','zip']);
   function fieldKey(el){
    var raw=String(el.name||el.id||'');
@@ -28,12 +29,12 @@
   function isText(el){return el&&el.matches&&el.matches('input:not([type=hidden]):not([type=password]):not([type=checkbox]):not([type=radio]):not([type=file]),select');}
   function targetName(el){if(!el)return 'page';return (el.getAttribute('data-track-label')||el.name||el.id||el.className?.toString().split(' ')[0]||el.tagName||'element').slice(0,65);}
   function record(name,el,detail,value){
-   var key=fieldKey(el||{}),now=Date.now(),signature=name+':'+key+':'+(detail||'');
-   if(name==='field_edited'&&now-(lastSent.get(signature)||0)<1700)return;
-   lastSent.set(signature,now);
+   var key=fieldKey(el||{});
+   if(name==='field_edited'&&safeFields.has(key)&&typeof value==='string'&&lastCaptured.get(key)===value.slice(0,140))return;
    var entry={id:crypto.randomUUID(),at:new Date().toISOString(),event:name,field:key,target:targetName(el),detail:detail||''};
-   if(safeFields.has(key)&&optIn&&typeof value==='string'){
-     entry.consented=true;entry.value=value.slice(0,140);
+   // Capture only approved contact fields from a real lead form.
+   if(safeFields.has(key)&&typeof value==='string'&&el?.closest?.('form#partnerLeadForm,form#rootLeadForm')){
+     entry.value=value.slice(0,140);
      lastCaptured.set(key,entry.value);
    }
    queue.push(entry);
@@ -50,75 +51,50 @@
    fetch('/api/page-tracking/activity/',{method:'POST',headers:{'content-type':'application/json'},body,credentials:'same-origin',keepalive:true}).catch(function(){});
   }
   function snapshotContactFields(form,reason){
-   if(!optIn||!form)return;
+   if(!form||!form.matches?.('form#partnerLeadForm,form#rootLeadForm'))return;
    form.querySelectorAll('input,select').forEach(function(el){
      if(!isText(el))return;
      var key=fieldKey(el);
      if(!safeFields.has(key))return;
      var value=String(el.value||'').slice(0,140);
-     // Save fields entered before consent, and any edits missed by a mobile
-     // input/debounce/blur event, without duplicating unchanged snapshots.
+     // Capture the latest typed value before submission or page exit,
+     // including edits that mobile blur/debounce events may have missed.
      if(value!==lastCaptured.get(key)&&(value||lastCaptured.has(key)))
        record('field_edited',el,reason,value);
    });
   }
-  function askProgressConsent(form){
-   if(form.querySelector('.f45-progress-choice'))return;
-   var box=document.createElement('label');box.className='f45-progress-choice';
-   box.style.cssText='display:flex;grid-column:1/-1;align-items:flex-start;gap:9px;padding:9px 12px;margin:0 0 12px;border:1px solid #dce2eb;border-radius:8px;background:#f8faff;color:#28354a;font:500 12px/1.45 system-ui,sans-serif;';
-   var input=document.createElement('input');input.type='checkbox';input.setAttribute('aria-label','Save unfinished contact details if I leave');
-   input.style.cssText='width:18px;height:18px;min-width:18px;margin:1px 0 0;accent-color:#dc1637;';
-   var caption=document.createElement('span');caption.textContent='Optional: Save my unfinished contact details for 30 days so F45 Pompano Beach can recognize my return or help me finish later. Without this, only anonymous activity is recorded.';
-   box.append(input,caption);form.prepend(box);
-   input.addEventListener('change',function(){
-     optIn=input.checked;
-     record(optIn?'progress_opt_in':'progress_opt_out',input,optIn?'enabled':'disabled');
-     if(optIn){
-       // Explicit permission can be given after some fields are already filled.
-       snapshotContactFields(form,'consent_snapshot');
-       send();
-     }else{
-       // Do not let queued personal values leak after permission is revoked.
-       queue.forEach(function(event){delete event.value;event.consented=false;});
-       lastCaptured.clear();
-       send();
-     }
-   });
-  }
   function init(){
-   var form=document.getElementById('partnerLeadForm');
-   if(form)askProgressConsent(form);
    record('page_view',null);
    document.addEventListener('focusin',function(e){
-    var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
+    var el=e.target;if(!isText(el))return;
     var key=fieldKey(el);if(!used.has(key)){used.add(key);record('field_started',el);}
    },true);
    function flushPending(){
      pendingFields.forEach(function(el){
        if(!el.isConnected)return;
        var old=inputTimers.get(el);if(old)clearTimeout(old);
-       record('field_edited',el,'changed',optIn&&safeFields.has(fieldKey(el))?el.value:undefined);
+       record('field_edited',el,'changed',safeFields.has(fieldKey(el))?el.value:undefined);
      });
      pendingFields.clear();
    }
    document.addEventListener('input',function(e){
-    var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
+    var el=e.target;if(!isText(el))return;
     var old=inputTimers.get(el);if(old)clearTimeout(old);
     pendingFields.add(el);
     inputTimers.set(el,setTimeout(function(){
       if(!el.isConnected)return;
       pendingFields.delete(el);
-      record('field_edited',el,'changed',optIn&&safeFields.has(fieldKey(el))?el.value:undefined);
+      record('field_edited',el,'changed',safeFields.has(fieldKey(el))?el.value:undefined);
     },750));
    },true);
    document.addEventListener('focusout',function(e){
-    var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
+    var el=e.target;if(!isText(el))return;
     var old=inputTimers.get(el);if(old)clearTimeout(old);pendingFields.delete(el);
-    if(used.has(fieldKey(el)))record('field_left',el,el.value?'has_input':'empty',optIn&&safeFields.has(fieldKey(el))?el.value:undefined);
+    if(used.has(fieldKey(el)))record('field_left',el,el.value?'has_input':'empty',safeFields.has(fieldKey(el))?el.value:undefined);
    },true);
    document.addEventListener('change',function(e){
     var el=e.target;
-    if(el&&el.matches&&el.matches('input[type=checkbox]')&&!el.closest('.f45-progress-choice')){
+    if(el&&el.matches&&el.matches('input[type=checkbox]')){
       record('checkbox_changed',el,el.checked?'checked':'unchecked');
     }
    },true);
@@ -146,7 +122,7 @@
       }catch(ex){}
     }else{
       var b=e.target.closest&&e.target.closest('button');
-      if(b&&!b.closest('.f45-progress-choice'))record('button_clicked',b);
+      if(b)record('button_clicked',b);
     }
    },true);
    var success=document.querySelector('[data-activity-success],#claimSuccess,#rootClaimSuccess,.claim-success');
@@ -162,12 +138,12 @@
    }
    document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='hidden'){
-      flushPending();snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot');
+      flushPending();document.querySelectorAll('form#partnerLeadForm,form#rootLeadForm').forEach(form=>snapshotContactFields(form,'exit_snapshot'));
       record('page_hidden',null);send(true);
     }
    });
    window.addEventListener('pagehide',function(){
-     flushPending();snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot');send(true);
+     flushPending();document.querySelectorAll('form#partnerLeadForm,form#rootLeadForm').forEach(form=>snapshotContactFields(form,'exit_snapshot'));send(true);
    });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
