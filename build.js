@@ -653,7 +653,7 @@ function addLandingRuntime(html) {
   // One shared visit tracker on every generated page; strip the old inline
   // tracker so no page can double-count a visit.
   html=html.replace(/<script>\s*\/\* First-party, non-blocking page and attribution tracking\. \*\/[\s\S]*?<\/script>/g,'');
-  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=8"></script><script defer src="/page-visit-tracker.js?v=3"></script>\\n</body>');
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=9"></script><script defer src="/page-visit-tracker.js?v=3"></script>\\n</body>');
 }
 
 function addSiteVersion(html) {
@@ -802,7 +802,7 @@ for (const file of fs.readdirSync(dataDir)) {
     if(videoStart < 0 || videoClose < 0 || videoStart >= start)throw new Error('Social hero background video missing');
     renderedPartnerPage = renderedPartnerPage.slice(0,start) + newCard + renderedPartnerPage.slice(end);
     renderedPartnerPage = renderedPartnerPage.replace('src="trial-video.mp4"','src="/trial-video.mp4"');
-    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=12">\n</head>');
+    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=13">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
