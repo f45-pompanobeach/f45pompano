@@ -58,12 +58,24 @@
         document.body.classList.remove('lead-pilot-bar-visible');
         return;
       }
-      var open=!bar.hidden, bottom=button.getBoundingClientRect().bottom-(open?extraHeight:0);
+      // Show the mobile shortcut whenever the REAL red action is not
+      // visible: before the form, past the form, or after it is submitted.
+      // Normalize the extra spacer height so toggling the bar cannot make
+      // itself flicker on/off at the viewport boundary.
+      var open=!bar.hidden;
+      var rect=button.getBoundingClientRect();
+      var layoutShift=open?extraHeight:0;
+      var top=rect.top-layoutShift;
+      var bottom=rect.bottom-layoutShift;
       var navBottom=nav.getBoundingClientRect().bottom;
-      var passed=window.scrollY>40 && bottom<=navBottom+1;
-      if(open!==passed){
-        bar.hidden=!passed;
-        document.body.classList.toggle('lead-pilot-bar-visible',passed);
+      var viewportBottom=window.visualViewport
+        ?window.visualViewport.offsetTop+window.visualViewport.height
+        :window.innerHeight;
+      var actionVisible=bottom>navBottom+2 && top<viewportBottom-8;
+      var shouldShow=!actionVisible;
+      if(open!==shouldShow){
+        bar.hidden=!shouldShow;
+        document.body.classList.toggle('lead-pilot-bar-visible',shouldShow);
       }
     }
     function schedule(){
@@ -84,6 +96,7 @@
     mobileButton.addEventListener('click',jumpToStep);
     window.addEventListener('scroll',schedule,{passive:true});
     window.addEventListener('resize',schedule,{passive:true});
+    if(window.visualViewport)window.visualViewport.addEventListener('resize',schedule,{passive:true});
     window.addEventListener('pageshow',schedule);
     // Existing showSuccessBox removes the submitted form; observe only to
     // update navigation state, never to change or resubmit the lead.
