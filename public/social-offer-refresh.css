@@ -518,3 +518,156 @@
     margin:0 0 9px !important;
   }
 }
+
+
+/* Social Trial v19 — only navigation appearance and details chevrons.
+   Keep the approved video, columns, offer, form and checkout untouched. */
+.fixed-top-header{
+  background:#101a35 !important;
+  box-shadow:0 4px 14px rgba(8,17,36,.18) !important;
+}
+.fixed-top-header .screenshot-nav{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:21px !important;
+  height:76px !important;
+  min-height:76px !important;
+  padding:6px 20px !important;
+  background:#101a35 !important;
+  border-bottom:3px solid #e8272a !important;
+  box-shadow:none !important;
+}
+.fixed-top-header .screenshot-brand{
+  display:flex !important;
+  flex:0 0 auto !important;
+  justify-content:flex-start !important;
+  align-items:center !important;
+  margin:0 !important;
+  padding:0 !important;
+  width:auto !important;
+  height:66px !important;
+  background:transparent !important;
+}
+.fixed-top-header .screenshot-logo-img{
+  display:block !important;
+  width:176px !important;
+  max-width:176px !important;
+  height:66px !important;
+  max-height:66px !important;
+  object-fit:contain !important;
+  object-position:left center !important;
+  background:transparent !important;
+}
+.fixed-top-header .screenshot-nav-links{
+  display:flex !important;
+  flex:0 1 auto !important;
+  justify-content:center !important;
+  align-items:center !important;
+  flex-wrap:nowrap !important;
+  gap:8px !important;
+  margin:0 !important;
+  padding:0 !important;
+  color:white !important;
+}
+.fixed-top-header .screenshot-nav-links a{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex:0 0 auto !important;
+  min-height:39px !important;
+  box-sizing:border-box !important;
+  margin:0 !important;
+  padding:9px 13px !important;
+  background:#202f50 !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  border-radius:7px !important;
+  color:#fff !important;
+  font-size:clamp(11px,1.15vw,13px) !important;
+  font-weight:850 !important;
+  line-height:1.15 !important;
+  letter-spacing:.02em !important;
+  text-decoration:none !important;
+  text-transform:uppercase !important;
+  white-space:nowrap !important;
+}
+.fixed-top-header .screenshot-nav-links a:hover,
+.fixed-top-header .screenshot-nav-links a:focus-visible{
+  background:#334a75 !important;
+  border-color:rgba(255,255,255,.5) !important;
+  outline-offset:2px !important;
+}
+/* A single CSS-drawn chevron in both states, no mixed Unicode up/down glyphs. */
+.social-refresh-card details summary{
+  position:relative !important;
+  padding-right:40px !important;
+  list-style:none !important;
+}
+.social-refresh-card details summary::marker{content:'' !important}
+.social-refresh-card details summary::-webkit-details-marker{display:none !important}
+.social-refresh-card details summary::before{content:none !important}
+.social-refresh-card details summary::after{
+  content:'' !important;
+  display:block !important;
+  float:none !important;
+  position:absolute !important;
+  top:50% !important;
+  right:17px !important;
+  width:10px !important;
+  height:10px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:solid #15203b !important;
+  border-width:0 2px 2px 0 !important;
+  background:transparent !important;
+  font-size:0 !important;
+  line-height:0 !important;
+  transform:translateY(-65%) rotate(45deg) !important;
+  pointer-events:none !important;
+}
+.social-refresh-card details[open] summary::after{
+  content:'' !important;
+  transform:translateY(-25%) rotate(225deg) !important;
+}
+@media(max-width:640px){
+  .fixed-top-header .screenshot-nav{
+    justify-content:space-between !important;
+    gap:8px !important;
+    height:62px !important;
+    min-height:62px !important;
+    padding:5px 9px !important;
+  }
+  .fixed-top-header .screenshot-brand{
+    width:106px !important;
+    height:52px !important;
+    flex:0 0 106px !important;
+  }
+  .fixed-top-header .screenshot-logo-img{
+    width:106px !important;
+    max-width:106px !important;
+    height:52px !important;
+    max-height:52px !important;
+  }
+  .fixed-top-header .screenshot-nav-links{
+    min-width:0 !important;
+    flex:1 1 auto !important;
+    justify-content:flex-start !important;
+    gap:4px !important;
+    overflow-x:auto !important;
+    scrollbar-width:none !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+  .fixed-top-header .screenshot-nav-links::-webkit-scrollbar{display:none}
+  .fixed-top-header .screenshot-nav-links a{
+    min-height:30px !important;
+    padding:7px 6px !important;
+    font-size:9px !important;
+    letter-spacing:0 !important;
+    line-height:1 !important;
+  }
+  .social-refresh-card details summary::after{
+    right:15px !important;
+    width:9px !important;
+    height:9px !important;
+  }
+}
