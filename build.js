@@ -795,7 +795,7 @@ for (const file of fs.readdirSync(dataDir)) {
       socialBrandLogo: logoMatch ? logoMatch[1] : '/og-image.jpg'
     });
     renderedPartnerPage = renderedPartnerPage.slice(0,start) + newCard + renderedPartnerPage.slice(end);
-    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=3">\n</head>');
+    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=4">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
