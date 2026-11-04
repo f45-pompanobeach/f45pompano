@@ -487,3 +487,32 @@
     padding:9px 10px !important;
   }
 }
+
+/* v11: restore prominent top-right logo without moving the offer down. */
+.social-refresh-card .social-visual-hero>.social-brand{
+  top:8px !important;
+  right:14px !important;
+}
+.social-refresh-card .social-brand-logo{
+  width:205px !important;
+  height:112px !important;
+  max-width:39vw !important;
+  object-position:right top !important;
+}
+.social-refresh-card .claim-partner-ribbon.social-refresh-ribbon{
+  max-width:calc(100% - 208px) !important;
+}
+@media(max-width:640px){
+  .social-refresh-card .social-visual-hero>.social-brand{
+    top:8px !important;
+    right:9px !important;
+  }
+  .social-refresh-card .social-brand-logo{
+    width:172px !important;
+    height:98px !important;
+    max-width:39vw !important;
+  }
+  .social-refresh-card .claim-partner-ribbon.social-refresh-ribbon{
+    max-width:calc(100% - 160px) !important;
+  }
+}
