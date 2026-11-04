@@ -127,9 +127,11 @@
     }
   }
 
+  function revealOffer(){document.documentElement.classList.remove('landing-offer-pending');}
   const slug=slugFromPath();
   if(window.__LANDING_PRELOADED__){
-    apply(window.__LANDING_PRELOADED__);
+    try{apply(window.__LANDING_PRELOADED__);}
+    finally{revealOffer();}
     return;
   }
   fetch('/api/landing/config?slug='+encodeURIComponent(slug),{headers:{'accept':'application/json'},cache:'no-store'})
@@ -141,5 +143,6 @@
       if(!hasGlobal&&!hasPage)return;
       apply({slug,global:data.global||{},page:data.page||{}});
     })
-    .catch(()=>{});
+    .catch(()=>{})
+    .finally(revealOffer);
 })();
