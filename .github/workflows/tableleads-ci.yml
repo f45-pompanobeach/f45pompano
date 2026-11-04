@@ -198,7 +198,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=4','/visitor-activity.js?v=1'])
+            for(const asset of ['/page-visit-tracker.js?v=4','/visitor-activity.js?v=2'])
               assert(html.includes(asset),file+' missing '+asset);
           }
           const page=fs.readFileSync('dist/leads-trials/page-tracking/index.html','utf8');
