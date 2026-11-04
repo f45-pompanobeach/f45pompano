@@ -1,0 +1,95 @@
+/* Post-build experiment: Sarpino's lead form only.
+ * Reuse the existing validated form and success markup without modifying
+ * its fields, consent controls, API submission, Mindbody URL or tracking.
+ * Future partner pages can opt in using the same transform. */
+const fs = require('fs');
+const path = require('path');
+
+const root = path.join(__dirname, '..');
+const partner = JSON.parse(fs.readFileSync(path.join(root, 'data', 'sarpinos.json'), 'utf8'));
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function transform(html) {
+  if (!html.includes('id="partnerLeadForm"')) throw Error('Pilot requires the existing lead form');
+  const heroStart = html.indexOf('<section class="screenshot-hero" id="offer">');
+  const heroEnd = heroStart < 0 ? -1 : html.indexOf('</section>', heroStart);
+  if (heroStart < 0 || heroEnd < 0) throw Error('Pilot hero not found');
+  const hero = html.slice(heroStart, heroEnd + '</section>'.length);
+  const video = hero.match(/<video class="screenshot-hero-video"[\s\S]*?<\/video>/)?.[0];
+  const copyStart = hero.indexOf('    <div class="partner-hero-copy">');
+  const cardStart = hero.indexOf('    <div class="screenshot-offer-card form-overlay-card" id="claim-form">');
+  const shellEnd = hero.lastIndexOf('\n  </div>\n</section>');
+  if (!video || copyStart < 0 || cardStart <= copyStart || shellEnd <= cardStart)
+    throw Error('Pilot source structure changed');
+
+  let copy = hero.slice(copyStart, cardStart).trim();
+  const card = hero.slice(cardStart, shellEnd).trim();
+
+  copy = copy.replace(
+    '<div class="partner-hero-eyebrow">First-time local residents only</div>',
+    '<div class="partner-hero-eyebrow">' + escapeHtml(partner.partner) + ' Exclusive</div>'
+  );
+  copy = copy.replace(/<h1>[\s\S]*?<\/h1>/,
+    '<h1>Try <span class="lead-pilot-classes">' + escapeHtml(partner.trialType) +
+    '</span><br>for <span class="lead-pilot-price">' + escapeHtml(partner.trialCost) + '</span></h1>');
+  copy = copy.replace(
+    'Fill out the quick form to unlock your trial offer for F45 Training Pompano Beach.',
+    'Ready to get started? Complete the short form to unlock your offer and continue to Mindbody.'
+  );
+  copy = copy.replace(/<div class="partner-hero-proof-row"[\s\S]*?<\/div>/, '');
+
+  const newHero = '<section class="screenshot-hero lead-pilot-hero" id="offer">\n' +
+    '  <div class="lead-pilot-shell">\n' +
+    '    <div class="lead-pilot-offer-column">\n' + copy + '\n' + card + '\n    </div>\n' +
+    '    <div class="lead-pilot-video-panel" aria-label="F45 class workout video">\n' +
+    video + '\n    </div>\n' +
+    '  </div>\n</section>';
+  html = html.slice(0, heroStart) + newHero + html.slice(heroEnd + '</section>'.length);
+
+  if (!html.includes('<body>')) throw Error('Pilot body tag missing');
+  html = html.replace('<body>', '<body class="lead-form-pilot">');
+
+  const navOpen = '<header class="screenshot-nav">';
+  if (!html.includes(navOpen)) throw Error('Pilot navigation missing');
+  html = html.replace(navOpen, navOpen +
+    '\n    <div class="lead-pilot-brand"><img src="/f45-logo-transparent-v2.svg" alt="F45 Training Pompano Beach"></div>');
+
+  const navEnd = '    </nav>\n  </header>';
+  if (!html.includes(navEnd)) throw Error('Pilot nav closing marker missing');
+  html = html.replace(navEnd,
+    '    </nav>\n' +
+    '    <div class="lead-pilot-nav-actions"><button type="button" class="lead-pilot-nav-book">Unlock Trial</button></div>\n' +
+    '  </header>\n' +
+    '  <div class="lead-pilot-mobile-bar" hidden><button type="button" class="lead-pilot-mobile-book">↑ Unlock Trial</button></div>');
+
+  if (!html.includes('<div class="fixed-header-spacer"')) throw Error('Pilot spacer missing');
+
+  // CSS loads after original partner layout rules. The source templates and
+  // their other partner pages remain identical.
+  html = html.replace('</head>',
+    '<link rel="stylesheet" href="/lead-form-pilot.css?v=1">\n</head>');
+  html = html.replace('</body>',
+    '<script defer src="/lead-form-pilot.js?v=1"></script>\n</body>');
+
+  for (const needle of ['id="partnerLeadForm"', 'id="claimSuccess"', 'id="partnerEligibilityConfirm"',
+    'id="partnerTermsPrivacy"', 'id="partnerSmsConsent"', 'id="offer-video"',
+    'class="lead-pilot-video-panel"', 'class="lead-pilot-mobile-bar"']) {
+    if (!html.includes(needle)) throw Error('Pilot lost required markup: ' + needle);
+  }
+  if ((html.match(/id="partnerLeadForm"/g) || []).length !== 1 ||
+      (html.match(/id="offer-video"/g) || []).length !== 1)
+    throw Error('Pilot duplicated core elements');
+  return html;
+}
+
+for (const relative of ['sarpinos.html', 'sarpinos/index.html']) {
+  const target = path.join(root, 'dist', relative);
+  if (!fs.existsSync(target)) throw Error('Expected generated page missing: ' + relative);
+  const before = fs.readFileSync(target, 'utf8');
+  const after = transform(before);
+  fs.writeFileSync(target, after);
+  console.log('Applied lead-form pilot to ' + relative);
+}
