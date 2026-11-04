@@ -170,7 +170,7 @@ jobs:
              !homepage.includes('class="lead-pilot-offer-column"') ||
              !homepage.includes('class="lead-pilot-video-panel"'))
             throw Error('Homepage must have static layout before JavaScript runs');
-          const eligibilityRow=homepage.match(/<label class="eligibility-confirm-row">[\\s\\S]*?<\\/label>/)?.[0]||'';
+          const eligibilityRow=homepage.match(/<label class="eligibility-confirm-row">[\s\S]*?<\/label>/)?.[0]||'';
           if(!eligibilityRow.includes("I'm a first-time visitor and a qualifying local resident.") ||
              eligibilityRow.includes('one of these ZIP codes'))
             throw Error('Homepage must use the short checkbox wording');
