@@ -788,7 +788,12 @@ for (const file of fs.readdirSync(dataDir)) {
     const endMarker = '\n    \n      </section>';
     const end = renderedPartnerPage.indexOf(endMarker, start);
     if (start < 0 || end < 0) throw new Error('Social offer card markers missing');
-    const newCard = render(fs.readFileSync('social-offer-card.html','utf8'),partnerData);
+    // Reuse the actual F45 logo already embedded in the social template.
+    const logoMatch = renderedPartnerPage.match(/<img class="screenshot-logo-img" src="([^"]+)"/);
+    const newCard = render(fs.readFileSync('social-offer-card.html','utf8'),{
+      ...partnerData,
+      socialBrandLogo: logoMatch ? logoMatch[1] : '/og-image.jpg'
+    });
     renderedPartnerPage = renderedPartnerPage.slice(0,start) + newCard + renderedPartnerPage.slice(end);
     renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=2">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
