@@ -106,7 +106,7 @@ function transform(html, partner) {
   html = html.replace('</head>',
     '<link rel="stylesheet" href="/lead-form-pilot.css?v=3">\n</head>');
   html = html.replace('</body>',
-    '<script defer src="/lead-form-pilot.js?v=2"></script>\n</body>');
+    '<script defer src="/lead-form-pilot.js?v=3"></script>\n</body>');
   // Refresh the runtime only for this pilot; leave all other pages' assets
   // and cache keys untouched.
   if (!html.includes('/landing-runtime.js?v=9'))
