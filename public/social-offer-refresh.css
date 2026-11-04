@@ -142,3 +142,6 @@
   .social-refresh-card .meta-eligibility-check input{width:23px !important;height:23px !important;min-width:23px !important}
   .social-refresh-card .social-checkout-help{width:calc(100% - 24px) !important}
 }
+
+.social-refresh-card .social-brand-logo{display:block;width:137px;height:62px;object-fit:contain;object-position:center}
+@media(max-width:640px){.social-refresh-card .social-brand-logo{width:102px;height:47px}}
