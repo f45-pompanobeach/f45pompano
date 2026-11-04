@@ -527,3 +527,27 @@
   font-weight:850 !important;
   color:#15203b !important;
 }
+
+/* v14: transparent, tightly cropped logo — no white tile and no headline collision. */
+.social-refresh-card .social-visual-hero>.social-brand{top:3px !important;right:12px !important;}
+.social-refresh-card .social-brand-logo{
+  width:183px !important;
+  height:91px !important;
+  max-width:39vw !important;
+  object-fit:contain !important;
+  object-position:right top !important;
+  background:transparent !important;
+  filter:none !important;
+  mix-blend-mode:normal !important;
+}
+@media(max-width:640px){
+  .social-refresh-card .social-visual-hero>.social-brand{top:0 !important;right:9px !important;}
+  .social-refresh-card .social-brand-logo{
+    width:154px !important;
+    height:72px !important;
+    max-width:40vw !important;
+  }
+  .social-refresh-card .claim-partner-ribbon.social-refresh-ribbon{
+    max-width:calc(100% - 127px) !important;
+  }
+}
