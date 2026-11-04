@@ -51,7 +51,14 @@
 
     if(page.trialType&&page.trialCost){
       const hero=document.querySelector(isRoot?'.root-hero-copy h1':'.partner-hero-copy h1');
-      if(hero)hero.innerHTML='Reserve Your <span>'+offer.replace(/</g,'&lt;')+'</span>';
+      const leadPilot=document.body.classList.contains('lead-form-pilot');
+      if(hero&&leadPilot){
+        const type=hero.querySelector('.lead-pilot-classes');
+        const price=hero.querySelector('.lead-pilot-price');
+        if(type&&price){type.textContent=page.trialType;price.textContent=page.trialCost;}
+        const ribbon=document.querySelector('.lead-pilot-hero .partner-hero-eyebrow');
+        if(ribbon)ribbon.textContent=storedPage.heroBadgeText||partnerName+' Exclusive';
+      }else if(hero)hero.innerHTML='Reserve Your <span>'+offer.replace(/</g,'&lt;')+'</span>';
 
       document.querySelectorAll('.mid-cta-sub').forEach(el=>{el.textContent=page.trialType+' for '+page.trialCost;});
 
