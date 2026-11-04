@@ -823,10 +823,26 @@ for (const file of fs.readdirSync(dataDir)) {
       throw new Error('Social trial header logo missing');
     renderedPartnerPage = renderedPartnerPage.replace(originalHeaderLogo,
       '$1/f45-logo-transparent-v2.svg$2');
+    // Social Trial only: sticky in-page shortcuts. Neither link bypasses the
+    // mandatory eligibility checkbox or changes the Mindbody destination.
+    const socialNavEnd = '    </nav>\n  </header>';
+    if(!renderedPartnerPage.includes(socialNavEnd))
+      throw new Error('Social Trial navigation closing marker missing');
+    renderedPartnerPage = renderedPartnerPage.replace(socialNavEnd,
+      '    </nav>\n' +
+      '    <div class="social-nav-actions">' +
+      '<a class="social-nav-top" href="#social-page-top" aria-label="Back to top">↑ Top</a>' +
+      '<a class="social-nav-book" href="#meta-eligibility-confirm">Book Trial</a>' +
+      '</div>\n  </header>');
+    const spacer = '<div class="fixed-header-spacer" aria-hidden="true"></div>';
+    if(!renderedPartnerPage.includes(spacer))
+      throw new Error('Social Trial header spacer missing');
+    renderedPartnerPage = renderedPartnerPage.replace(spacer,
+      '<div class="fixed-header-spacer" id="social-page-top" aria-hidden="true"></div>');
     if((renderedPartnerPage.match(/id="offer-video"/g)||[]).length !== 1)
       throw new Error('Social trial requires exactly one video');
     renderedPartnerPage = renderedPartnerPage.replace('</head>',
-      '<link rel="stylesheet" href="/social-offer-refresh.css?v=20">\n</head>');
+      '<link rel="stylesheet" href="/social-offer-refresh.css?v=21">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
