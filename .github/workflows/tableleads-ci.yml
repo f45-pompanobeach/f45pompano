@@ -151,7 +151,7 @@ jobs:
           const homepage=fs.readFileSync('dist/index.html','utf8');
           for(const marker of ['class="lead-form-pilot root-lead-design"',
             'lead-pilot-nav-book','lead-pilot-mobile-bar',
-            '/root-lead-design.css?v=1','/root-lead-design.js?v=1',
+            '/root-lead-design.css?v=2','class="lead-pilot-shell"',
             '/lead-form-pilot.js?v=3','/partner-form-checkboxes.css?v=1']){
             if(!homepage.includes(marker))throw Error('Homepage missing '+marker);
           }
@@ -161,6 +161,15 @@ jobs:
              !homepage.includes('partnerEligibilityConfirm')||
              !homepage.includes('partnerSmsConsent'))
             throw Error('Homepage lost existing consent/form initialization');
+          for(const id of ['partnerLeadForm','partnerTermsPrivacy',
+            'partnerEligibilityConfirm','partnerSmsConsent','heroVideo','soundToggle']){
+            if((homepage.match(new RegExp('id="'+id+'"','g'))||[]).length!==1)
+              throw Error('Homepage should render exactly one '+id+' directly');
+          }
+          if(!homepage.includes('class="root-hero-lead-overlay lead-pilot-shell"') ||
+             !homepage.includes('class="lead-pilot-offer-column"') ||
+             !homepage.includes('class="lead-pilot-video-panel"'))
+            throw Error('Homepage must have static layout before JavaScript runs');
           console.log('Checked '+targets.length+' generated partner pages and the dynamic partner template.');
           NODE
       - name: Parse generated homepage inline scripts
