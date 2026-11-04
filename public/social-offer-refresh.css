@@ -414,3 +414,22 @@
     max-width:56vw !important;
   }
 }
+
+/* v9: High-resolution transparent F45 wordmark replaces the black-box JPEG. */
+.social-refresh-card .social-brand-logo{
+  width:195px !important;
+  height:112px !important;
+  max-width:62vw !important;
+  object-fit:contain !important;
+  object-position:left center !important;
+  background:transparent !important;
+  filter:none !important;
+  mix-blend-mode:normal !important;
+}
+@media(max-width:640px){
+  .social-refresh-card .social-brand-logo{
+    width:177px !important;
+    height:103px !important;
+    max-width:60vw !important;
+  }
+}
