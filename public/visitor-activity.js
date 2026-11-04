@@ -14,7 +14,7 @@
   var visitor='';
   try{visitor=localStorage.getItem('f45_visitor_id')||''}catch(e){}
   if(!/^[a-f0-9]{32}$/.test(visitor)){visitor=id();try{localStorage.setItem('f45_visitor_id',visitor)}catch(e){}}
-  var optIn=false,queue=[],sending=false,timer=0,used=new Set(),lastSent=new Map();
+  var optIn=false,queue=[],timer=0,used=new Set(),lastSent=new Map(),pendingFields=new Set(),inputTimers=new WeakMap();
   var safeFields=new Set(['first_name','last_name','email','phone','zip']);
   function fieldKey(el){var k=(el.name||el.id||'').toLowerCase();
    if(k==='firstName')return 'first_name';
@@ -31,7 +31,7 @@
    var key=fieldKey(el||{}),now=Date.now(),signature=name+':'+key+':'+(detail||'');
    if(name==='field_edited'&&now-(lastSent.get(signature)||0)<1700)return;
    lastSent.set(signature,now);
-   var entry={id:crypto.randomUUID(),event:name,field:key,target:targetName(el),detail:detail||''};
+   var entry={id:crypto.randomUUID(),at:new Date().toISOString(),event:name,field:key,target:targetName(el),detail:detail||''};
    if(safeFields.has(key)&&optIn&&typeof value==='string'){
      entry.consented=true;entry.value=value.slice(0,140);
    }
@@ -51,7 +51,7 @@
   function askProgressConsent(form){
    if(form.querySelector('.f45-progress-choice'))return;
    var box=document.createElement('label');box.className='f45-progress-choice';
-   box.style.cssText='display:flex;align-items:flex-start;gap:9px;padding:9px 12px;margin:0 0 12px;border:1px solid #dce2eb;border-radius:8px;background:#f8faff;color:#28354a;font:500 12px/1.45 system-ui,sans-serif;';
+   box.style.cssText='display:flex;grid-column:1/-1;align-items:flex-start;gap:9px;padding:9px 12px;margin:0 0 12px;border:1px solid #dce2eb;border-radius:8px;background:#f8faff;color:#28354a;font:500 12px/1.45 system-ui,sans-serif;';
    var input=document.createElement('input');input.type='checkbox';input.setAttribute('aria-label','Save unfinished contact details if I leave');
    input.style.cssText='width:18px;height:18px;min-width:18px;margin:1px 0 0;accent-color:#dc1637;';
    var caption=document.createElement('span');caption.textContent='Optional: Save my unfinished contact details for 30 days so F45 Pompano Beach can recognize my return or help me finish later. Without this, only anonymous activity is recorded.';
@@ -69,18 +69,27 @@
     var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
     var key=fieldKey(el);if(!used.has(key)){used.add(key);record('field_started',el);}
    },true);
-   var inputTimers=new WeakMap();
+   function flushPending(){
+     pendingFields.forEach(function(el){
+       if(!el.isConnected)return;
+       var old=inputTimers.get(el);if(old)clearTimeout(old);
+       record('field_edited',el,'changed',optIn&&safeFields.has(fieldKey(el))?el.value:undefined);
+     });
+     pendingFields.clear();
+   }
    document.addEventListener('input',function(e){
     var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
     var old=inputTimers.get(el);if(old)clearTimeout(old);
+    pendingFields.add(el);
     inputTimers.set(el,setTimeout(function(){
       if(!el.isConnected)return;
+      pendingFields.delete(el);
       record('field_edited',el,'changed',optIn&&safeFields.has(fieldKey(el))?el.value:undefined);
     },750));
    },true);
    document.addEventListener('focusout',function(e){
     var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
-    var old=inputTimers.get(el);if(old)clearTimeout(old);
+    var old=inputTimers.get(el);if(old)clearTimeout(old);pendingFields.delete(el);
     if(used.has(fieldKey(el)))record('field_left',el,el.value?'has_input':'empty',optIn&&safeFields.has(fieldKey(el))?el.value:undefined);
    },true);
    document.addEventListener('change',function(e){
@@ -119,9 +128,9 @@
     changed();
    }
    document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='hidden'){record('page_hidden',null);send(true)}
+    if(document.visibilityState==='hidden'){flushPending();record('page_hidden',null);send(true)}
    });
-   window.addEventListener('pagehide',function(){send(true)});
+   window.addEventListener('pagehide',function(){flushPending();send(true)});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
  }catch(e){}
