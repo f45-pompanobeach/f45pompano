@@ -36,6 +36,9 @@ export function sanitizeEvent(item){
  const id=clean(item?.id,36).toLowerCase();
  if(!/^[a-f0-9-]{36}$/.test(id))return null;
  const consented=item?.consented===true;
+ const provided=Date.parse(String(item?.at||''));
+ const at=Number.isFinite(provided)&&Math.abs(Date.now()-provided)<15*60000
+   ?new Date(provided).toISOString():new Date().toISOString();
  let field_value=null;
  if(consented&&CONTACT_FIELDS.has(field_name)&&
     ['field_edited','field_left'].includes(event_name)){
@@ -47,5 +50,5 @@ export function sanitizeEvent(item){
   if(field_name==='first_name'||field_name==='last_name')
    field_value=raw.replace(/[^\p{L}\p{M}' .\-]/gu,'').slice(0,60);
  }
- return {id,event_name,target,field_name,detail,field_value,consented:consented?1:0};
+ return {id,event_name,target,field_name,detail,field_value,consented:consented?1:0,at};
 }
