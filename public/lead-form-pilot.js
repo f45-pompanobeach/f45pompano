@@ -1,6 +1,6 @@
-/* Opt-in lead form interactions. Only /sarpinos/ receives this script.
- * No form inputs are intercepted, saved or sent; the original submit handler
- * continues to validate, save the lead and unlock checkout. */
+/* Shared lead-form navigation for existing and future partner pages.
+ * Sarpino design, preserving every form submit/consent handler, with support
+ * for special post-submit confirmation pages such as Sands Harbor. */
 (function(){
   'use strict';
   var navEntry=performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
@@ -38,15 +38,18 @@
     var scheduled=false,extraHeight=64;
 
     function currentButton(){
-      return (success.classList.contains('is-visible')
-        ?success.querySelector('.screenshot-cta')
-        :document.querySelector('#partnerLeadForm .claim-submit'))||null;
+      if(success.classList.contains('is-visible')){
+        return success.querySelector('.screenshot-cta')||success;
+      }
+      return document.querySelector('#partnerLeadForm .claim-submit');
     }
     function refresh(){
       scheduled=false;
       var completed=success.classList.contains('is-visible');
-      desktop.textContent=completed?'Finish Booking':'Unlock Trial';
-      mobileButton.textContent=completed?'↑ Finish Booking':'↑ Unlock Trial';
+      var hasCheckout=!!success.querySelector('.screenshot-cta');
+      var actionLabel=completed?(hasCheckout?'Finish Booking':'View Confirmation'):'Unlock Trial';
+      desktop.textContent=actionLabel;
+      mobileButton.textContent='↑ '+actionLabel;
       if(!media.matches){
         bar.hidden=true;
         document.body.classList.remove('lead-pilot-bar-visible');
