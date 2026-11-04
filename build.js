@@ -781,7 +781,18 @@ for (const file of fs.readdirSync(dataDir)) {
       sandsHarbor: file === "sands-harbor.json"
     });
   }
-  if (file === "meta.json") renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
+  if (file === "meta.json") {
+    // Social-trial-only design experiment. Preserve the existing page's remaining sections.
+    const offerStart = '<div class="screenshot-offer-card form-overlay-card" id="claim-form">';
+    const start = renderedPartnerPage.indexOf(offerStart);
+    const endMarker = '\n    \n      </section>';
+    const end = renderedPartnerPage.indexOf(endMarker, start);
+    if (start < 0 || end < 0) throw new Error('Social offer card markers missing');
+    const newCard = render(fs.readFileSync('social-offer-card.html','utf8'),partnerData);
+    renderedPartnerPage = renderedPartnerPage.slice(0,start) + newCard + renderedPartnerPage.slice(end);
+    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=1">\n</head>');
+    renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
+  }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
 
   renderedPartnerPage = addSiteVersion(renderedPartnerPage);
