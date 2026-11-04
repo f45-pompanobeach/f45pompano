@@ -16,5 +16,23 @@
     ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id'].forEach(function(k){data[k]=(q.get(k)||'').slice(0,160)});
     window.__f45PageVisitSent=true;
     fetch('/api/page-tracking/',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data),credentials:'same-origin',keepalive:true}).catch(function(){});
+    // Track only successful attempts to follow the social-trial activation link.
+    // Let the browser navigate normally; no checkout behavior or checkbox logic changes.
+    if(page==='social-trial'){
+      document.addEventListener('click',function(event){
+        var link=event.target.closest&&event.target.closest('a.meta-direct-cta');
+        if(!link||event.defaultPrevented)return;
+        var check=document.getElementById('meta-eligibility-confirm');
+        if(!check||!check.checked)return;
+        try{
+          var url=new URL(link.href,location.href);
+          if(url.protocol!=='https:'||!/(^|\\.)mindbodyonline\\.com$/.test(url.hostname))return;
+          fetch('/api/page-tracking/mindbody-click/',{
+            method:'POST',headers:{'content-type':'application/json'},
+            body:JSON.stringify(data),credentials:'same-origin',keepalive:true
+          }).catch(function(){});
+        }catch(e){}
+      },false);
+    }
   }catch(e){}
 })();
