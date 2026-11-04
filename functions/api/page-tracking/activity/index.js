@@ -29,17 +29,11 @@ export async function onRequestPost({request,env}){
   if(visitor)await db.prepare('UPDATE landing_page_visits SET visitor_id=COALESCE(visitor_id,?) WHERE id=?').bind(visitor,row.id).run();
   const total=await db.prepare('SELECT COUNT(*) AS n FROM landing_page_activity WHERE visit_id=?').bind(row.id).first();
   const available=Math.max(0,200-Number(total?.n||0));
-  const last=await db.prepare("SELECT event_name FROM landing_page_activity WHERE visit_id=? AND event_name IN ('progress_opt_in','progress_opt_out') ORDER BY created_at DESC, rowid DESC LIMIT 1").bind(row.id).first();
-  let consent=last?.event_name==='progress_opt_in',clearSaved=false;
   const allowed=events.slice(0,available);
-  for(const e of allowed){
-   if(e.event_name==='progress_opt_in')consent=true;
-   if(e.event_name==='progress_opt_out'){consent=false;clearSaved=true}
-   if(!consent)e.field_value=null;
-  }
-  if(clearSaved){
-   // Opting out revokes and removes previously collected unsubmitted contact
-   // details, including any earlier snapshot in this same network batch.
+  // New activity captures approved contact fields without the removed optional
+  // checkbox. Preserve legacy opt-out requests from older cached clients:
+  // those visitors' previously saved contact snapshots must still be erased.
+  if(allowed.some(e=>e.event_name==='progress_opt_out')){
    for(const e of allowed){e.field_value=null;e.consented=0}
    await db.prepare('UPDATE landing_page_activity SET field_value=NULL,consented=0 WHERE visit_id=?').bind(row.id).run();
   }
