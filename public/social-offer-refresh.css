@@ -17,8 +17,8 @@
 .social-refresh-card .social-visual-hero{
   position:relative;min-height:530px;display:flex;flex-direction:column;
   background-color:#101c35;
-  background-image:linear-gradient(90deg,#0c1630 0%,rgba(12,22,48,.97) 20%,rgba(12,22,48,.77) 47%,rgba(12,22,48,.07) 100%),url('/f45-coaching.webp');
-  background-size:cover;background-position:center;
+  background-image:linear-gradient(90deg,#0c1630 0%,rgba(12,22,48,.98) 34%,rgba(12,22,48,.68) 60%,rgba(12,22,48,.04) 100%),url('/social-trial-athlete.webp');
+  background-size:cover,auto 100%;background-position:center,right center;background-repeat:no-repeat;
   padding:30px 32px 136px;box-sizing:border-box;color:#fff;isolation:isolate;
 }
 .social-refresh-card .social-brand{display:flex;align-items:center;gap:15px;position:relative;z-index:1}
