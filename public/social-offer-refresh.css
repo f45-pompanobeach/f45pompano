@@ -362,8 +362,17 @@
 .screenshot-hero:has(>.social-refresh-card)>.social-refresh-card{
   position:relative !important;
   z-index:2 !important;
-  background:#fff !important;
+  background:transparent !important;
   overflow:hidden !important;
+}
+.social-refresh-card .social-white-card{
+  background:#fff !important;
+  padding-bottom:22px !important;
+}
+.social-refresh-card .social-checkout-help{
+  margin:15px 0 0 !important;
+  width:100% !important;
+  background:#f2f4f8 !important;
 }
 .social-refresh-card .social-visual-hero{
   background:transparent !important;
