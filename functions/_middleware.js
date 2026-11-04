@@ -61,7 +61,12 @@ export async function onRequest(context) {
   // before its deferred runtime runs, so it never paints a different offer.
   // Hide the offer-specific region only until the runtime applies those settings.
   // This keeps the rest of the landing page visible and avoids layout shifts.
-  const initialConfig = JSON.stringify({slug,global,page:page||{}})
+  // Include only public display settings, not administrative notification addresses.
+  const publicGlobal = Object.fromEntries([
+    'trialType','trialCost','trialDuration','regularPrice','firstClassBookingText',
+    'mindbodyUrl','defaultVideoUrl','qualifiedZipCodes'
+  ].filter(k=>Object.hasOwn(global,k)).map(k=>[k,global[k]]));
+  const initialConfig = JSON.stringify({slug,global:publicGlobal,page:page||{}})
     .replace(/</g,'\\u003c').replace(/>/g,'\\u003e')
     .replace(/&/g,'\\u0026').replace(/\\u2028/g,'\\u2028').replace(/\\u2029/g,'\\u2029');
   const preload = `<style>
