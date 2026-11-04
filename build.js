@@ -825,14 +825,14 @@ for (const file of fs.readdirSync(dataDir)) {
       '$1/f45-logo-transparent-v2.svg$2');
     // Social Trial only: one fixed in-page Book Trial button. Returning to
     // the top does not bypass the required residency checkbox or checkout.
-    const socialNavEnd = '    </nav>\\n  </header>';
+    const socialNavEnd = '    </nav>\n  </header>';
     if(!renderedPartnerPage.includes(socialNavEnd))
       throw new Error('Social Trial navigation closing marker missing');
     renderedPartnerPage = renderedPartnerPage.replace(socialNavEnd,
-      '    </nav>\\n' +
+      '    </nav>\n' +
       '    <div class="social-nav-actions">' +
       '<button class="social-nav-book" type="button" aria-label="Back to video and trial offer">Book Trial</button>' +
-      '</div>\\n  </header>');
+      '</div>\n  </header>');
     // iOS Safari may smoothly restore a previous scroll position on reload,
     // especially with the original template's html scroll-behavior:smooth.
     // Disable history restoration for reloading this page only, and reset once
@@ -871,7 +871,7 @@ for (const file of fs.readdirSync(dataDir)) {
 })();
 </script>`;
     renderedPartnerPage = renderedPartnerPage.replace('</head>',
-      socialNavigationJS + '\\n</head>');
+      socialNavigationJS + '\n</head>');
     if((renderedPartnerPage.match(/id="offer-video"/g)||[]).length !== 1)
       throw new Error('Social trial requires exactly one video');
     renderedPartnerPage = renderedPartnerPage.replace('</head>',
