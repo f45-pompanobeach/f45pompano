@@ -62,32 +62,7 @@
        record('field_edited',el,reason,value);
    });
   }
-  function askProgressConsent(form){
-   if(form.querySelector('.f45-progress-choice'))return;
-   var box=document.createElement('label');box.className='f45-progress-choice';
-   box.style.cssText='display:flex;grid-column:1/-1;align-items:flex-start;gap:9px;padding:9px 12px;margin:0 0 12px;border:1px solid #dce2eb;border-radius:8px;background:#f8faff;color:#28354a;font:500 12px/1.45 system-ui,sans-serif;';
-   var input=document.createElement('input');input.type='checkbox';input.setAttribute('aria-label','Save unfinished contact details if I leave');
-   input.style.cssText='width:18px;height:18px;min-width:18px;margin:1px 0 0;accent-color:#dc1637;';
-   var caption=document.createElement('span');caption.textContent='Optional: Save my unfinished contact details for 30 days so F45 Pompano Beach can recognize my return or help me finish later. Without this, only anonymous activity is recorded.';
-   box.append(input,caption);form.prepend(box);
-   input.addEventListener('change',function(){
-     optIn=input.checked;
-     record(optIn?'progress_opt_in':'progress_opt_out',input,optIn?'enabled':'disabled');
-     if(optIn){
-       // Explicit permission can be given after some fields are already filled.
-       snapshotContactFields(form,'consent_snapshot');
-       send();
-     }else{
-       // Do not let queued personal values leak after permission is revoked.
-       queue.forEach(function(event){delete event.value;event.consented=false;});
-       lastCaptured.clear();
-       send();
-     }
-   });
-  }
   function init(){
-   var form=document.getElementById('partnerLeadForm');
-   if(form)askProgressConsent(form);
    record('page_view',null);
    document.addEventListener('focusin',function(e){
     var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
