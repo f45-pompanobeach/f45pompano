@@ -57,7 +57,7 @@
         const price=hero.querySelector('.lead-pilot-price');
         if(type&&price){type.textContent=page.trialType;price.textContent=page.trialCost;}
         const ribbon=document.querySelector('.lead-pilot-hero .partner-hero-eyebrow');
-        if(ribbon)ribbon.textContent=storedPage.heroBadgeText||partnerName+' Exclusive';
+        if(ribbon)ribbon.textContent=storedPage.heroBadgeText||(isRoot?'Local Resident Exclusive':partnerName+' Exclusive');
       }else if(hero)hero.innerHTML='Reserve Your <span>'+offer.replace(/</g,'&lt;')+'</span>';
 
       document.querySelectorAll('.mid-cta-sub').forEach(el=>{el.textContent=page.trialType+' for '+page.trialCost;});
@@ -79,6 +79,19 @@
         const trialFaq=[...document.querySelectorAll('.faq-item')].find(item=>/what if i can't use all/i.test(item.querySelector('.faq-q h4')?.textContent||''));
         if(trialFaq){const q=trialFaq.querySelector('.faq-q h4');const a=trialFaq.querySelector('.faq-a p');if(q)q.textContent="What if I can't use all "+page.trialType+' in '+(page.trialDuration||'the trial period')+'?';if(a)a.textContent='Since this is a special trial offer, the '+page.trialType+' must be used within '+(page.trialDuration||'the trial period')+' of your first session — no extensions. Most members tell us they knew F45 was for them after just 1 or 2 classes!';}
       }else if(isRoot){
+        if(leadPilot){
+          const offerInput=document.querySelector('#partnerLeadForm input[name="Offer"]');
+          if(offerInput)offerInput.value=page.trialType+' for '+page.trialCost;
+          const success=document.querySelector('#claimSuccess h3');
+          if(success)success.textContent='Your '+page.trialType+' for '+page.trialCost+' offer is ready.';
+          const cta=document.querySelector('#claimSuccess .screenshot-cta');
+          if(cta){
+            cta.textContent='Continue to Mindbody — '+page.trialCost+' Trial';
+            if(page.mindbodyUrl)cta.href=page.mindbodyUrl;
+          }
+          const note=document.querySelector('#partnerLeadForm .form-small-note');
+          if(note&&page.firstClassBookingText)note.textContent=page.firstClassBookingText;
+        }
         const h=document.querySelector('.root-claim-form-header h2');
         if(h)h.textContent='Reserve '+count+' for '+page.trialCost+' Trial';
         const offerInput=document.querySelector('#rootLeadForm input[name="Offer"]');
@@ -136,6 +149,11 @@
     }
   }
 
+  document.addEventListener('root-lead-ready',function(){
+    if(!document.body.classList.contains('root-lead-design'))return;
+    const cfg=window.__LANDING_CONFIG__||window.__LANDING_PRELOADED__;
+    if(cfg)apply(cfg);
+  });
   function revealOffer(){document.documentElement.classList.remove('landing-offer-pending');}
   const slug=slugFromPath();
   if(window.__LANDING_PRELOADED__){
