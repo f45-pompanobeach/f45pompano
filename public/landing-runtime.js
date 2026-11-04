@@ -56,6 +56,8 @@
       document.querySelectorAll('.mid-cta-sub').forEach(el=>{el.textContent=page.trialType+' for '+page.trialCost;});
 
       if(isSocial){
+        const badge=document.querySelector('.social-refresh-ribbon');
+        if(badge)badge.textContent=storedPage.heroBadgeText||'Local Resident Exclusive';
         const h=document.querySelector('.claim-form-header h2');
         const classCount=document.querySelector('.social-hero-class-count');
         const price=document.querySelector('.social-hero-price');
