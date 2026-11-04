@@ -26,7 +26,7 @@
         if(!check||!check.checked)return;
         try{
           var url=new URL(link.href,location.href);
-          if(url.protocol!=='https:'||!/(^|\\.)mindbodyonline\\.com$/.test(url.hostname))return;
+          if(url.protocol!=='https:'||!(url.hostname==='mindbodyonline.com'||url.hostname.endsWith('.mindbodyonline.com')))return;
           fetch('/api/page-tracking/mindbody-click/',{
             method:'POST',headers:{'content-type':'application/json'},
             body:JSON.stringify(data),credentials:'same-origin',keepalive:true
