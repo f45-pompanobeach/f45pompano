@@ -433,3 +433,57 @@
     max-width:60vw !important;
   }
 }
+
+/* v10: move brand mark to the upper-right, aligning it with the left-hand
+   ribbon so the offer and checkout rise together. Social-trial only. */
+.social-refresh-card .social-visual-hero{
+  padding-top:18px !important;
+  padding-bottom:43px !important;
+}
+.social-refresh-card .social-visual-hero>.social-brand{
+  position:absolute !important;
+  top:13px !important;
+  right:20px !important;
+  left:auto !important;
+  margin:0 !important;
+  width:auto !important;
+  justify-content:flex-end !important;
+  z-index:3 !important;
+}
+.social-refresh-card .social-brand-logo{
+  width:155px !important;
+  height:73px !important;
+  max-width:34vw !important;
+  object-fit:contain !important;
+  object-position:right top !important;
+}
+.social-refresh-card .social-visual-hero>.social-hero-copy{
+  margin-top:0 !important;
+  padding-top:0 !important;
+  width:100% !important;
+}
+.social-refresh-card .claim-partner-ribbon.social-refresh-ribbon{
+  margin-bottom:32px !important;
+  max-width:calc(100% - 170px) !important;
+}
+@media(max-width:640px){
+  .social-refresh-card .social-visual-hero{
+    padding-top:17px !important;
+    padding-bottom:35px !important;
+  }
+  .social-refresh-card .social-visual-hero>.social-brand{
+    top:11px !important;
+    right:13px !important;
+  }
+  .social-refresh-card .social-brand-logo{
+    width:clamp(98px,27vw,137px) !important;
+    height:67px !important;
+    max-width:30vw !important;
+  }
+  .social-refresh-card .claim-partner-ribbon.social-refresh-ribbon{
+    max-width:calc(100% - 118px) !important;
+    margin-bottom:31px !important;
+    font-size:clamp(11px,2.65vw,14px) !important;
+    padding:9px 10px !important;
+  }
+}
