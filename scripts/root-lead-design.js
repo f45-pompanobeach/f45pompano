@@ -96,7 +96,7 @@ html=html.replace('</body>',
 // Unlike the former client adapter, the form and layout exist on the first
 // paint. The legacy DOMContentLoaded submit listener sees #claim-form already
 // present and attaches normally, without duplicating the form.
-for(const needle of ['class="lead-pilot-shell"', 'id="partnerLeadForm"',
+for(const needle of ['class="root-hero-lead-overlay lead-pilot-shell"', 'id="partnerLeadForm"',
   'id="partnerEligibilityConfirm"', 'id="partnerTermsPrivacy"',
   'id="partnerSmsConsent"','id="offer-video"']){
   // Homepage's original video id is heroVideo, not offer-video.
