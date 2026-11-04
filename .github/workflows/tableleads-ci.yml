@@ -78,7 +78,7 @@ jobs:
             }
             for (const field of ['lead-pilot-offer-column','lead-pilot-video-panel',
                 'lead-pilot-mobile-bar', '/lead-form-pilot.css?v=1',
-                '/lead-form-pilot.js?v=1', '/landing-runtime.js?v=10',
+                '/lead-form-pilot.js?v=2', '/landing-runtime.js?v=10',
                 'action="/api/leads/intake"', 'Continue to Mindbody']) {
               if (!html.includes(field)) throw Error(p + ': missing ' + field);
             }
