@@ -534,3 +534,88 @@ body.lead-form-pilot {
   .lead-form-pilot .fixed-top-header .screenshot-nav-links{gap:4px !important}
   .lead-form-pilot .fixed-top-header .screenshot-nav-links a{font-size:11px !important;padding:8px 8px !important}
 }
+
+
+/* Sarpino pilot v2: offer is already in the hero. Begin immediately with
+   form fields; keep residency validation but disclose ZIP codes on demand. */
+.lead-form-pilot .partner-lead-form{
+  padding-top:24px !important;
+}
+.lead-form-pilot .partner-lead-form .eligibility-confirm-row{
+  background:#fff !important;
+  border:0 !important;
+  border-radius:0 !important;
+  margin:0 !important;
+  padding:6px 0 0 !important;
+  color:#101a35 !important;
+  font-size:clamp(15px,1.7vw,18px) !important;
+  line-height:1.3 !important;
+  font-weight:850 !important;
+}
+.lead-form-pilot .partner-lead-form .eligibility-confirm-row input{
+  width:23px !important;
+  height:23px !important;
+  min-width:23px !important;
+  margin:0 !important;
+  accent-color:#e9002b !important;
+}
+.lead-form-pilot .lead-pilot-eligibility-details{
+  grid-column:1/-1 !important;
+  display:block !important;
+  width:100% !important;
+  margin:0 !important;
+  background:#f1f3f8 !important;
+  border:1px solid #dfe4ee !important;
+  border-radius:11px !important;
+  box-sizing:border-box !important;
+  color:#101a35 !important;
+}
+.lead-form-pilot .lead-pilot-eligibility-details summary{
+  display:block !important;
+  position:relative !important;
+  list-style:none !important;
+  padding:12px 42px 12px 15px !important;
+  cursor:pointer !important;
+  color:#101a35 !important;
+  font:800 14px/1.35 'Inter',system-ui,sans-serif !important;
+}
+.lead-form-pilot .lead-pilot-eligibility-details summary::-webkit-details-marker{display:none !important}
+.lead-form-pilot .lead-pilot-eligibility-details summary::marker{content:'' !important}
+.lead-form-pilot .lead-pilot-eligibility-details summary::after{
+  content:'' !important;
+  display:block !important;
+  position:absolute !important;
+  top:50% !important;
+  right:17px !important;
+  width:9px !important;
+  height:9px !important;
+  border:solid #15203b !important;
+  border-width:0 2px 2px 0 !important;
+  transform:translateY(-65%) rotate(45deg) !important;
+  pointer-events:none !important;
+}
+.lead-form-pilot .lead-pilot-eligibility-details[open] summary::after{
+  transform:translateY(-25%) rotate(225deg) !important;
+}
+.lead-form-pilot .lead-pilot-eligibility-details p{
+  margin:0 !important;
+  padding:0 15px 15px !important;
+  font-size:13px !important;
+  line-height:1.6 !important;
+  font-weight:500 !important;
+  color:#394257 !important;
+}
+.lead-form-pilot .lead-pilot-eligibility-details p strong{
+  color:#101a35 !important;
+  font-weight:850 !important;
+}
+@media(max-width:930px){
+  .lead-form-pilot .partner-lead-form .eligibility-confirm-row{
+    font-size:17px !important;
+    padding-top:4px !important;
+  }
+  .lead-form-pilot .lead-pilot-eligibility-details summary{
+    font-size:13px !important;
+    padding:12px 36px 12px 13px !important;
+  }
+}
