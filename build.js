@@ -661,6 +661,7 @@ function addLandingRuntime(html) {
   // One shared visit tracker on every generated page; strip the old inline
   // tracker so no page can double-count a visit.
   html=html.replace(/<script>\s*\/\* First-party, non-blocking page and attribution tracking\. \*\/[\s\S]*?<\/script>/g,'');
+  html=html.replace("</head>", '<link rel="stylesheet" href="/mobile-viewport-fixes.css?v=1">\\n</head>');
   return html.replace("</body>", '<script defer src="/landing-runtime.js?v=9"></script><script defer src="/page-visit-tracker.js?v=4"></script><script defer src="/visitor-activity.js?v=3"></script>\\n</body>');
 }
 
