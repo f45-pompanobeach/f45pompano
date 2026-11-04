@@ -1,0 +1,49 @@
+/* Mobile viewport stability for all generated website and partner trial pages.
+ * Prevent iOS focus auto-zoom by keeping editable controls at >=16px.
+ * Avoid sideways layout overflow without disabling user pinch-to-zoom.
+ */
+@media (max-width: 767px) {
+  html,
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: clip !important;
+  }
+
+  body :is(form, .partner-lead-form, .root-claim-form, .claim-form,
+    .form-row, .lead-pilot-shell, .screenshot-offer-card,
+    .partner-hero-copy, .root-hero-copy) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  body :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    select, textarea) {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body :is(.partner-lead-form, .root-claim-form, .claim-form)
+    :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+      select, textarea) {
+    width: 100% !important;
+  }
+
+  body :is(img, video, iframe, svg) {
+    max-width: 100%;
+  }
+
+  body :is(.partner-lead-form, .root-claim-form, .claim-form)
+    :is(label, .form-row, .terms-privacy-row, .eligibility-confirm-row, .sms-consent-row) {
+    min-width: 0 !important;
+    overflow-wrap: break-word;
+  }
+
+  body :is(button, a, label, summary, input, select, textarea) {
+    touch-action: manipulation;
+  }
+}
