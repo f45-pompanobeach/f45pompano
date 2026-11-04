@@ -922,3 +922,140 @@
 @media(prefers-reduced-motion:no-preference){
   html:has(#social-page-top){scroll-behavior:smooth}
 }
+
+
+/* Social Trial v22 — single Book Trial button, no Top link, and a fixed
+   three-row mobile header. Only navigation / reload scroll are changed. */
+html:has(.social-refresh-card){scroll-behavior:auto !important}
+.fixed-top-header .social-nav-actions .social-nav-book{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  min-height:39px !important;
+  margin:0 !important;
+  padding:8px 17px !important;
+  border:1px solid #f05a69 !important;
+  border-radius:8px !important;
+  background:#db1637 !important;
+  box-shadow:0 2px 5px rgba(0,0,0,.15) !important;
+  color:white !important;
+  font:850 13px/1.1 'Inter',system-ui,sans-serif !important;
+  letter-spacing:.01em !important;
+  white-space:nowrap !important;
+  cursor:pointer !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+}
+.fixed-top-header .social-nav-actions .social-nav-book:hover,
+.fixed-top-header .social-nav-actions .social-nav-book:focus-visible{
+  background:#ee2447 !important;
+  border-color:#fff !important;
+  outline-offset:2px !important;
+}
+.fixed-top-header .social-nav-actions .social-nav-top{display:none !important}
+@media(max-width:860px){
+  .fixed-top-header .screenshot-nav{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    grid-template-rows:57px 37px 42px !important;
+    grid-template-areas:"brand" "links" "actions" !important;
+    align-items:center !important;
+    justify-items:stretch !important;
+    gap:4px !important;
+    width:100% !important;
+    height:159px !important;
+    min-height:159px !important;
+    max-height:159px !important;
+    padding:9px 9px 6px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+  }
+  .fixed-top-header .screenshot-brand{
+    grid-area:brand !important;
+    display:flex !important;
+    justify-content:center !important;
+    align-items:center !important;
+    flex:none !important;
+    width:100% !important;
+    height:57px !important;
+    max-height:57px !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+  .fixed-top-header .screenshot-logo-img{
+    width:166px !important;
+    max-width:166px !important;
+    height:55px !important;
+    max-height:55px !important;
+    object-fit:contain !important;
+    object-position:center center !important;
+    margin:0 auto !important;
+  }
+  .fixed-top-header .screenshot-nav-links{
+    grid-area:links !important;
+    display:grid !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    justify-content:stretch !important;
+    align-items:stretch !important;
+    flex:none !important;
+    width:100% !important;
+    height:37px !important;
+    min-height:37px !important;
+    min-width:0 !important;
+    max-width:none !important;
+    gap:4px !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    overflow-x:hidden !important;
+    overflow-y:hidden !important;
+  }
+  .fixed-top-header .screenshot-nav-links a{
+    min-width:0 !important;
+    max-width:100% !important;
+    height:37px !important;
+    min-height:37px !important;
+    margin:0 !important;
+    padding:3px 2px !important;
+    font-size:clamp(8px,1.8vw,10px) !important;
+    line-height:1.1 !important;
+    white-space:normal !important;
+    text-align:center !important;
+  }
+  .fixed-top-header .social-nav-actions{
+    grid-area:actions !important;
+    display:flex !important;
+    justify-content:stretch !important;
+    align-items:stretch !important;
+    justify-self:stretch !important;
+    flex:none !important;
+    width:100% !important;
+    height:42px !important;
+    min-height:42px !important;
+    gap:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    box-sizing:border-box !important;
+  }
+  .fixed-top-header .social-nav-actions .social-nav-book{
+    display:flex !important;
+    flex:1 1 100% !important;
+    width:100% !important;
+    max-width:none !important;
+    height:42px !important;
+    min-height:42px !important;
+    margin:0 !important;
+    padding:8px 14px !important;
+    border-radius:6px !important;
+    font-size:14px !important;
+    letter-spacing:.035em !important;
+    text-transform:uppercase !important;
+  }
+  .fixed-header-spacer{
+    height:159px !important;
+    min-height:159px !important;
+  }
+}
