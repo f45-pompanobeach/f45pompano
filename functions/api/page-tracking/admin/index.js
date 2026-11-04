@@ -1,5 +1,5 @@
 import {adminAuthorized,namedUserFromRequest,eventDb,json} from '../../leads/_shared.js';
-const fields=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id','referrer'];
+const fields=['mindbody_clicked_at','utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id','referrer'];
 export async function onRequestGet({request,env}){
  const user=await namedUserFromRequest(request,env);
  if(!await adminAuthorized(request,env)&&!user?.permissions?.includes('page_tracking'))return json({ok:false,error:'unauthorized'},401);
