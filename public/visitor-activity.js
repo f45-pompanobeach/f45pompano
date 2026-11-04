@@ -102,11 +102,11 @@
      if(e.target?.matches?.('details'))record('details_toggled',e.target,e.target.open?'opened':'closed');
    },true);
    document.addEventListener('invalid',function(e){
-    if(e.target?.closest?.('#partnerLeadForm,#rootLeadForm'))
+    if(e.target?.closest?.('form'))
       record('validation_blocked',e.target,'required_or_invalid');
    },true);
    document.addEventListener('submit',function(e){
-    if(e.target?.matches?.('#partnerLeadForm,#rootLeadForm'))record('form_submit_attempt',e.target);
+    if(e.target?.matches?.('form'))record('form_submit_attempt',e.target);
    },true);
    document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a[href]');
@@ -122,7 +122,7 @@
       if(b&&!b.closest('.f45-progress-choice'))record('button_clicked',b);
     }
    },true);
-   var success=document.getElementById('claimSuccess')||document.getElementById('rootClaimSuccess');
+   var success=document.querySelector('[data-activity-success],#claimSuccess,#rootClaimSuccess,.claim-success');
    if(success){
     var sent=false;
     function changed(){
