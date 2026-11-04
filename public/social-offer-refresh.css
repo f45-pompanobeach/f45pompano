@@ -519,3 +519,11 @@
 
 /* v12: emphasize the booking deadline while retaining dynamically supplied wording. */
 .social-refresh-card .meta-global-booking-note{font-weight:800 !important;color:#17213c !important;}
+
+/* v13: readable, bold, dynamically configured booking deadline. */
+.social-refresh-card .meta-global-booking-note{
+  font-size:clamp(15px,2.3vw,18px) !important;
+  line-height:1.5 !important;
+  font-weight:850 !important;
+  color:#15203b !important;
+}
