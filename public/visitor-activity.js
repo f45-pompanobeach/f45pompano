@@ -101,6 +101,10 @@
    document.addEventListener('toggle',function(e){
      if(e.target?.matches?.('details'))record('details_toggled',e.target,e.target.open?'opened':'closed');
    },true);
+   document.addEventListener('invalid',function(e){
+    if(e.target?.closest?.('#partnerLeadForm,#rootLeadForm'))
+      record('validation_blocked',e.target,'required_or_invalid');
+   },true);
    document.addEventListener('submit',function(e){
     if(e.target?.matches?.('#partnerLeadForm,#rootLeadForm'))record('form_submit_attempt',e.target);
    },true);
@@ -110,6 +114,8 @@
       try{var u=new URL(a.href,location.href);
         if(u.hostname==='clients.mindbodyonline.com'||u.hostname.endsWith('.mindbodyonline.com'))
           record('checkout_clicked',a);
+        else if(['https:','http:'].includes(u.protocol))
+          record('link_clicked',a,u.host===location.host?'internal':'external');
       }catch(ex){}
     }else{
       var b=e.target.closest&&e.target.closest('button');
