@@ -1,0 +1,96 @@
+/* Social-trial-only design experiment. No other landing-page selectors affected. */
+.screenshot-hero:has(.social-refresh-card){
+  background:#111b33 !important;
+  background-image:linear-gradient(135deg,rgba(13,22,47,.84),rgba(17,27,51,.74)),url('/f45-coaching.webp') !important;
+  background-size:cover !important;
+  background-position:center !important;
+  padding:42px 16px 52px !important;
+  min-height:0 !important;
+}
+.screenshot-hero:has(.social-refresh-card) .screenshot-hero-video{opacity:.09 !important}
+.screenshot-hero .social-refresh-card{
+  width:min(680px,96vw) !important;max-width:680px !important;
+  background:#fff !important;border:0 !important;border-radius:22px !important;
+  box-shadow:0 20px 55px rgba(7,12,35,.24) !important;
+  padding:0 !important;overflow:hidden !important;position:relative !important
+}
+.social-refresh-card .social-refresh-ribbon{
+  background:#ffda27 !important;color:#101b37 !important;display:block !important;
+  font-weight:900 !important;font-size:clamp(14px,2.7vw,18px) !important;
+  letter-spacing:.06em !important;padding:15px 24px !important;
+  text-transform:uppercase !important;text-align:center !important
+}
+.social-refresh-card .claim-form-header{
+  background:#fff !important;color:#101b37 !important;text-align:center !important;
+  padding:28px 26px 14px !important;border-radius:0 !important
+}
+.social-refresh-card .claim-form-header h2{
+  font-size:clamp(32px,5.2vw,46px) !important;line-height:1.12 !important;
+  color:#101b37 !important;font-weight:900 !important;margin:0 0 15px !important;
+  letter-spacing:-.04em !important
+}
+.social-refresh-card .claim-form-header p{
+  font-size:clamp(15px,2vw,17px) !important;line-height:1.55 !important;
+  color:#40475c !important;max-width:490px !important;margin:0 auto !important
+}
+.social-refresh-card .meta-direct-cta-block{
+  display:flex !important;flex-direction:column !important;
+  text-align:left !important;align-items:stretch !important;gap:0 !important;
+  padding:16px 26px 30px !important;background:#fff !important
+}
+.social-refresh-card .meta-eligibility-check{
+  display:flex !important;gap:13px !important;align-items:flex-start !important;
+  background:#fff !important;border:1px solid #dde2eb !important;
+  color:#131d3e !important;border-radius:12px !important;
+  padding:18px !important;margin:0 !important;font-size:clamp(15px,2vw,18px) !important;
+  font-weight:800 !important;line-height:1.42 !important;text-transform:none !important
+}
+.social-refresh-card .meta-eligibility-check input{
+  width:23px !important;height:23px !important;min-width:23px !important;
+  margin:1px 0 0 !important;accent-color:#e8272a !important
+}
+.social-refresh-card .social-verify-note{
+  font-size:13px !important;color:#596171 !important;line-height:1.5 !important;
+  margin:7px 4px 16px 48px !important;text-align:left !important
+}
+.social-refresh-card .social-eligibility-details,
+.social-refresh-card .social-checkout-help{
+  background:#f4f6f9 !important;border:1px solid #e4e8ef !important;
+  border-radius:12px !important;color:#101b37 !important;width:100% !important
+}
+.social-refresh-card .social-eligibility-details{margin:0 0 20px !important}
+.social-refresh-card details summary{
+  cursor:pointer;list-style:none;padding:15px 17px !important;
+  font-size:14px !important;font-weight:800 !important;line-height:1.4 !important
+}
+.social-refresh-card details summary::-webkit-details-marker{display:none}
+.social-refresh-card details summary::after{content:'⌄';float:right;font-size:21px;line-height:13px}
+.social-refresh-card details[open] summary::after{content:'⌃'}
+.social-refresh-card details p{
+  padding:0 17px 17px !important;font-size:13px !important;line-height:1.6 !important;
+  color:#374151 !important;margin:0 !important
+}
+.social-refresh-card .meta-direct-cta{
+  width:100% !important;max-width:none !important;display:flex !important;
+  box-sizing:border-box !important;text-align:center !important;
+  margin:0 0 14px !important;border-radius:13px !important;
+  background:#e8272a !important;color:white !important;
+  font-size:clamp(17px,2.4vw,23px) !important;font-weight:900 !important;
+  line-height:1.25 !important;min-height:65px !important;
+  padding:18px 15px !important;white-space:normal !important;text-decoration:none !important
+}
+.social-refresh-card .meta-direct-cta:hover{background:#c91f22 !important}
+.social-refresh-card .meta-global-booking-note{
+  width:100% !important;border:0 !important;background:#fff !important;
+  text-align:center !important;padding:0 7px !important;margin:0 0 18px !important;
+  color:#616776 !important;font-size:13px !important;line-height:1.5 !important
+}
+.social-refresh-card .social-checkout-help{margin:0 !important}
+.social-refresh-card .social-checkout-help a{color:#101b37 !important;font-weight:700 !important}
+@media(max-width:640px){
+  .screenshot-hero:has(.social-refresh-card){padding:22px 11px 30px !important}
+  .screenshot-hero .social-refresh-card{width:100% !important;border-radius:17px !important}
+  .social-refresh-card .claim-form-header{padding:24px 18px 12px !important}
+  .social-refresh-card .meta-direct-cta-block{padding:13px 17px 22px !important}
+  .social-refresh-card .social-verify-note{margin-left:4px !important}
+}
