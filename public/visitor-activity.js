@@ -14,16 +14,16 @@
   var visitor='';
   try{visitor=localStorage.getItem('f45_visitor_id')||''}catch(e){}
   if(!/^[a-f0-9]{32}$/.test(visitor)){visitor=id();try{localStorage.setItem('f45_visitor_id',visitor)}catch(e){}}
-  var optIn=false,queue=[],timer=0,used=new Set(),lastSent=new Map(),pendingFields=new Set(),inputTimers=new WeakMap();
+  var optIn=false,queue=[],timer=0,used=new Set(),lastSent=new Map(),lastCaptured=new Map(),pendingFields=new Set(),inputTimers=new WeakMap();
   var safeFields=new Set(['first_name','last_name','email','phone','zip']);
-  function fieldKey(el){var k=(el.name||el.id||'').toLowerCase();
-   if(k==='firstName')return 'first_name';
-   if(k==='lastName')return 'last_name';
-   if(k==='zipCode')return 'zip';
-   if(k==='partnerTermsPrivacy')return 'terms';
-   if(k==='partnerEligibilityConfirm')return 'eligibility';
-   if(k==='partnerSmsConsent')return 'sms';
-   return k.replace(/([a-z])([A-Z])/g,'$1_$2').replace(/[^a-z0-9_]/g,'').slice(0,35);
+  function fieldKey(el){
+   var raw=String(el.name||el.id||'');
+   var k=raw.replace(/([a-z])([A-Z])/g,'$1_$2').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,35);
+   // Normalize actual form names as well as historical/partner variants.
+   if(k==='firstname')return 'first_name';
+   if(k==='lastname')return 'last_name';
+   if(['zip_code','zip_code_on_id','zipcode','zip'].includes(k))return 'zip';
+   return k;
   }
   function isText(el){return el&&el.matches&&el.matches('input:not([type=hidden]):not([type=password]):not([type=checkbox]):not([type=radio]):not([type=file]),select');}
   function targetName(el){if(!el)return 'page';return (el.getAttribute('data-track-label')||el.name||el.id||el.className?.toString().split(' ')[0]||el.tagName||'element').slice(0,65);}
@@ -34,6 +34,7 @@
    var entry={id:crypto.randomUUID(),at:new Date().toISOString(),event:name,field:key,target:targetName(el),detail:detail||''};
    if(safeFields.has(key)&&optIn&&typeof value==='string'){
      entry.consented=true;entry.value=value.slice(0,140);
+     lastCaptured.set(key,entry.value);
    }
    queue.push(entry);
    if(queue.length>=8)send();
@@ -48,6 +49,19 @@
    }
    fetch('/api/page-tracking/activity/',{method:'POST',headers:{'content-type':'application/json'},body,credentials:'same-origin',keepalive:true}).catch(function(){});
   }
+  function snapshotContactFields(form,reason){
+   if(!optIn||!form)return;
+   form.querySelectorAll('input,select').forEach(function(el){
+     if(!isText(el))return;
+     var key=fieldKey(el);
+     if(!safeFields.has(key))return;
+     var value=String(el.value||'').slice(0,140);
+     // Save fields entered before consent, and any edits missed by a mobile
+     // input/debounce/blur event, without duplicating unchanged snapshots.
+     if(value!==lastCaptured.get(key)&&(value||lastCaptured.has(key)))
+       record('field_edited',el,reason,value);
+   });
+  }
   function askProgressConsent(form){
    if(form.querySelector('.f45-progress-choice'))return;
    var box=document.createElement('label');box.className='f45-progress-choice';
@@ -57,8 +71,18 @@
    var caption=document.createElement('span');caption.textContent='Optional: Save my unfinished contact details for 30 days so F45 Pompano Beach can recognize my return or help me finish later. Without this, only anonymous activity is recorded.';
    box.append(input,caption);form.prepend(box);
    input.addEventListener('change',function(){
-     optIn=input.checked;record(optIn?'progress_opt_in':'progress_opt_out',input,optIn?'enabled':'disabled');
-     if(!optIn)document.querySelectorAll('#partnerLeadForm input').forEach(function(x){lastSent.delete('field_edited:'+fieldKey(x)+':changed')});
+     optIn=input.checked;
+     record(optIn?'progress_opt_in':'progress_opt_out',input,optIn?'enabled':'disabled');
+     if(optIn){
+       // Explicit permission can be given after some fields are already filled.
+       snapshotContactFields(form,'consent_snapshot');
+       send();
+     }else{
+       // Do not let queued personal values leak after permission is revoked.
+       queue.forEach(function(event){delete event.value;event.consented=false;});
+       lastCaptured.clear();
+       send();
+     }
    });
   }
   function init(){
@@ -106,7 +130,10 @@
       record('validation_blocked',e.target,'required_or_invalid');
    },true);
    document.addEventListener('submit',function(e){
-    if(e.target?.matches?.('form'))record('form_submit_attempt',e.target);
+    if(e.target?.matches?.('form')){
+      snapshotContactFields(e.target,'submit_snapshot');
+      record('form_submit_attempt',e.target);
+    }
    },true);
    document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a[href]');
@@ -134,9 +161,14 @@
     changed();
    }
    document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='hidden'){flushPending();record('page_hidden',null);send(true)}
+    if(document.visibilityState==='hidden'){
+      flushPending();snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot');
+      record('page_hidden',null);send(true);
+    }
    });
-   window.addEventListener('pagehide',function(){flushPending();send(true)});
+   window.addEventListener('pagehide',function(){
+     flushPending();snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot');send(true);
+   });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
  }catch(e){}
