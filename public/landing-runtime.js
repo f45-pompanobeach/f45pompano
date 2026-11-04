@@ -57,7 +57,10 @@
 
       if(isSocial){
         const h=document.querySelector('.claim-form-header h2');
-        if(h)h.textContent='Try '+page.trialType+' for '+page.trialCost;
+        const classCount=document.querySelector('.social-hero-class-count');
+        const price=document.querySelector('.social-hero-price');
+        if(classCount&&price){classCount.textContent=page.trialType;price.textContent=page.trialCost;}
+        else if(h)h.textContent='Try '+page.trialType+' for '+page.trialCost;
         const intro=document.querySelector('.claim-form-header p');
         if(intro)intro.textContent='Ready to get started? Confirm your eligibility below, then continue to our secure Mindbody checkout.';
         const cta=document.querySelector('.meta-direct-cta');
