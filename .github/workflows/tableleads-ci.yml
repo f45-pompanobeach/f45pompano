@@ -13,7 +13,7 @@ on:
       - 'public/landing-admin/**'
       - 'build.js'
       - 'package.json'
-      - 'data/sarpinos.json'
+      - 'data/*.json'
       - 'scripts/lead-form-pilot.js'
       - 'scripts/partner-page-polish.js'
       - 'public/partner-form-checkboxes.css'
@@ -92,39 +92,60 @@ jobs:
             throw Error('Social Trial should not receive partner form CSS');
           console.log('Checked partner landing pages: no redundant CTA strips; checkboxes preserved.');
           NODE
-      - name: Check generated Sarpino lead-form pilot
+      - name: Check all partner lead-form pages and shared design
         run: |
           node - <<'NODE'
-          const fs = require('fs');
-          for (const p of ['dist/sarpinos.html', 'dist/sarpinos/index.html']) {
-            const html = fs.readFileSync(p, 'utf8');
-            for (const name of ['partnerLeadForm', 'claimSuccess', 'partnerEligibilityConfirm',
-                'partnerTermsPrivacy', 'partnerSmsConsent', 'offer-video', 'claim-form']) {
-              if ((html.match(new RegExp('id="' + name + '"', 'g')) || []).length !== 1)
-                throw Error(p + ': expected one ' + name);
+          const fs=require('fs'), path=require('path');
+          const slugs=fs.readdirSync('data').filter(x=>x.endsWith('.json') &&
+            !['shared.json','generic.json','meta.json'].includes(x))
+            .map(x=>JSON.parse(fs.readFileSync(path.join('data',x),'utf8')).slug);
+          const targets=slugs.flatMap(slug=>[
+            {file:'dist/'+slug+'.html',slug},
+            {file:'dist/'+slug+'/index.html',slug}
+          ]);
+          targets.push({file:'dist/_landing-template/index.html',slug:'_landing-template'});
+          for(const {file,slug} of targets){
+            const html=fs.readFileSync(file,'utf8');
+            for(const id of ['partnerLeadForm','claimSuccess','partnerEligibilityConfirm',
+                'partnerTermsPrivacy','partnerSmsConsent','offer-video','claim-form']){
+              if((html.match(new RegExp('id="'+id+'"','g'))||[]).length!==1)
+                throw Error(file+' expected exactly one '+id);
             }
-            for (const field of ['lead-pilot-offer-column','lead-pilot-video-panel',
-                'lead-pilot-mobile-bar', '/lead-form-pilot.css?v=3',
-                '/lead-form-pilot.js?v=2', '/landing-runtime.js?v=11',
-                'action="/api/leads/intake"', 'Continue to Mindbody']) {
-              if (!html.includes(field)) throw Error(p + ': missing ' + field);
+            for(const marker of ['lead-pilot-offer-column','lead-pilot-video-panel',
+              'lead-pilot-mobile-bar','lead-pilot-eligibility-details',
+              'lead-pilot-eligible-zips','/lead-form-pilot.css?v=3',
+              '/lead-form-pilot.js?v=3','/landing-runtime.js?v=11',
+              '/partner-form-checkboxes.css?v=1','page-visit-tracker.js',
+              'action="/api/leads/intake"']){
+              if(!html.includes(marker))throw Error(file+' missing '+marker);
             }
-            if (!html.includes('<details class="lead-pilot-eligibility-details">') ||
-                !html.includes('class="lead-pilot-eligible-zips"') ||
-                !html.includes('I\'m a first-time visitor and a qualifying local resident.'))
-              throw Error(p + ': pilot ZIP details are missing');
-            if (html.includes('class="partner-exclusive-header"') ||
-                html.includes('Submit your info first. Then your exclusive'))
-              throw Error(p + ': duplicate offer section still visible');
-            if (html.indexOf('lead-pilot-offer-column') > html.indexOf('id="partnerLeadForm"'))
-              throw Error(p + ': form not in pilot offer column');
+            for(const [id,required] of [['partnerTermsPrivacy',true],
+                ['partnerEligibilityConfirm',true],['partnerSmsConsent',false]]){
+              const input=html.match(new RegExp('<input[^>]*id="'+id+'"[^>]*>'));
+              if(!input)throw Error(file+' missing input '+id);
+              if(input[0].includes('required')!==required)
+                throw Error(file+' required/optional consent changed: '+id);
+            }
+            if(html.includes('class="partner-exclusive-header"')||
+              html.includes('Submit your info first. Then your exclusive')||
+              html.includes('class="mid-cta-bar"'))
+              throw Error(file+' redundant trial promotion present');
+            if(slug==='sands-harbor'){
+              if(html.includes('Continue to Mindbody'))
+                throw Error(file+' special follow-up replaced with Mindbody');
+              if(!html.includes('Our team will reach out'))
+                throw Error(file+' follow-up confirmation missing');
+            }else if(!html.includes('Continue to Mindbody')){
+              throw Error(file+' checkout link missing');
+            }
           }
-          for (const p of ['dist/social-trial/index.html', 'dist/foxtail/index.html']) {
-            const html=fs.readFileSync(p, 'utf8');
-            if (html.includes('lead-form-pilot.css?v=1') || html.includes('lead-form-pilot.js?v=1'))
-              throw Error(p + ': pilot leaked to unrelated page');
+          for(const file of ['dist/social-trial/index.html','dist/index.html']){
+            const html=fs.readFileSync(file,'utf8');
+            if(html.includes('lead-form-pilot.css?v=3')||
+               html.includes('lead-form-pilot.js?v=3'))
+              throw Error(file+' partner redesign leaked onto other page');
           }
-          console.log('Sarpino pilot rendered with form, consent, checkout and isolated assets.');
+          console.log('Checked '+targets.length+' generated partner pages and the dynamic partner template.');
           NODE
       - name: Parse generated homepage inline scripts
         run: |
