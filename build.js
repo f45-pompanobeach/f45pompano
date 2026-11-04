@@ -356,6 +356,14 @@ function addRootLeadCapture(html) {
 
   html = html.replace(`</style>`, `${rootLeadCaptureCss}\n</style>`);
   html = html.replace(`</head>`, `${partnerRootFormCss}\n</head>`);
+  // Unlike legacy homepage flow, render the same validated form in initial
+  // HTML. The legacy event handler still attaches on DOMContentLoaded, and
+  // its existing "if no #claim-form" guard prevents a duplicate insertion.
+  const heroOpen = '<section class="screenshot-hero video-hero-section">';
+  const start = html.indexOf(heroOpen);
+  const closing = start<0 ? -1 : html.indexOf('</section>', start);
+  if(start<0 || closing<0)throw Error('Homepage hero not found');
+  html = html.slice(0,closing) + rootLeadCaptureHtml + html.slice(closing);
   html = html.replace(`</body>`, `${rootLeadCaptureJs}\n</body>`);
   return html;
 }
