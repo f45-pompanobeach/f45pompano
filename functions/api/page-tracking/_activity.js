@@ -1,6 +1,5 @@
 // Shared, first-party landing activity tables and input validation.
-// Never store passwords, payment details or arbitrary free-text fields. Only
-// approved contact fields may contain typed values; form submissions remain separate.
+// No passwords, card details, free-text areas or form submissions are stored.
 export const EVENT_NAMES=new Set([
  'page_view','field_started','field_edited','field_left','checkbox_changed',
  'form_submit_attempt','form_submitted','checkout_clicked','button_clicked',
@@ -36,14 +35,12 @@ export function sanitizeEvent(item){
  const detail=clean(item?.detail,25).toLowerCase();
  const id=clean(item?.id,36).toLowerCase();
  if(!/^[a-f0-9-]{36}$/.test(id))return null;
- // Legacy consented flag is retained in storage for historical records.
- // New visitor activity is explicitly disclosed and is not opt-in gated.
  const consented=item?.consented===true;
  const provided=Date.parse(String(item?.at||''));
  const at=Number.isFinite(provided)&&Math.abs(Date.now()-provided)<15*60000
    ?new Date(provided).toISOString():new Date().toISOString();
  let field_value=null;
- if(typeof item?.value==='string'&&CONTACT_FIELDS.has(field_name)&&
+ if(consented&&CONTACT_FIELDS.has(field_name)&&
     ['field_edited','field_left'].includes(event_name)){
   const raw=clean(item?.value,140);
   // Keep only narrowly-scoped contact details; never store arbitrary text.
