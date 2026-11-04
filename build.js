@@ -792,6 +792,7 @@ for (const file of fs.readdirSync(dataDir)) {
     const logoMatch = renderedPartnerPage.match(/<img class="screenshot-logo-img" src="([^"]+)"/);
     const newCard = render(fs.readFileSync('social-offer-card.html','utf8'),{
       ...partnerData,
+      heroBadgeText: partnerData.heroBadgeText || 'Local Resident Exclusive',
       socialBrandLogo: logoMatch ? logoMatch[1] : '/og-image.jpg'
     });
     // Keep the original configured autoplay video, but make it the actual hero
@@ -806,7 +807,7 @@ for (const file of fs.readdirSync(dataDir)) {
       '<div class="social-visual-hero">' + videoMarkup
     );
     renderedPartnerPage = renderedPartnerPage.slice(0,start - videoMarkup.length) + videoHeroCard + renderedPartnerPage.slice(end - videoMarkup.length);
-    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=5">\\n</head>');
+    renderedPartnerPage = renderedPartnerPage.replace('</head>','<link rel="stylesheet" href="/social-offer-refresh.css?v=6">\\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
