@@ -831,7 +831,7 @@ for (const file of fs.readdirSync(dataDir)) {
     renderedPartnerPage = renderedPartnerPage.replace(socialNavEnd,
       '    </nav>\n' +
       '    <div class="social-nav-actions">' +
-      '<button class="social-nav-book" type="button" aria-label="Back to video and trial offer">Book Trial</button>' +
+      '<button class="social-nav-book" type="button" hidden aria-label="Return to video and trial offer">↑ Book Trial</button>' +
       '</div>\n  </header>');
     // iOS Safari may smoothly restore a previous scroll position on reload,
     // especially with the original template's html scroll-behavior:smooth.
@@ -864,9 +864,35 @@ for (const file of fs.readdirSync(dataDir)) {
   }
   document.addEventListener('DOMContentLoaded',function(){
     var btn=document.querySelector('.social-nav-book');
-    if(btn)btn.addEventListener('click',function(){
+    var header=document.querySelector('.fixed-top-header');
+    var original=document.querySelector('.social-refresh-card .meta-direct-cta');
+    if(!btn||!header||!original)return;
+    var requested=false;
+    function refresh(){
+      requested=false;
+      var cta=original.getBoundingClientRect();
+      var nav=header.getBoundingClientRect();
+      // Only show once visitor has passed the actual offer button.
+      // At initial page load, the button can be below the fold; stay hidden.
+      var pastOffer=window.scrollY>40 && cta.bottom<=nav.bottom+2;
+      btn.hidden=!pastOffer;
+      btn.setAttribute('aria-hidden',pastOffer?'false':'true');
+    }
+    function schedule(){
+      if(requested)return;
+      requested=true;
+      requestAnimationFrame(refresh);
+    }
+    btn.addEventListener('click',function(){
+      btn.hidden=true;
+      btn.setAttribute('aria-hidden','true');
       window.scrollTo({top:0,left:0,behavior:'smooth'});
+      schedule();
     });
+    window.addEventListener('scroll',schedule,{passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    window.addEventListener('pageshow',schedule);
+    refresh();
   });
 })();
 </script>`;
@@ -875,7 +901,7 @@ for (const file of fs.readdirSync(dataDir)) {
     if((renderedPartnerPage.match(/id="offer-video"/g)||[]).length !== 1)
       throw new Error('Social trial requires exactly one video');
     renderedPartnerPage = renderedPartnerPage.replace('</head>',
-      '<link rel="stylesheet" href="/social-offer-refresh.css?v=22">\n</head>');
+      '<link rel="stylesheet" href="/social-offer-refresh.css?v=23">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
