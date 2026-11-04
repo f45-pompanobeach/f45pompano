@@ -816,10 +816,17 @@ for (const file of fs.readdirSync(dataDir)) {
     const cardWithVideo = newCard.replace(videoSlot,videoSlot+videoMarkup);
     renderedPartnerPage = withoutVideo.slice(0,offerBegin) + cardWithVideo
       + withoutVideo.slice(offerEnd);
+    // Social Trial header only: replace the embedded low-resolution JPEG with
+    // the approved transparent white F45 Pompano Beach logo.
+    const originalHeaderLogo = /(<img class="screenshot-logo-img" src=")[^"]+(")/;
+    if(!originalHeaderLogo.test(renderedPartnerPage))
+      throw new Error('Social trial header logo missing');
+    renderedPartnerPage = renderedPartnerPage.replace(originalHeaderLogo,
+      '$1/f45-logo-transparent-v2.svg$2');
     if((renderedPartnerPage.match(/id="offer-video"/g)||[]).length !== 1)
       throw new Error('Social trial requires exactly one video');
     renderedPartnerPage = renderedPartnerPage.replace('</head>',
-      '<link rel="stylesheet" href="/social-offer-refresh.css?v=18">\n</head>');
+      '<link rel="stylesheet" href="/social-offer-refresh.css?v=19">\n</head>');
     renderedPartnerPage = updateIntroSharePreview(renderedPartnerPage);
   }
   renderedPartnerPage = addLandingRuntime(renderedPartnerPage);
