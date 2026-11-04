@@ -130,12 +130,16 @@
       setMeta('twitter:title',title);
     }
 
+    // Homepage/partner pages with an eligibility dropdown must keep their
+    // short checkbox label. Only the dropdown carries the dynamic ZIP list.
+    const eligibility=document.querySelector('.eligibility-confirm-row span');
+    const pilotZips=document.querySelector('.lead-pilot-eligible-zips');
+    const hasCompactEligibility=!!(pilotZips && eligibility && document.body.classList.contains('lead-form-pilot'));
+    if(hasCompactEligibility)eligibility.textContent="I'm a first-time visitor and a qualifying local resident.";
     const zips=Array.isArray(global.qualifiedZipCodes)?global.qualifiedZipCodes:[];
     if(zips.length){
-      const eligibility=document.querySelector('.eligibility-confirm-row span');
-      const pilotZips=document.querySelector('.lead-pilot-eligible-zips');
       if(pilotZips)pilotZips.textContent=zips.join(', ');
-      if(eligibility&&!pilotZips)eligibility.textContent='I confirm that I am a first-time visitor and live in one of these ZIP codes ('+zips.join(', ')+'), and am able to verify residency for this offer.';
+      if(eligibility&&!hasCompactEligibility)eligibility.textContent='I confirm that I am a first-time visitor and live in one of these ZIP codes ('+zips.join(', ')+'), and am able to verify residency for this offer.';
       const metaEligibility=document.querySelector('.meta-eligibility-check span');
       if(metaEligibility&&!document.querySelector('.social-refresh-card'))metaEligibility.textContent='I confirm I am a first-time visitor, live in one of these ZIP codes ('+zips.join(', ')+'), and am able to verify residency for this offer.';
       const socialZips=document.querySelector('.social-eligible-zips');if(socialZips)socialZips.textContent=zips.join(', ');
