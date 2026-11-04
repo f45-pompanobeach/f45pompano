@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "build": "node build.js && node scripts/lead-form-pilot.js && node scripts/share-preview.js"
+    "build": "node build.js && node scripts/lead-form-pilot.js && node scripts/partner-page-polish.js && node scripts/share-preview.js"
   }
 }
