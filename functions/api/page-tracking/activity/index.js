@@ -18,8 +18,9 @@ export async function onRequestPost(context){
  const db=eventDb(env);if(!db)return json({ok:false},503);
  try{
   await ensureActivitySchema(db);
-  const now=new Date().toISOString(),cutoff=new Date(Date.now()-30*60000).toISOString();
-  let row=await db.prepare('SELECT id FROM landing_page_visits WHERE page=? AND session_id=? AND visited_at>=? ORDER BY visited_at DESC LIMIT 1').bind(page,session,cutoff).first();
+  // Reattach activity to the original per-tab, per-page visit after Safari restores it.
+  const now=new Date().toISOString();
+  let row=await db.prepare('SELECT id FROM landing_page_visits WHERE page=? AND session_id=? ORDER BY visited_at DESC LIMIT 1').bind(page,session).first();
   if(!row){
    // An interaction may reach the server before the initial visit POST.
    // Do not create unattributed visits when the page is configured as UTM-only.
