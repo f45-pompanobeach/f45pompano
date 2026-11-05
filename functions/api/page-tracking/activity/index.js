@@ -11,8 +11,12 @@ export async function onRequestPost(context){
  let d;try{d=await request.json()}catch{return json({ok:false},400)}
  const page=String(d?.page||''),session=String(d?.session||''),visitor=String(d?.visitor||'');
  if(!validIdentity(page,session,visitor))return json({ok:false},400);
- const events=(Array.isArray(d.events)?d.events:[d.event]).map(sanitizeEvent);
- if(events.length<1||events.length>12||events.some(x=>!x))return json({ok:false},400);
+ const incoming=(Array.isArray(d.events)?d.events:[d.event]).map(sanitizeEvent);
+ if(incoming.length<1||incoming.length>12||incoming.some(x=>!x))return json({ok:false},400);
+ // Older cached browsers may still send focus/blur events. They are not
+ // meaningful activity, so never save them or create a visit from them.
+ const events=incoming.filter(e=>e.event_name!=='field_started'&&e.event_name!=='field_left');
+ if(!events.length)return json({ok:true,tracked:false,accepted:0});
  let mode='all';
  try{const cfg=await getPage(env,page);mode=cfg?.trackingMode||'all';if(mode==='off')return json({ok:true,tracked:false})}
  catch{return json({ok:false,error:'config_unavailable'},503)}
