@@ -22,7 +22,9 @@ export async function onRequestPost(context){
  try{
   await schema(db);
   const vals=fields.map(f=>clean(d?.[f],f==='referrer'?400:160));
-  const now=new Date();const cutoff=new Date(now.getTime()-30*60*1000).toISOString();
+  // A sessionStorage ID belongs to an open browser tab and survives Safari suspend/restore.
+  // Never expire visit deduplication merely because the tab was idle for 30 minutes.
+  const now=new Date();
   // Some partner-page previews load an unrequested root document immediately
   // afterwards. Do not count that as a separate main-site visit when it has
   // no referrer or campaign and shares the browser's recent partner visit.
@@ -33,13 +35,13 @@ export async function onRequestPost(context){
   }
 
   const visitId=crypto.randomUUID();
-  const result=await db.prepare('INSERT INTO landing_page_visits(id,visited_at,page,session_id,visitor_id,'+fields.join(',')+') SELECT '+Array(5+fields.length).fill('?').join(',')+' WHERE NOT EXISTS (SELECT 1 FROM landing_page_visits WHERE page=? AND session_id=? AND visited_at>=?)').bind(visitId,now.toISOString(),page,session,visitor,...vals,page,session,cutoff).run();
+  const result=await db.prepare('INSERT INTO landing_page_visits(id,visited_at,page,session_id,visitor_id,'+fields.join(',')+') SELECT '+Array(5+fields.length).fill('?').join(',')+' WHERE NOT EXISTS (SELECT 1 FROM landing_page_visits WHERE page=? AND session_id=?)').bind(visitId,now.toISOString(),page,session,visitor,...vals,page,session).run();
   // The activity stream may have arrived before this visit POST.
   // Populate any missing original attribution without overwriting known UTMs.
   const missing=fields.map(f=>f+"=CASE WHEN COALESCE("+f+",'')='' THEN ? ELSE "+f+" END").join(',');
-  await db.prepare('UPDATE landing_page_visits SET '+missing+' WHERE page=? AND session_id=? AND visited_at>=?')
-    .bind(...vals,page,session,cutoff).run();
-  if(visitor)await db.prepare('UPDATE landing_page_visits SET visitor_id=COALESCE(visitor_id,?) WHERE page=? AND session_id=? AND visited_at>=?').bind(visitor,page,session,cutoff).run();
+  await db.prepare('UPDATE landing_page_visits SET '+missing+' WHERE page=? AND session_id=?')
+    .bind(...vals,page,session).run();
+  if(visitor)await db.prepare('UPDATE landing_page_visits SET visitor_id=COALESCE(visitor_id,?) WHERE page=? AND session_id=?').bind(visitor,page,session).run();
   if(Number(result.meta?.changes||0)>0)await notifyNewTrackingVisit(context,db,{id:visitId,page,visited_at:now.toISOString(),...Object.fromEntries(fields.map((name,i)=>[name,vals[i]]))});
   return json({ok:true,tracked:(result.meta?.changes||0)>0});
  }catch{return json({ok:false,error:'storage_unavailable'},503)}
