@@ -201,7 +201,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=4','/visitor-activity.js?v=4'])
+            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=5'])
               assert(html.includes(asset),file+' missing '+asset);
             assert(html.includes('/mobile-viewport-fixes.css?v=1'),file+' missing mobile viewport CSS');
             assert(html.includes('class="activity-disclosure"'),file+' missing bottom-of-page activity notice');
@@ -226,6 +226,11 @@ jobs:
           const browser=fs.readFileSync('public/visitor-activity.js','utf8');
           assert(!browser.includes('askProgressConsent'), 'Extra progress checkbox must not be injected');
           assert(browser.includes('form#partnerLeadForm'));
+          assert(browser.includes('window.top!==window.self'), 'Activity must ignore iframe previews');
+          assert(browser.includes("document.visibilityState!=='visible'"), 'Activity must ignore hidden previews');
+          const visitTracker=fs.readFileSync('public/page-visit-tracker.js','utf8');
+          assert(visitTracker.includes('window.top!==window.self'), 'Visits must ignore iframe previews');
+          assert(visitTracker.includes("document.visibilityState!=='visible'"), 'Visits must ignore hidden previews');
           assert(!browser.includes('optIn'), 'No opt-in checkbox dependency may remain');
           assert(browser.includes('pagehide'));
           assert(browser.includes("snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot')"));
