@@ -92,7 +92,30 @@ export async function adminAuthorized(request,env){
   const code=String(request.headers.get('x-table-code')||'').trim();
   if(/^\d{4}$/.test(code)&&equal(await sha256Hex(code),expected))return true;
   const session=cookieValue(request,'f45_admin_session');
-  return /^[a-f0-9]{64}$/i.test(session)&&equal(session.toLowerCase(),String(expected||'').toLowerCase());
+  if(/^[a-f0-9]{64}$/i.test(session)&&equal(session.toLowerCase(),String(expected||'').toLowerCase()))return true; // Existing 8-hour sessions.
+  if(!/^[a-f0-9]{64}$/i.test(session))return false;
+  const db=eventDb(env);if(!db)return false;
+  try{
+    const row=await db.prepare('SELECT pin_hash,expires_at FROM lead_super_admin_sessions WHERE token_hash=? AND expires_at>? LIMIT 1')
+     .bind(await sha256Hex(session),Math.floor(Date.now()/1000)).first();
+    return !!row&&equal(String(row.pin_hash),String(expected));
+  }catch{return false}
+}
+export async function createSuperAdminSession(env,pinHash){
+  const db=eventDb(env);if(!db)throw Error('db_unavailable');
+  await db.prepare('CREATE TABLE IF NOT EXISTS lead_super_admin_sessions (token_hash TEXT PRIMARY KEY,pin_hash TEXT NOT NULL,expires_at INTEGER NOT NULL,created_at TEXT NOT NULL)').run();
+  const token=Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('');
+  const now=Math.floor(Date.now()/1000),expires=now+30*86400;
+  await db.prepare('DELETE FROM lead_super_admin_sessions WHERE expires_at<?').bind(now).run();
+  await db.prepare('INSERT INTO lead_super_admin_sessions(token_hash,pin_hash,expires_at,created_at) VALUES(?,?,?,?)')
+    .bind(await sha256Hex(token),pinHash,expires,new Date().toISOString()).run();
+  return {token,maxAge:30*86400};
+}
+export async function deleteSuperAdminSession(request,env){
+  const token=cookieValue(request,'f45_admin_session');
+  if(!/^[a-f0-9]{64}$/i.test(token))return;
+  const db=eventDb(env);if(!db)return;
+  await db.prepare('DELETE FROM lead_super_admin_sessions WHERE token_hash=?').bind(await sha256Hex(token)).run().catch(()=>{});
 }
 export async function setAdminPin(env,newCode){if(!/^\d{4}$/.test(String(newCode||'')))throw new Error('invalid_pin');await ensureSchema(env);const db=eventDb(env),now=new Date().toISOString(),hash=await sha256Hex(newCode);await db.prepare(`INSERT INTO lead_app_settings (setting_key,setting_value,updated_at) VALUES ('super_admin_pin_hash',?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_at=excluded.updated_at`).bind(hash,now).run();return true}
 
