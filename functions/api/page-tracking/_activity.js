@@ -3,7 +3,7 @@
 export const EVENT_NAMES=new Set([
  'page_view','field_started','field_edited','field_left','checkbox_changed',
  'form_submit_attempt','form_submitted','checkout_clicked','button_clicked',
- 'details_toggled','link_clicked','validation_blocked','progress_opt_in','progress_opt_out','page_hidden'
+ 'details_toggled','link_clicked','validation_blocked','progress_opt_in','progress_opt_out','page_hidden','page_resumed'
 ]);
 export const CONTACT_FIELDS=new Set(['first_name','last_name','email','phone','zip']);
 const clean=(v,n=80)=>String(v??'').replace(/[\u0000-\u001f]/g,'').trim().slice(0,n);
