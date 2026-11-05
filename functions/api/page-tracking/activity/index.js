@@ -47,16 +47,32 @@ export async function onRequestPost(context){
    for(const e of allowed){e.field_value=null;e.consented=0}
    await db.prepare('UPDATE landing_page_activity SET field_value=NULL,consented=0 WHERE visit_id=?').bind(row.id).run();
   }
-  if(allowed.length){
-   const saved=await db.batch(allowed.map(e=>db.prepare(
+  // Reopening Safari can replay an old field value (including an exit snapshot).
+  // Compare against the latest saved value on THIS tracking row, not only the
+  // browser's in-memory state, which disappears after a reload.
+  const latestFields=new Map(), changed=[];
+  for(const e of allowed){
+   if(e.event_name==='field_edited'&&e.field_value!==null){
+    if(!latestFields.has(e.field_name)){
+     const previous=await db.prepare('SELECT field_value FROM landing_page_activity WHERE visit_id=? AND field_name=? AND field_value IS NOT NULL ORDER BY created_at DESC,rowid DESC LIMIT 1')
+      .bind(row.id,e.field_name).first();
+     latestFields.set(e.field_name,previous?.field_value??null);
+    }
+    if(latestFields.get(e.field_name)===e.field_value)continue;
+    latestFields.set(e.field_name,e.field_value);
+   }
+   changed.push(e);
+  }
+  if(changed.length){
+   const saved=await db.batch(changed.map(e=>db.prepare(
     'INSERT OR IGNORE INTO landing_page_activity(id,visit_id,page,session_id,visitor_id,created_at,event_name,target,field_name,field_value,consented,detail) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
    ).bind(e.id,row.id,page,session,visitor||null,e.at,e.event_name,e.target,e.field_name,e.field_value,e.consented,e.detail)));
-   const fresh=allowed.filter((e,i)=>Number(saved[i]?.meta?.changes||0)>0);
+   const fresh=changed.filter((e,i)=>Number(saved[i]?.meta?.changes||0)>0);
    if(fresh.length)await notifyReturningActivity(context,db,{visitId:row.id,page,events:fresh});
   }
   // Minimize retention of abandoned contact data; retain anonymous aggregate activity.
   await db.prepare("UPDATE landing_page_activity SET field_value=NULL WHERE field_value IS NOT NULL AND created_at<?").bind(new Date(Date.now()-30*86400000).toISOString()).run();
-  return json({ok:true,tracked:allowed.length>0,accepted:allowed.length,visit_id:row.id});
+  return json({ok:true,tracked:changed.length>0,accepted:changed.length,visit_id:row.id});
  }catch(e){console.error('Landing activity save failed',e?.message||e);return json({ok:false,error:'storage_unavailable'},503)}
 }
 export function onRequest(){return json({ok:false},405)}
