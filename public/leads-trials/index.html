@@ -169,8 +169,9 @@ async function restore(){
   try{
     const r=await fetch('/api/leads/auth',{cache:'no-store'}),j=await r.json().catch(()=>({}));
     if(r.ok&&j.ok&&(j.role==='admin'||j.role==='user')){showDashboard(j.role,j.user);if(openReturn(j.role,j.user))return;return}
+    if(returnTo){showStaff();openPin('admin');return}
     if(!cached)showStaff();
-  }catch{if(!cached)showStaff()}
+  }catch{if(returnTo){showStaff();openPin('admin');return}if(!cached)showStaff()}
 }
 $('adminBtn').onclick=()=>openPin('admin');$('staffTableEventsBtn').onclick=()=>openPin('event');$('pinCancel').onclick=closePin;$('pinGo').onclick=submitPin;$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')submitPin()});$('pinBack').addEventListener('click',e=>{if(e.target===$('pinBack'))closePin()});
 $('logoutBtn').onclick=()=>{clearIdentity();sessionStorage.removeItem('table_access_code');sessionStorage.removeItem('table_admin_code');sessionStorage.removeItem('table_event_code');sessionStorage.removeItem('landingAdminPin');showStaff();fetch('/api/leads/auth',{method:'DELETE',cache:'no-store',keepalive:true}).catch(()=>{})};
