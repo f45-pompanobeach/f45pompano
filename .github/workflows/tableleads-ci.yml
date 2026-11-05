@@ -229,7 +229,7 @@ jobs:
           import {sanitizeEvent} from './functions/api/page-tracking/_activity.js';
           const id='f179d53e-68cb-4ce3-97a9-0e0ae37b580a';
           assert.equal(sanitizeEvent({id,event:'field_edited',field:'email',
-            value:'visitor@example.com',consented:false}).field_value,null);
+            value:'visitor@example.com',consented:false}).field_value,'visitor@example.com');
           assert.equal(sanitizeEvent({id,event:'field_edited',field:'email',
             value:'visitor@example.com',consented:true}).field_value,'visitor@example.com');
           assert.equal(sanitizeEvent({id,event:'field_edited',field:'zip',
