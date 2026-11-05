@@ -199,7 +199,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=4','/visitor-activity.js?v=3'])
+            for(const asset of ['/page-visit-tracker.js?v=4','/visitor-activity.js?v=4'])
               assert(html.includes(asset),file+' missing '+asset);
             assert(html.includes('/mobile-viewport-fixes.css?v=1'),file+' missing mobile viewport CSS');
           }
