@@ -76,19 +76,16 @@ body{font:15px Inter,Arial,sans-serif;background:#f4f5f7;color:#1c1c2e;margin:0;
     el('activityContext').innerHTML=details.filter(([,value])=>value).map(([label,value])=>'<dt>'+esc(label)+'</dt><dd>'+esc(value)+'</dd>').join('');
    }
    const events=data.events||[];
-   const latestChoice=[...events].reverse().find(e=>e.event_name==='progress_opt_in'||e.event_name==='progress_opt_out');
-   const hasSavedValue=events.some(e=>e.field_value!==null&&e.field_value!==undefined);
+   const hasSavedValue=events.some(e=>e.field_value!=null);
    el('activityContactStatus').textContent=!data.can_view_saved_contact
-    ?'Entered contact values are visible only when signed in as Super Admin.'
-    :latestChoice?.event_name==='progress_opt_out'
-     ?'Visitor turned off Save Progress; previously saved contact values were cleared.'
-     :hasSavedValue
-      ?'Contact values shown below were saved with the visitor’s permission.'
-      :'No contact text was saved for this visit.';
+    ?'Entered contact values are visible only to Super Admin.'
+    :hasSavedValue
+     ?'Values typed into the trial form are shown with their activity events below.'
+     :'No entered values were saved for this visit. Entries made before the tracking update cannot be recovered.';
    el('activityTimeline').innerHTML=events.map(e=>'<li><strong>'+esc(activityTitles[e.event_name]||e.event_name)+'</strong>'+
      '<small>'+esc(activityDate(e.created_at))+(e.field_name?' · '+esc(e.field_name.replace(/_/g,' ')):'')+
      (e.detail?' · '+esc(e.detail.replace(/_/g,' ')):'')+'</small>'+
-     (e.field_value!=null?'<span class="detail-value"><b>Saved with opt-in:</b> '+esc(e.field_value)+'</span>':'')+
+     (e.field_value!=null?'<span class="detail-value"><b>Entered:</b> '+esc(e.field_value)+'</span>':'')+
      '</li>').join('')||'<li class="no-history">No events recorded for this visit yet.</li>';
    const others=(data.return_visits||[]).filter(v=>v.id!==id);
    if(others.length){
