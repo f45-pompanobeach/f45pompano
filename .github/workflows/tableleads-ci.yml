@@ -231,6 +231,12 @@ jobs:
           const visitTracker=fs.readFileSync('public/page-visit-tracker.js','utf8');
           assert(visitTracker.includes('window.top!==window.self'), 'Visits must ignore iframe previews');
           assert(visitTracker.includes("document.visibilityState!=='visible'"), 'Visits must ignore hidden previews');
+          assert(visitTracker.includes('foreground:true'), 'Visible visits must be marked as foreground');
+          assert(browser.includes('foreground:true,events'), 'Visible activity must be marked as foreground');
+          for(const endpoint of ['functions/api/page-tracking/index.js','functions/api/page-tracking/activity/index.js']){
+            const server=fs.readFileSync(endpoint,'utf8');
+            assert(server.includes("page==='root'&&d?.foreground!==true"), 'Legacy phantom root protection missing from '+endpoint);
+          }
           assert(!browser.includes('optIn'), 'No opt-in checkbox dependency may remain');
           assert(browser.includes('pagehide'));
           assert(browser.includes("snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot')"));
