@@ -68,6 +68,7 @@ jobs:
           node --check functions/api/page-tracking/_activity.js
           node --check functions/api/page-tracking/activity/index.js
           node --check functions/api/page-tracking/_notifications.js
+          node --check functions/api/page-tracking/_return_alerts.js
           node --check functions/api/page-tracking/admin/notifications.js
           node --check functions/api/page-tracking/admin/index.js
           node --check functions/api/page-tracking/admin/activity/index.js
@@ -201,7 +202,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=5'])
+            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=6'])
               assert(html.includes(asset),file+' missing '+asset);
             assert(html.includes('/mobile-viewport-fixes.css?v=1'),file+' missing mobile viewport CSS');
             assert(html.includes('class="activity-disclosure"'),file+' missing bottom-of-page activity notice');
@@ -233,6 +234,13 @@ jobs:
           assert(visitTracker.includes("document.visibilityState!=='visible'"), 'Visits must ignore hidden previews');
           assert(visitTracker.includes('foreground:true'), 'Visible visits must be marked as foreground');
           assert(browser.includes('foreground:true,events'), 'Visible activity must be marked as foreground');
+          assert(browser.includes("record('page_resumed',null)"), 'Reopened tabs must log resumed activity');
+          const returnAlerts=fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8');
+          assert(returnAlerts.includes('RETURN_GAP_MS=30*60*1000'), 'Meaningful return gap missing');
+          assert(returnAlerts.includes("e.event_name==='field_edited'"), 'Return contact edits must be detected');
+          assert(returnAlerts.includes("e.event_name==='button_clicked'"), 'Return trial actions must be detected');
+          assert(returnAlerts.includes('notified_at IS NULL'), 'Duplicate return notification protection missing');
+          assert(page.includes("new URLSearchParams(location.search).get('visit')"), 'Email must deep-link to exact activity row');
           for(const endpoint of ['functions/api/page-tracking/index.js','functions/api/page-tracking/activity/index.js']){
             const server=fs.readFileSync(endpoint,'utf8');
             assert(server.includes("page==='root'&&d?.foreground!==true"), 'Legacy phantom root protection missing from '+endpoint);
