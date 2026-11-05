@@ -24,7 +24,7 @@
   var visitor='';
   try{visitor=localStorage.getItem('f45_visitor_id')||''}catch(e){}
   if(!/^[a-f0-9]{32}$/.test(visitor)){visitor=id();try{localStorage.setItem('f45_visitor_id',visitor)}catch(e){}}
-  var queue=[],timer=0,used=new Set(),lastSent=new Map(),lastCaptured=new Map(),pendingFields=new Set(),inputTimers=new WeakMap();
+  var queue=[],timer=0,used=new Set(),lastSent=new Map(),lastCaptured=new Map(),dirtyFields=new Set(),pendingFields=new Set(),inputTimers=new WeakMap();
   var safeFields=new Set(['first_name','last_name','email','phone','zip']);
   function fieldKey(el){
    var raw=String(el.name||el.id||'');
@@ -65,7 +65,7 @@
    form.querySelectorAll('input,select').forEach(function(el){
      if(!isText(el))return;
      var key=fieldKey(el);
-     if(!safeFields.has(key))return;
+     if(!safeFields.has(key)||!dirtyFields.has(key))return;
      var value=String(el.value||'').slice(0,140);
      // Save edits missed by mobile input/debounce or blur events, without duplicates.
      if(value!==lastCaptured.get(key)&&(value||lastCaptured.has(key)))
@@ -90,6 +90,7 @@
     var el=e.target;if(!isText(el))return;
     var old=inputTimers.get(el);if(old)clearTimeout(old);
     pendingFields.add(el);
+    if(safeFields.has(fieldKey(el))&&el.closest?.('form#partnerLeadForm'))dirtyFields.add(fieldKey(el));
     inputTimers.set(el,setTimeout(function(){
       if(!el.isConnected)return;
       pendingFields.delete(el);
@@ -99,7 +100,7 @@
    document.addEventListener('focusout',function(e){
     var el=e.target;if(!isText(el))return;
     var old=inputTimers.get(el);if(old)clearTimeout(old);pendingFields.delete(el);
-    if(used.has(fieldKey(el)))record('field_left',el,el.value?'has_input':'empty',safeFields.has(fieldKey(el))?el.value:undefined);
+    if(used.has(fieldKey(el)))record('field_left',el,el.value?'has_input':'empty');
    },true);
    document.addEventListener('change',function(e){
     var el=e.target;
