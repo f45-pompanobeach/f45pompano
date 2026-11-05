@@ -39,8 +39,8 @@ export async function notifyReturningActivity(context,db,{visitId,page,priorActi
   for(const e of relevant){
    if(e.event_name!=='field_edited'){action=e;break}
    // Avoid notifying for an unchanged value that was merely restored/autofilled.
-   const previous=await db.prepare("SELECT field_value FROM landing_page_activity WHERE visit_id=? AND field_name=? AND field_value IS NOT NULL AND id<>? AND created_at<=? ORDER BY created_at DESC,rowid DESC LIMIT 1")
-    .bind(visitId,e.field_name,e.id,e.at).first();
+   const previous=await db.prepare("SELECT field_value FROM landing_page_activity WHERE visit_id=? AND field_name=? AND field_value IS NOT NULL AND created_at<? ORDER BY created_at DESC,rowid DESC LIMIT 1")
+    .bind(visitId,e.field_name,e.at).first();
    if(!previous||previous.field_value!==e.field_value){action=e;break}
   }
   if(!action)return;
