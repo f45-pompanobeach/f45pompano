@@ -202,7 +202,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=6'])
+            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=7'])
               assert(html.includes(asset),file+' missing '+asset);
             assert(html.includes('/mobile-viewport-fixes.css?v=1'),file+' missing mobile viewport CSS');
             assert(html.includes('class="activity-disclosure"'),file+' missing bottom-of-page activity notice');
@@ -236,10 +236,12 @@ jobs:
           assert(browser.includes('foreground:true,events'), 'Visible activity must be marked as foreground');
           assert(browser.includes("record('page_resumed',null)"), 'Reopened tabs must log resumed activity');
           const returnAlerts=fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8');
-          assert(returnAlerts.includes('RETURN_GAP_MS=30*60*1000'), 'Meaningful return gap missing');
+          assert(!returnAlerts.includes('RETURN_GAP_MS'), 'Activity email must never require a minimum inactivity window');
           assert(returnAlerts.includes("e.event_name==='field_edited'"), 'Return contact edits must be detected');
           assert(returnAlerts.includes("e.event_name==='button_clicked'"), 'Return trial actions must be detected');
-          assert(returnAlerts.includes('notified_at IS NULL'), 'Duplicate return notification protection missing');
+          assert(returnAlerts.includes('INSERT OR IGNORE INTO page_tracking_activity_alert_deliveries'), 'Duplicate activity notification protection missing');
+          assert(returnAlerts.includes('tracking-activity-'), 'Activity notification must use stable event idempotency key');
+          assert(browser.includes("record('trial_cta_clicked',a)"), 'Trial call-to-action link clicks must be captured');
           assert(page.includes("new URLSearchParams(location.search).get('visit')"), 'Email must deep-link to exact activity row');
           for(const endpoint of ['functions/api/page-tracking/index.js','functions/api/page-tracking/activity/index.js']){
             const server=fs.readFileSync(endpoint,'utf8');
