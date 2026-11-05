@@ -220,6 +220,15 @@ jobs:
           assert(page.includes('id="trackingAlertRecipient"'));
           assert(page.includes('id="saveTrackingAlerts"'));
           assert(page.includes('/api/page-tracking/admin/notifications'));
+          assert(page.includes("location.replace('/leads-trials/?next='+encodeURIComponent(location.pathname+location.search))"), 'Expired tracking links must preserve target');
+          const entry=fs.readFileSync('public/leads-trials/index.html','utf8');
+          assert(entry.includes('function openReturn(role,user)'), 'PIN login must resume exact tracking record');
+          assert(entry.includes("if(returnTo){showStaff();openPin('admin');return}"), 'Expired deep link must prompt for PIN');
+          const auth=fs.readFileSync('functions/api/leads/auth.js','utf8');
+          assert(auth.includes('createSuperAdminSession(env,identity.hash)'), 'Super Admin login must use revocable session');
+          assert(auth.includes('deleteSuperAdminSession(request,env)'), 'Logout must revoke Super Admin session');
+          const shared=fs.readFileSync('functions/api/leads/_shared.js','utf8');
+          assert(shared.includes('lead_super_admin_sessions'), 'Super Admin server sessions must be persisted');
           assert(page.includes('font-size:16px!important'), 'Page Tracking must prevent iOS focus zoom');
           assert(!page.includes('<th data-sort="session_id"'), 'Session should not be a standalone column');
           for(const match of page.matchAll(/<script>([\s\S]*?)<\/script>/g))
