@@ -67,6 +67,8 @@ jobs:
           node --check functions/api/page-tracking/index.js
           node --check functions/api/page-tracking/_activity.js
           node --check functions/api/page-tracking/activity/index.js
+          node --check functions/api/page-tracking/_notifications.js
+          node --check functions/api/page-tracking/admin/notifications.js
           node --check functions/api/page-tracking/admin/index.js
           node --check functions/api/page-tracking/admin/activity/index.js
           node --check functions/api/leads/_shared.js
@@ -212,6 +214,11 @@ jobs:
           assert(page.includes('value="delete">Delete Visit'));
           assert(page.includes('id="activityContext"'));
           assert(page.includes('id="activityContactStatus"'));
+          assert(page.includes('id="trackingNotificationSettings"'));
+          assert(page.includes('id="trackingAlertsEnabled"'));
+          assert(page.includes('id="trackingAlertRecipient"'));
+          assert(page.includes('id="saveTrackingAlerts"'));
+          assert(page.includes('/api/page-tracking/admin/notifications'));
           assert(page.includes('font-size:16px!important'), 'Page Tracking must prevent iOS focus zoom');
           assert(!page.includes('<th data-sort="session_id"'), 'Session should not be a standalone column');
           for(const match of page.matchAll(/<script>([\s\S]*?)<\/script>/g))
