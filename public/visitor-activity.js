@@ -24,7 +24,7 @@
   var visitor='';
   try{visitor=localStorage.getItem('f45_visitor_id')||''}catch(e){}
   if(!/^[a-f0-9]{32}$/.test(visitor)){visitor=id();try{localStorage.setItem('f45_visitor_id',visitor)}catch(e){}}
-  var queue=[],timer=0,used=new Set(),lastSent=new Map(),lastCaptured=new Map(),dirtyFields=new Set(),pendingFields=new Set(),inputTimers=new WeakMap();
+  var queue=[],timer=0,lastSent=new Map(),lastCaptured=new Map(),dirtyFields=new Set(),pendingFields=new Set(),inputTimers=new WeakMap();
   var safeFields=new Set(['first_name','last_name','email','phone','zip']);
   function fieldKey(el){
    var raw=String(el.name||el.id||'');
@@ -74,10 +74,6 @@
   }
   function init(){
    record('page_view',null);
-   document.addEventListener('focusin',function(e){
-    var el=e.target;if(!isText(el))return;
-    var key=fieldKey(el);if(!used.has(key)){used.add(key);record('field_started',el);}
-   },true);
    function flushPending(){
      pendingFields.forEach(function(el){
        if(!el.isConnected)return;
@@ -98,9 +94,13 @@
     },750));
    },true);
    document.addEventListener('focusout',function(e){
+    // Flush actual pending edits only; focusing or leaving is not activity.
     var el=e.target;if(!isText(el))return;
-    var old=inputTimers.get(el);if(old)clearTimeout(old);pendingFields.delete(el);
-    if(used.has(fieldKey(el)))record('field_left',el,el.value?'has_input':'empty');
+    var old=inputTimers.get(el);if(old)clearTimeout(old);
+    if(pendingFields.has(el)){
+      pendingFields.delete(el);
+      record('field_edited',el,'changed',safeFields.has(fieldKey(el))?el.value:undefined);
+    }
    },true);
    document.addEventListener('change',function(e){
     var el=e.target;
