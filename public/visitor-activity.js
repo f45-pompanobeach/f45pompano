@@ -1,6 +1,5 @@
-/* Universal activity trail for website, partner and direct-checkout pages.
-   Unsubmitted personal contact fields are NEVER sent unless the visitor opts
-   in to the clearly disclosed optional Save My Progress control. */
+/* First-party visitor activity: interaction events and limited lead form fields.
+   The footer and privacy policy disclose 30-day retention of unfinished entries. */
 (function(){
  'use strict';
  try{
@@ -29,10 +28,11 @@
   function targetName(el){if(!el)return 'page';return (el.getAttribute('data-track-label')||el.name||el.id||el.className?.toString().split(' ')[0]||el.tagName||'element').slice(0,65);}
   function record(name,el,detail,value){
    var key=fieldKey(el||{}),now=Date.now(),signature=name+':'+key+':'+(detail||'');
-   if(name==='field_edited'&&now-(lastSent.get(signature)||0)<1700)return;
+   if(name==='field_edited'&&typeof value!=='string'&&now-(lastSent.get(signature)||0)<1700)return;
+   if(name==='field_edited'&&typeof value==='string'&&lastCaptured.get(key)===value.slice(0,140))return;
    lastSent.set(signature,now);
    var entry={id:crypto.randomUUID(),at:new Date().toISOString(),event:name,field:key,target:targetName(el),detail:detail||''};
-   if(safeFields.has(key)&&typeof value==='string'){
+   if(safeFields.has(key)&&typeof value==='string'&&el?.closest?.('form#partnerLeadForm')){
      entry.consented=true;entry.value=value.slice(0,140);
      lastCaptured.set(key,entry.value);
    }
@@ -50,14 +50,13 @@
    fetch('/api/page-tracking/activity/',{method:'POST',headers:{'content-type':'application/json'},body,credentials:'same-origin',keepalive:true}).catch(function(){});
   }
   function snapshotContactFields(form,reason){
-   if(!form)return;
+   if(!form||!form.matches?.('form#partnerLeadForm'))return;
    form.querySelectorAll('input,select').forEach(function(el){
      if(!isText(el))return;
      var key=fieldKey(el);
      if(!safeFields.has(key))return;
      var value=String(el.value||'').slice(0,140);
-     // Save fields entered before consent, and any edits missed by a mobile
-     // input/debounce/blur event, without duplicating unchanged snapshots.
+     // Save edits missed by mobile input/debounce or blur events, without duplicates.
      if(value!==lastCaptured.get(key)&&(value||lastCaptured.has(key)))
        record('field_edited',el,reason,value);
    });
@@ -65,7 +64,7 @@
   function init(){
    record('page_view',null);
    document.addEventListener('focusin',function(e){
-    var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
+    var el=e.target;if(!isText(el))return;
     var key=fieldKey(el);if(!used.has(key)){used.add(key);record('field_started',el);}
    },true);
    function flushPending(){
@@ -77,7 +76,7 @@
      pendingFields.clear();
    }
    document.addEventListener('input',function(e){
-    var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
+    var el=e.target;if(!isText(el))return;
     var old=inputTimers.get(el);if(old)clearTimeout(old);
     pendingFields.add(el);
     inputTimers.set(el,setTimeout(function(){
@@ -87,13 +86,13 @@
     },750));
    },true);
    document.addEventListener('focusout',function(e){
-    var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
+    var el=e.target;if(!isText(el))return;
     var old=inputTimers.get(el);if(old)clearTimeout(old);pendingFields.delete(el);
     if(used.has(fieldKey(el)))record('field_left',el,el.value?'has_input':'empty',safeFields.has(fieldKey(el))?el.value:undefined);
    },true);
    document.addEventListener('change',function(e){
     var el=e.target;
-    if(el&&el.matches&&el.matches('input[type=checkbox]')&&!el.closest('.f45-progress-choice')){
+    if(el&&el.matches&&el.matches('input[type=checkbox]')){
       record('checkbox_changed',el,el.checked?'checked':'unchecked');
     }
    },true);
@@ -121,7 +120,7 @@
       }catch(ex){}
     }else{
       var b=e.target.closest&&e.target.closest('button');
-      if(b&&!b.closest('.f45-progress-choice'))record('button_clicked',b);
+      if(b)record('button_clicked',b);
     }
    },true);
    var success=document.querySelector('[data-activity-success],#claimSuccess,#rootClaimSuccess,.claim-success');
