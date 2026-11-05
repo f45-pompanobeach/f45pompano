@@ -14,7 +14,7 @@
   var visitor='';
   try{visitor=localStorage.getItem('f45_visitor_id')||''}catch(e){}
   if(!/^[a-f0-9]{32}$/.test(visitor)){visitor=id();try{localStorage.setItem('f45_visitor_id',visitor)}catch(e){}}
-  var optIn=false,queue=[],timer=0,used=new Set(),lastSent=new Map(),lastCaptured=new Map(),pendingFields=new Set(),inputTimers=new WeakMap();
+  var queue=[],timer=0,used=new Set(),lastSent=new Map(),lastCaptured=new Map(),pendingFields=new Set(),inputTimers=new WeakMap();
   var safeFields=new Set(['first_name','last_name','email','phone','zip']);
   function fieldKey(el){
    var raw=String(el.name||el.id||'');
@@ -32,7 +32,7 @@
    if(name==='field_edited'&&now-(lastSent.get(signature)||0)<1700)return;
    lastSent.set(signature,now);
    var entry={id:crypto.randomUUID(),at:new Date().toISOString(),event:name,field:key,target:targetName(el),detail:detail||''};
-   if(safeFields.has(key)&&optIn&&typeof value==='string'){
+   if(safeFields.has(key)&&typeof value==='string'){
      entry.consented=true;entry.value=value.slice(0,140);
      lastCaptured.set(key,entry.value);
    }
@@ -50,7 +50,7 @@
    fetch('/api/page-tracking/activity/',{method:'POST',headers:{'content-type':'application/json'},body,credentials:'same-origin',keepalive:true}).catch(function(){});
   }
   function snapshotContactFields(form,reason){
-   if(!optIn||!form)return;
+   if(!form)return;
    form.querySelectorAll('input,select').forEach(function(el){
      if(!isText(el))return;
      var key=fieldKey(el);
@@ -72,7 +72,7 @@
      pendingFields.forEach(function(el){
        if(!el.isConnected)return;
        var old=inputTimers.get(el);if(old)clearTimeout(old);
-       record('field_edited',el,'changed',optIn&&safeFields.has(fieldKey(el))?el.value:undefined);
+       record('field_edited',el,'changed',safeFields.has(fieldKey(el))?el.value:undefined);
      });
      pendingFields.clear();
    }
@@ -83,13 +83,13 @@
     inputTimers.set(el,setTimeout(function(){
       if(!el.isConnected)return;
       pendingFields.delete(el);
-      record('field_edited',el,'changed',optIn&&safeFields.has(fieldKey(el))?el.value:undefined);
+      record('field_edited',el,'changed',safeFields.has(fieldKey(el))?el.value:undefined);
     },750));
    },true);
    document.addEventListener('focusout',function(e){
     var el=e.target;if(!isText(el)||el.closest('.f45-progress-choice'))return;
     var old=inputTimers.get(el);if(old)clearTimeout(old);pendingFields.delete(el);
-    if(used.has(fieldKey(el)))record('field_left',el,el.value?'has_input':'empty',optIn&&safeFields.has(fieldKey(el))?el.value:undefined);
+    if(used.has(fieldKey(el)))record('field_left',el,el.value?'has_input':'empty',safeFields.has(fieldKey(el))?el.value:undefined);
    },true);
    document.addEventListener('change',function(e){
     var el=e.target;
