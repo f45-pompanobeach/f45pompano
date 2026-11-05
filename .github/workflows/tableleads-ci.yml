@@ -237,6 +237,12 @@ jobs:
             const server=fs.readFileSync(endpoint,'utf8');
             assert(server.includes("page==='root'&&d?.foreground!==true"), 'Legacy phantom root protection missing from '+endpoint);
           }
+          const visitEndpoint=fs.readFileSync('functions/api/page-tracking/index.js','utf8');
+          const activityEndpoint=fs.readFileSync('functions/api/page-tracking/activity/index.js','utf8');
+          assert(visitEndpoint.includes('WHERE page=? AND session_id=?)'), 'Visit must deduplicate restored tab regardless of age');
+          assert(!visitEndpoint.includes('AND visited_at>=?)'), 'Do not expire per-tab visit deduplication');
+          assert(activityEndpoint.includes('WHERE page=? AND session_id=? ORDER BY visited_at DESC LIMIT 1'), 'Activity must reuse original restored-tab row');
+          assert(!activityEndpoint.includes('AND visited_at>=? ORDER BY visited_at DESC LIMIT 1'), 'Activity must not create a second row on tab restore');
           assert(!browser.includes('optIn'), 'No opt-in checkbox dependency may remain');
           assert(browser.includes('pagehide'));
           assert(browser.includes("snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot')"));
