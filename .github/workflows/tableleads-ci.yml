@@ -202,7 +202,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=8'])
+            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=9'])
               assert(html.includes(asset),file+' missing '+asset);
             assert(html.includes('/mobile-viewport-fixes.css?v=1'),file+' missing mobile viewport CSS');
             assert(html.includes('class="activity-disclosure"'),file+' missing bottom-of-page activity notice');
@@ -243,6 +243,10 @@ jobs:
           assert(returnAlerts.includes('tracking-activity-'), 'Activity notification must use stable event idempotency key');
           assert(browser.includes("record('trial_cta_clicked',a)"), 'Trial call-to-action link clicks must be captured');
           assert(browser.includes("dirtyFields.has(key)"), 'Untouched restored fields must not be re-snapshotted');
+          assert(!browser.includes("record('field_started'"), 'Focusing fields must not be tracked');
+          assert(!browser.includes("record('field_left'"), 'Leaving fields must not be tracked');
+          const activityFilter=fs.readFileSync('functions/api/page-tracking/activity/index.js','utf8');
+          assert(activityFilter.includes("e.event_name!=='field_started'&&e.event_name!=='field_left'"), 'Cached focus/blur events must be ignored by server');
           const activityHandler=fs.readFileSync('functions/api/page-tracking/activity/index.js','utf8');
           assert(activityHandler.includes("latestFields.get(e.field_name)===e.field_value"), 'Saved field values must suppress repeat entries');
           assert(activityHandler.includes("const fresh=changed.filter"), 'Only changed/new activity should trigger email');
