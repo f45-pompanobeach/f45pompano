@@ -1,4 +1,4 @@
-import {adminAuthorized,authThrottle,createNamedUserSession,deleteNamedUserSession,json,namedUserFromRequest,recordAuthFailure,recordAuthSuccess,resolveCodeIdentity,staffEventFromRequest} from './_shared.js';
+import {adminAuthorized,authThrottle,createNamedUserSession,createSuperAdminSession,deleteNamedUserSession,deleteSuperAdminSession,json,namedUserFromRequest,recordAuthFailure,recordAuthSuccess,resolveCodeIdentity,staffEventFromRequest} from './_shared.js';
 
 export async function onRequestPost({request,env}){
   const throttle=await authThrottle(env,request);
@@ -9,8 +9,9 @@ export async function onRequestPost({request,env}){
   const identity=await resolveCodeIdentity(env,code);
   if(identity.role==='admin'){
     await recordAuthSuccess(env,request);
+    const session=await createSuperAdminSession(env,identity.hash);
     const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
-    headers.append('set-cookie',`f45_admin_session=${identity.hash}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
+    headers.append('set-cookie',`f45_admin_session=${session.token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${session.maxAge}`);
     headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     headers.append('set-cookie','f45_user_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     return new Response(JSON.stringify({ok:true,role:'admin'}),{status:200,headers});
@@ -48,8 +49,9 @@ export async function onRequestGet({request,env}){
 }
 export async function onRequestDelete(context){
   const {request,env}=context;
-  if(typeof context.waitUntil==='function')context.waitUntil(deleteNamedUserSession(request,env).catch(()=>{}));
-  else deleteNamedUserSession(request,env).catch(()=>{});
+  const cleanup=Promise.all([deleteNamedUserSession(request,env),deleteSuperAdminSession(request,env)].map(p=>p.catch(()=>{})));
+  if(typeof context.waitUntil==='function')context.waitUntil(cleanup);
+  else await cleanup;
   const headers=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'});
   headers.append('set-cookie','f45_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
   headers.append('set-cookie','f45_event_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
