@@ -126,6 +126,8 @@
       try{var u=new URL(a.href,location.href);
         if(u.hostname==='clients.mindbodyonline.com'||u.hostname.endsWith('.mindbodyonline.com'))
           record('checkout_clicked',a);
+        else if(u.host===location.host&&u.pathname===location.pathname&&u.hash==='#claim-form')
+          record('trial_cta_clicked',a);
         else if(['https:','http:'].includes(u.protocol))
           record('link_clicked',a,u.host===location.host?'internal':'external');
       }catch(ex){}
