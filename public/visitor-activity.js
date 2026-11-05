@@ -45,7 +45,7 @@
   function send(useBeacon){
    clearTimeout(timer);
    if(!queue.length)return;
-   var events=queue.splice(0,12),body=JSON.stringify({page,session,visitor,events});
+   var events=queue.splice(0,12),body=JSON.stringify({page,session,visitor,foreground:true,events});
    if(useBeacon&&navigator.sendBeacon){
      try{if(navigator.sendBeacon('/api/page-tracking/activity/',new Blob([body],{type:'application/json'})))return}catch(e){}
    }
