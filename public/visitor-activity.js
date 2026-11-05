@@ -158,7 +158,10 @@
     }
    });
    window.addEventListener('pagehide',function(){
-     flushPending();snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot');send(true);
+     flushPending();snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot');
+     // Navigation away also ends this visit period, even on browsers that
+     // skip the visibilitychange hidden event.
+     record('page_hidden',null);send(true);
    });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
