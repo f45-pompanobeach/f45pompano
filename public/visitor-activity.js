@@ -33,7 +33,7 @@
    lastSent.set(signature,now);
    var entry={id:crypto.randomUUID(),at:new Date().toISOString(),event:name,field:key,target:targetName(el),detail:detail||''};
    if(safeFields.has(key)&&typeof value==='string'&&el?.closest?.('form#partnerLeadForm')){
-     entry.consented=true;entry.value=value.slice(0,140);
+     entry.value=value.slice(0,140);
      lastCaptured.set(key,entry.value);
    }
    queue.push(entry);
