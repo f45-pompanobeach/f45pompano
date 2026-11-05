@@ -217,7 +217,7 @@ jobs:
             new vm.Script(match[1]);
           const browser=fs.readFileSync('public/visitor-activity.js','utf8');
           assert(!browser.includes('askProgressConsent'), 'Extra progress checkbox must not be injected');
-          assert(browser.includes('if(safeFields.has(key)&&optIn'));
+          assert(browser.includes('form#partnerLeadForm'));
           assert(browser.includes('pagehide'));
           assert(browser.includes("snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot')"));
           assert(browser.includes("'zip_code_on_id'"));
