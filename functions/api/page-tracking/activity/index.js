@@ -1,7 +1,9 @@
 import {eventDb,json} from '../../leads/_shared.js';
 import {getPage} from '../../landing/_shared.js';
 import {ensureActivitySchema,validIdentity,sanitizeEvent} from '../_activity.js';
-export async function onRequestPost({request,env}){
+import {notifyNewTrackingVisit} from '../_notifications.js';
+export async function onRequestPost(context){
+ const {request,env}=context;
  const origin=request.headers.get('origin');
  if(origin){try{if(new URL(origin).host!==new URL(request.url).host)return json({ok:false},403)}catch{return json({ok:false},403)}}
  if(Number(request.headers.get('content-length')||0)>20000)return json({ok:false},413);
@@ -25,6 +27,7 @@ export async function onRequestPost({request,env}){
    const id=crypto.randomUUID();
    await db.prepare('INSERT INTO landing_page_visits(id,visited_at,page,session_id,visitor_id) VALUES(?,?,?,?,?)').bind(id,now,page,session,visitor||null).run();
    row={id};
+   await notifyNewTrackingVisit(context,db,{id,page,visited_at:now});
   }
   if(visitor)await db.prepare('UPDATE landing_page_visits SET visitor_id=COALESCE(visitor_id,?) WHERE id=?').bind(visitor,row.id).run();
   const total=await db.prepare('SELECT COUNT(*) AS n FROM landing_page_activity WHERE visit_id=?').bind(row.id).first();
