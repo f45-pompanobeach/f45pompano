@@ -2,6 +2,7 @@ import {eventDb,json} from '../../leads/_shared.js';
 import {getPage} from '../../landing/_shared.js';
 import {ensureActivitySchema,validIdentity,sanitizeEvent} from '../_activity.js';
 import {notifyNewTrackingVisit} from '../_notifications.js';
+import {notifyReturningActivity} from '../_return_alerts.js';
 export async function onRequestPost(context){
  const {request,env}=context;
  const origin=request.headers.get('origin');
@@ -37,6 +38,8 @@ export async function onRequestPost(context){
    await notifyNewTrackingVisit(context,db,{id,page,visited_at:now});
   }
   if(visitor)await db.prepare('UPDATE landing_page_visits SET visitor_id=COALESCE(visitor_id,?) WHERE id=?').bind(visitor,row.id).run();
+  // Read last activity before inserting this batch to detect genuine returns.
+  const prior=await db.prepare('SELECT MAX(created_at) AS last_at FROM landing_page_activity WHERE visit_id=?').bind(row.id).first();
   const total=await db.prepare('SELECT COUNT(*) AS n FROM landing_page_activity WHERE visit_id=?').bind(row.id).first();
   const available=Math.max(0,200-Number(total?.n||0));
   const allowed=events.slice(0,available);
@@ -46,9 +49,13 @@ export async function onRequestPost(context){
    for(const e of allowed){e.field_value=null;e.consented=0}
    await db.prepare('UPDATE landing_page_activity SET field_value=NULL,consented=0 WHERE visit_id=?').bind(row.id).run();
   }
-  if(allowed.length)await db.batch(allowed.map(e=>db.prepare(
-   'INSERT OR IGNORE INTO landing_page_activity(id,visit_id,page,session_id,visitor_id,created_at,event_name,target,field_name,field_value,consented,detail) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
-  ).bind(e.id,row.id,page,session,visitor||null,e.at,e.event_name,e.target,e.field_name,e.field_value,e.consented,e.detail)));
+  if(allowed.length){
+   const saved=await db.batch(allowed.map(e=>db.prepare(
+    'INSERT OR IGNORE INTO landing_page_activity(id,visit_id,page,session_id,visitor_id,created_at,event_name,target,field_name,field_value,consented,detail) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
+   ).bind(e.id,row.id,page,session,visitor||null,e.at,e.event_name,e.target,e.field_name,e.field_value,e.consented,e.detail)));
+   const fresh=allowed.filter((e,i)=>Number(saved[i]?.meta?.changes||0)>0);
+   if(fresh.length)await notifyReturningActivity(context,db,{visitId:row.id,page,priorActivityAt:prior?.last_at||null,events:fresh});
+  }
   // Minimize retention of abandoned contact data; retain anonymous aggregate activity.
   await db.prepare("UPDATE landing_page_activity SET field_value=NULL WHERE field_value IS NOT NULL AND created_at<?").bind(new Date(Date.now()-30*86400000).toISOString()).run();
   return json({ok:true,tracked:allowed.length>0,accepted:allowed.length,visit_id:row.id});
