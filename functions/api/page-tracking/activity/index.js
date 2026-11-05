@@ -24,6 +24,12 @@ export async function onRequestPost(context){
    // An interaction may reach the server before the initial visit POST.
    // Do not create unattributed visits when the page is configured as UTM-only.
    if(mode==='utm')return json({ok:true,tracked:false});
+   if(page==='root'){
+    const recentPartner=await db.prepare("SELECT id FROM landing_page_visits WHERE page<>'root' AND visitor_id=? AND visited_at>=? ORDER BY visited_at DESC LIMIT 1")
+     .bind(visitor,new Date(Date.now()-5000).toISOString()).first();
+    if(recentPartner)return json({ok:true,tracked:false});
+   }
+
    const id=crypto.randomUUID();
    await db.prepare('INSERT INTO landing_page_visits(id,visited_at,page,session_id,visitor_id) VALUES(?,?,?,?,?)').bind(id,now,page,session,visitor||null).run();
    row={id};
