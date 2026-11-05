@@ -1,4 +1,4 @@
-import {adminAuthorized,eventDb,json} from '../../../leads/_shared.js';
+import {adminAuthorized,eventDb,json} from '../../leads/_shared.js';
 const DEFAULT_TO='f45pbllc@gmail.com';
 const validEmail=value=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)&&value.length<=200;
 export async function trackingNotificationConfig(db){
