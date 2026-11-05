@@ -1,9 +1,18 @@
 /* Shared first-party visit tracker for root, static and dynamic partner pages. */
-(function(){
+(function trackVisibleVisit(){
   if(window.__f45PageVisitSent)return;
   // A tracking row must represent a visible, top-level landing-page visit.
   // Ignore hidden/prerendered pages, preview frames and embedded documents.
-  if(window.top!==window.self||document.prerendering||document.visibilityState!=='visible')return;
+  if(window.top!==window.self)return;
+  if(document.prerendering||document.visibilityState!=='visible'){
+    document.addEventListener('visibilitychange',function onReveal(){
+      if(document.visibilityState==='visible'&&!document.prerendering){
+        document.removeEventListener('visibilitychange',onReveal);
+        trackVisibleVisit();
+      }
+    });
+    return;
+  }
   try{
     var parts=location.pathname.split('/').filter(Boolean);
     var page=parts[0]==='landing'?(parts[1]||'landing'):(parts[0]||'root');
