@@ -76,6 +76,20 @@
 const $=id=>document.getElementById(id);
 let mode='admin',currentRole='';
 const ADMIN_PERMS=['intake_admin','table_event_admin','partner_pages','leads','page_tracking'];
+const returnTo=(()=>{
+ const dest=new URLSearchParams(location.search).get('next')||'';
+ try{
+  const u=new URL(dest,location.origin);
+  return u.origin===location.origin&&u.pathname==='/leads-trials/page-tracking/'?u.pathname+u.search:'';
+ }catch{return ''}
+})();
+function openReturn(role,user){
+ if(!returnTo)return false;
+ const permitted=role==='admin'||(role==='user'&&Array.isArray(user?.permissions)&&user.permissions.includes('page_tracking'));
+ if(!permitted)return false;
+ location.assign(returnTo);
+ return true;
+}
 function openPin(kind){mode=kind;$('pinTitle').textContent=kind==='event'?'Table Event Access':'Admin Access';$('pinHelp').textContent=kind==='event'?'Enter the 4-digit code for the event you are working.':'Enter your 4-digit PIN.';$('pin').value='';$('pinMsg').textContent='';$('pinBack').classList.remove('hidden');setTimeout(()=>$('pin').focus(),20)}
 function closePin(){$('pinBack').classList.add('hidden')}
 async function auth(code){const r=await fetch('/api/leads/auth',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code})});const j=await r.json().catch(()=>({}));return {r,j}}
@@ -146,7 +160,7 @@ async function submitPin(){
     if(j.role!=='event'){$('pinMsg').textContent='That is not a Table Event code.';return}
     sessionStorage.setItem('table_access_code',code);sessionStorage.setItem('table_event_code',code);location.href='/admin/event/';return;
   }
-  if(j.role==='admin'||j.role==='user'){closePin();showDashboard(j.role,j.user,code);return}
+  if(j.role==='admin'||j.role==='user'){closePin();showDashboard(j.role,j.user,code);if(openReturn(j.role,j.user))return;return}
   $('pinMsg').textContent='Use the Table Events button for an event code.';
 }
 async function restore(){
@@ -154,7 +168,7 @@ async function restore(){
   if(cached)showDashboard(cached.role,cached.user);
   try{
     const r=await fetch('/api/leads/auth',{cache:'no-store'}),j=await r.json().catch(()=>({}));
-    if(r.ok&&j.ok&&(j.role==='admin'||j.role==='user')){showDashboard(j.role,j.user);return}
+    if(r.ok&&j.ok&&(j.role==='admin'||j.role==='user')){showDashboard(j.role,j.user);if(openReturn(j.role,j.user))return;return}
     if(!cached)showStaff();
   }catch{if(!cached)showStaff()}
 }
