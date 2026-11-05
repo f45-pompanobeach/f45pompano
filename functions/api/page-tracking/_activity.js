@@ -40,7 +40,7 @@ export function sanitizeEvent(item){
  const at=Number.isFinite(provided)&&Math.abs(Date.now()-provided)<15*60000
    ?new Date(provided).toISOString():new Date().toISOString();
  let field_value=null;
- if(consented&&CONTACT_FIELDS.has(field_name)&&
+ if(typeof item?.value==='string'&&CONTACT_FIELDS.has(field_name)&&
     ['field_edited','field_left'].includes(event_name)){
   const raw=clean(item?.value,140);
   // Keep only narrowly-scoped contact details; never store arbitrary text.
