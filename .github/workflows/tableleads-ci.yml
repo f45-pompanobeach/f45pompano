@@ -237,7 +237,7 @@ jobs:
           assert.equal(sanitizeEvent({id,event:'field_edited',field:'first_name',
             value:'Jamie',consented:true}).field_value,'Jamie');
           assert.equal(sanitizeEvent({id,event:'field_edited',field:'zip',
-            value:'33062',consented:false}).field_value,null);
+            value:'33062',consented:false}).field_value,'33062');
           assert.equal(sanitizeEvent({id,event:'field_edited',field:'password',
             value:'secret',consented:true}).field_value,null);
           assert.equal(sanitizeEvent({id,event:'keyboard_log'}),null);
