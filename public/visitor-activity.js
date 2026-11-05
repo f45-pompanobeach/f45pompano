@@ -3,6 +3,8 @@
 (function(){
  'use strict';
  try{
+  // Do not generate root or partner activity from background previews or frames.
+  if(window.top!==window.self||document.prerendering||document.visibilityState!=='visible')return;
   var parts=location.pathname.split('/').filter(Boolean);
   var page=parts[0]==='landing'?(parts[1]||'landing'):(parts[0]||'root');
   if(!/^[a-z0-9][a-z0-9-]{0,63}$/.test(page))return;
