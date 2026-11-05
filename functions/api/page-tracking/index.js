@@ -23,6 +23,15 @@ export async function onRequestPost(context){
   await schema(db);
   const vals=fields.map(f=>clean(d?.[f],f==='referrer'?400:160));
   const now=new Date();const cutoff=new Date(now.getTime()-30*60*1000).toISOString();
+  // Some partner-page previews load an unrequested root document immediately
+  // afterwards. Do not count that as a separate main-site visit when it has
+  // no referrer or campaign and shares the browser's recent partner visit.
+  if(page==='root'&&visitor&&!vals.some(Boolean)){
+   const paired=await db.prepare("SELECT id FROM landing_page_visits WHERE page<>'root' AND visitor_id=? AND visited_at>=? ORDER BY visited_at DESC LIMIT 1")
+     .bind(visitor,new Date(Date.now()-5000).toISOString()).first();
+   if(paired)return json({ok:true,tracked:false});
+  }
+
   const visitId=crypto.randomUUID();
   const result=await db.prepare('INSERT INTO landing_page_visits(id,visited_at,page,session_id,visitor_id,'+fields.join(',')+') SELECT '+Array(5+fields.length).fill('?').join(',')+' WHERE NOT EXISTS (SELECT 1 FROM landing_page_visits WHERE page=? AND session_id=? AND visited_at>=?)').bind(visitId,now.toISOString(),page,session,visitor,...vals,page,session,cutoff).run();
   // The activity stream may have arrived before this visit POST.
