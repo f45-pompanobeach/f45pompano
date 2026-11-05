@@ -146,6 +146,9 @@
     changed();
    }
    document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible'){
+      record('page_resumed',null);send();
+    }
     if(document.visibilityState==='hidden'){
       flushPending();snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot');
       record('page_hidden',null);send(true);
