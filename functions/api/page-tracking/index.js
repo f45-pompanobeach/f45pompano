@@ -26,7 +26,7 @@ export async function onRequestPost(context){
   // Some partner-page previews load an unrequested root document immediately
   // afterwards. Do not count that as a separate main-site visit when it has
   // no referrer or campaign and shares the browser's recent partner visit.
-  if(page==='root'&&visitor&&!vals.some(Boolean)){
+  if(page==='root'&&d?.foreground!==true&&visitor&&!vals.some(Boolean)){
    const paired=await db.prepare("SELECT id FROM landing_page_visits WHERE page<>'root' AND visitor_id=? AND visited_at>=? ORDER BY visited_at DESC LIMIT 1")
      .bind(visitor,new Date(Date.now()-5000).toISOString()).first();
    if(paired)return json({ok:true,tracked:false});
