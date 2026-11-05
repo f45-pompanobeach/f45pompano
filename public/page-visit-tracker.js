@@ -23,7 +23,7 @@
       try{localStorage.setItem('f45_visitor_id',visitor)}catch(e){}
     }
     var q=new URLSearchParams(location.search);
-    var data={page:page,session:sid,visitor:visitor,referrer:document.referrer||''};
+    var data={page:page,session:sid,visitor:visitor,referrer:document.referrer||'',foreground:true};
     ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id'].forEach(function(k){data[k]=(q.get(k)||'').slice(0,160)});
     window.__f45PageVisitSent=true;
     fetch('/api/page-tracking/',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data),credentials:'same-origin',keepalive:true}).catch(function(){});
