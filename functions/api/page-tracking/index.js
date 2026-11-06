@@ -42,7 +42,7 @@ export async function onRequestPost(context){
   await db.prepare('UPDATE landing_page_visits SET '+missing+' WHERE page=? AND session_id=?')
     .bind(...vals,page,session).run();
   if(visitor)await db.prepare('UPDATE landing_page_visits SET visitor_id=COALESCE(visitor_id,?) WHERE page=? AND session_id=?').bind(visitor,page,session).run();
-  if(Number(result.meta?.changes||0)>0)await notifyNewTrackingVisit(context,db,{id:visitId,page,visited_at:now.toISOString(),...Object.fromEntries(fields.map((name,i)=>[name,vals[i]]))});
+  if(Number(result.meta?.changes||0)>0)await notifyNewTrackingVisit(context,db,{id:visitId,page,visitor_id:visitor,visited_at:now.toISOString(),...Object.fromEntries(fields.map((name,i)=>[name,vals[i]]))});
   return json({ok:true,tracked:(result.meta?.changes||0)>0});
  }catch{return json({ok:false,error:'storage_unavailable'},503)}
 }
