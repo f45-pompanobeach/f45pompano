@@ -44,7 +44,7 @@ export async function notifyReturningActivity(context,db,{visitId,page,session,e
    SUM(CASE WHEN event_name='field_edited' AND COALESCE(field_value,'')<>'' THEN 1 ELSE 0 END) AS field_changes,
    SUM(CASE WHEN event_name IN ('checkout_clicked','checkout_blocked','trial_cta_clicked','button_clicked','form_submit_attempt','form_submitted','trial_unlocked') THEN 1 ELSE 0 END) AS button_actions,
    MAX(CASE WHEN event_name IN ('checkout_clicked','checkout_blocked','trial_cta_clicked','button_clicked','form_submit_attempt','form_submitted','trial_unlocked') THEN created_at ELSE NULL END) AS last_action_at
-   FROM landing_page_activity WHERE visit_id=?`).bind(visitId).first();
+   FROM landing_page_activity WHERE page=? AND session_id=?`).bind(page,session).first();
   const fields=Number(summary?.field_changes||0),buttons=Number(summary?.button_actions||0);
   // An empty page visit, checkbox-only visit or browser reload never emails.
   if(fields+buttons===0)return;
