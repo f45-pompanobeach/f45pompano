@@ -19,16 +19,33 @@ async function notificationSignature(context,visit){
  const signature=await crypto.subtle.sign('HMAC',key,bytes.encode(visit.page+'|'+identity));
  return Array.from(new Uint8Array(signature),v=>v.toString(16).padStart(2,'0')).join('');
 }
+// Backstop for distributed Meta preview bursts that use different browser
+// signatures: at most four initial social-trial VISIT alerts within 90 seconds.
+// No limit is applied to lead-submission or meaningful-activity emails.
+const SURGE_WINDOW_MS=90*1000;
+const SURGE_EMAIL_LIMIT=4;
+async function excessiveSocialPageBurst(db,page){
+ if(page!=='social-trial')return false;
+ await db.prepare('CREATE TABLE IF NOT EXISTS page_tracking_alert_surge (page TEXT PRIMARY KEY,window_started INTEGER NOT NULL,hit_count INTEGER NOT NULL)').run();
+ const now=Date.now(),cutoff=now-SURGE_WINDOW_MS;
+ await db.prepare('INSERT OR IGNORE INTO page_tracking_alert_surge(page,window_started,hit_count) VALUES(?,?,0)')
+  .bind(page,now).run();
+ await db.prepare('UPDATE page_tracking_alert_surge SET hit_count=CASE WHEN window_started<? THEN 1 ELSE hit_count+1 END,window_started=CASE WHEN window_started<? THEN ? ELSE window_started END WHERE page=?')
+  .bind(cutoff,cutoff,now,page).run();
+ const row=await db.prepare('SELECT hit_count FROM page_tracking_alert_surge WHERE page=?').bind(page).first();
+ return Number(row?.hit_count||0)>SURGE_EMAIL_LIMIT;
+}
 async function suppressRapidRepeat(context,db,visit){
  const ua=String(context.request?.headers.get('user-agent')||'');
  if(BOT_UA.test(ua))return 'automated_preview';
  const signature=await notificationSignature(context,visit);
- if(!signature)return '';
+ if(!signature)return await excessiveSocialPageBurst(db,visit.page)?'social_trial_burst':'';
  await db.prepare('CREATE TABLE IF NOT EXISTS page_tracking_alert_burst_guard (signature TEXT PRIMARY KEY,last_alert_at INTEGER NOT NULL)').run();
  const now=Date.now();
  const claim=await db.prepare('INSERT INTO page_tracking_alert_burst_guard(signature,last_alert_at) VALUES(?,?) ON CONFLICT(signature) DO UPDATE SET last_alert_at=excluded.last_alert_at WHERE last_alert_at<?')
   .bind(signature,now,now-ALERT_COOLDOWN_MS).run();
- return Number(claim.meta?.changes||0)===1?'':'rapid_repeat';
+ if(Number(claim.meta?.changes||0)!==1)return 'rapid_repeat';
+ return await excessiveSocialPageBurst(db,visit.page)?'social_trial_burst':'';
 }
 export async function notifyNewTrackingVisit(context,db,visit){
  try{
