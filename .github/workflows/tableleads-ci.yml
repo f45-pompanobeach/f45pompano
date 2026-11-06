@@ -210,9 +210,9 @@ jobs:
           const page=fs.readFileSync('dist/leads-trials/page-tracking/index.html','utf8');
           assert(page.includes('id="activityDialog"'));
           assert(page.includes('class="visit-table"'));
-          assert(page.includes('class="visit-action-select"'));
-          assert(page.includes('value="activity">View Activity'));
-          assert(page.includes('value="delete">Delete Visit'));
+          assert(page.includes('class="view-activity-btn"'), 'Each landing row needs a direct View Activity button');
+          assert(!page.includes('class="visit-action-select"'), 'Actions dropdown should be removed');
+          assert(!page.includes('value="delete">Delete Visit'), 'Per-row delete should be removed');
           assert(page.includes('id="activityContext"'));
           assert(page.includes('id="activityContactStatus"'));
           assert(page.includes('id="trackingNotificationSettings"'));
@@ -223,6 +223,8 @@ jobs:
           assert(page.includes('id="from" type="date"')&&page.includes('id="to" type="date"'), 'Date picker fields missing');
           assert(!page.includes('id="dailyTraffic"'), 'Daily traffic table should be removed');
           assert(page.includes('id="selectPage"')&&page.includes('class="selectVisit"'), 'Tracking row checkboxes missing');
+          assert(page.includes('width:38px;min-width:38px;max-width:38px'), 'Selection column should be compact');
+          assert(page.includes("button.view-activity-btn"), 'View Activity button must open the existing activity panel');
           assert(page.includes('id="deleteSelected"'), 'Bulk delete action missing');
           assert(page.includes("method:'PATCH'"), 'Bulk delete endpoint not connected');
           const trackingAdmin=fs.readFileSync('functions/api/page-tracking/admin/index.js','utf8');
