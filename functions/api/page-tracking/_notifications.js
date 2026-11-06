@@ -10,7 +10,19 @@ export async function notifyNewTrackingVisit(context,db,visit){
   await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_alert_deliveries (visit_id TEXT PRIMARY KEY, created_at TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'queued', gateway_id TEXT, error TEXT)").run();
   const claim=await db.prepare("INSERT OR IGNORE INTO page_tracking_alert_deliveries(visit_id,created_at,status) VALUES(?,?,'queued')").bind(visit.id,new Date().toISOString()).run();
   if(Number(claim.meta?.changes||0)!==1)return;
-  // The database visit ID is the exact-once claim. No global throttling:
+  // A visit and its activity POST can race to create separate rows. Claim
+  // email once per actual page + browser-tab session, not just per visit ID.
+  if(/^[a-f0-9]{32}$/.test(String(visit.session_id||''))){
+   await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_session_alerts (page TEXT NOT NULL,session_id TEXT NOT NULL,visit_id TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(page,session_id))").run();
+   const unique=await db.prepare("INSERT OR IGNORE INTO page_tracking_session_alerts(page,session_id,visit_id,created_at) VALUES(?,?,?,?)")
+    .bind(visit.page,visit.session_id,visit.id,new Date().toISOString()).run();
+   if(Number(unique.meta?.changes||0)!==1){
+    await db.prepare("UPDATE page_tracking_alert_deliveries SET status='suppressed',error=? WHERE visit_id=?")
+     .bind('same_browser_session',visit.id).run();
+    return;
+   }
+  }
+  // The database session claim is exact-once. No global throttling:
   // different browser sessions must be permitted their own visit alerts.
   const ua=String(context.request?.headers.get('user-agent')||'');
   if(BOT_UA.test(ua)){
