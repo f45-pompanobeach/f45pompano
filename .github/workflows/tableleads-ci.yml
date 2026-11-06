@@ -224,6 +224,10 @@ jobs:
           assert(!page.includes('id="dailyTraffic"'), 'Daily traffic table should be removed');
           assert(page.includes('id="selectPage"')&&page.includes('class="selectVisit"'), 'Tracking row checkboxes missing');
           assert(page.includes('width:38px;min-width:38px;max-width:38px'), 'Selection column should be compact');
+          assert(page.includes('.visit-table{table-layout:auto;width:100%}'), 'Tracking table must use content-based column widths');
+          assert(!page.includes('.visit-table{table-layout:fixed'), 'Tracking table must not use fixed layout');
+          assert(page.includes('.visit-table.has-select th:nth-child(2){max-width:155px}'), 'Date column must have a compact max-width');
+          assert(page.includes('.visit-table.has-select th:nth-child(4){max-width:310px}'), 'Source column must be capped');
           assert(page.includes("button.view-activity-btn"), 'View Activity button must open the existing activity panel');
           assert(page.includes('id="deleteSelected"'), 'Bulk delete action missing');
           assert(page.includes("method:'PATCH'"), 'Bulk delete endpoint not connected');
