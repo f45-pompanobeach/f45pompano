@@ -220,6 +220,9 @@ jobs:
           assert(page.includes('id="trackingAlertsEnabled"'));
           assert(page.includes('id="trackingAlertRecipient"'));
           assert(page.includes('id="engagement"'), 'Activity classification filter missing');
+          assert(page.includes("second:'2-digit'"), 'Visit timestamps must show seconds for precise record selection');
+          assert(page.includes("String(v.session_id||'').slice(0,12)"), 'Visit rows must show session prefix for exact matching');
+          assert(page.includes("match(/\\.(\\d{3})/)"), 'Visit timestamps must show milliseconds');
           assert(page.includes('<option value="unlocked">Trial unlocked</option>'), 'Trial unlocked filter missing');
           assert(page.includes("trial_unlock_count"), 'Trial unlock counts must display');
           assert(page.includes("trial_unlocked:'Trial unlocked"), 'Unlock event timeline must be descriptive');
