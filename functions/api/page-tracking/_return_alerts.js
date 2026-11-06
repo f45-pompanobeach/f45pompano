@@ -1,9 +1,10 @@
 import {sendGatewayEmail} from '../leads/_email_gateway.js';
 import {trackingNotificationConfig} from './admin/notifications.js';
 
-// Initial visit: only the existing "new visit" email.
-// Once the browser leaves and returns: at most one follow-up email for NEW
-// meaningful activity during that return. No time threshold and no new row.
+// One new-visit email is handled separately. Send at most one activity email
+// for the first genuine action in the initial session and one for new actions
+// in each later leave-and-return period. Reloads and checkbox changes never
+// send an activity email; they are still logged.
 const meaningful=e=>
  e.event_name==='checkout_clicked'||
  e.event_name==='checkout_blocked'||
@@ -34,15 +35,6 @@ export async function notifyReturningActivity(context,db,{visitId,page,events}){
   const created=await db.prepare("INSERT OR IGNORE INTO page_tracking_activity_periods(visit_id,period,away,notified_period) VALUES(?,0,0,0)")
    .bind(visitId).run();
   const firstState=Number(created.meta?.changes||0)===1;
-  // If an initial page-view alert was suppressed as a repeat/preview, a later
-  // real trial action must still be able to notify the studio once.
-  let initialAlertSuppressed=false;
-  if(events.some(meaningful)){
-   try{
-    const row=await db.prepare("SELECT 1 AS suppressed FROM page_tracking_alert_deliveries WHERE visit_id=? AND status='suppressed' LIMIT 1").bind(visitId).first();
-    initialAlertSuppressed=!!row;
-   }catch{}
-  }
   let state=await db.prepare('SELECT period,away,notified_period FROM page_tracking_activity_periods WHERE visit_id=?')
    .bind(visitId).first();
   if(!state)return;
@@ -57,7 +49,7 @@ export async function notifyReturningActivity(context,db,{visitId,page,events}){
     if(away||(firstState&&event.event_name==='page_resumed')){
      period+=1;away=0;
     }
-   }else if(meaningful(event)&&(period>0||initialAlertSuppressed)&&(notified<period||(period===0&&initialAlertSuppressed&&notified===0))&&!away&&!action){
+   }else if(meaningful(event)&&(period===0?notified===0:notified<period)&&!away&&!action){
     action=event;actionPeriod=period;
    }
   }
@@ -68,7 +60,8 @@ export async function notifyReturningActivity(context,db,{visitId,page,events}){
   if(!action)return;
   const settings=await trackingNotificationConfig(db);
   if(!settings.enabled)return;
-  // Only the first qualifying event in a return period can claim its email.
+  // Claim once for the first meaningful action in this session/period.
+  // -1 records that the initial period (0) already sent its action email.
   const claim=actionPeriod===0
    ?await db.prepare('UPDATE page_tracking_activity_periods SET notified_period=-1 WHERE visit_id=? AND period=0 AND notified_period=0')
      .bind(visitId).run()
@@ -78,7 +71,7 @@ export async function notifyReturningActivity(context,db,{visitId,page,events}){
   const task=(async()=>{
    try{
     const result=await sendGatewayEmail(context.env,{
-     idempotencyKey:'tracking-return-period-'+visitId+'-'+actionPeriod,
+     idempotencyKey:'tracking-activity-period-'+visitId+'-'+actionPeriod,
      to:settings.recipient,
      subject:'F45 Page Tracking: New activity on previous visit - '+page,
      fields:{
