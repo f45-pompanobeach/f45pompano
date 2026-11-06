@@ -6,6 +6,7 @@ import {trackingNotificationConfig} from './admin/notifications.js';
 // meaningful activity during that return. No time threshold and no new row.
 const meaningful=e=>
  e.event_name==='checkout_clicked'||
+ e.event_name==='checkout_blocked'||
  e.event_name==='trial_cta_clicked'||
  e.event_name==='button_clicked'||
  e.event_name==='form_submit_attempt'||
@@ -13,6 +14,7 @@ const meaningful=e=>
  (e.event_name==='field_edited'&&!!String(e.field_value||'').trim());
 const describe=e=>{
  if(e.event_name==='checkout_clicked')return 'Clicked Mindbody checkout';
+ if(e.event_name==='checkout_blocked')return 'Tried checkout without confirming eligibility';
  if(e.event_name==='trial_cta_clicked')return 'Clicked trial offer button';
  if(e.event_name==='form_submit_attempt')return 'Attempted trial form submission';
  if(e.event_name==='form_submitted')return 'Submitted trial form';
