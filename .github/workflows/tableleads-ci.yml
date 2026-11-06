@@ -218,6 +218,10 @@ jobs:
           assert(page.includes('id="trackingNotificationSettings"'));
           assert(page.includes('id="trackingAlertsEnabled"'));
           assert(page.includes('id="trackingAlertRecipient"'));
+          assert(page.includes('id="dailyTraffic"'), 'Daily traffic breakdown is missing');
+          assert(page.includes('data-day='), 'Daily breakdown must support date drill-down');
+          assert(page.includes("byDate.set(day,{visits:0,clicks:0,pages:new Map()})"), 'Daily visits and page counts must be grouped');
+          assert(page.includes("el('from').value=day;el('to').value=day"), 'Date drill-down must update existing filters');
           assert(page.includes('id="saveTrackingAlerts"'));
           assert(page.includes('/api/page-tracking/admin/notifications'));
           assert(page.includes("location.replace('/leads-trials/?next='+encodeURIComponent(location.pathname+location.search))"), 'Expired tracking links must preserve target');
