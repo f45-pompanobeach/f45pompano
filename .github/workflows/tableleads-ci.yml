@@ -279,6 +279,8 @@ jobs:
           assert(returnAlerts.includes("event_name==='page_hidden'"), 'Leaving after contact edits can send consolidated email');
           assert(returnAlerts.includes("e.event_name!=='form_submit_attempt'"), 'Form submission should wait for its result before sending');
           assert(returnAlerts.includes('tracking-activity-session-'), 'Activity email idempotency key must be stable');
+          assert(returnAlerts.includes('delayedDeparture'), 'Exit beacons arriving before a pending edit must still trigger one email');
+          assert(returnAlerts.includes('FROM landing_page_activity WHERE page=? AND session_id=?'), 'Consolidated email must summarize the whole browser session');
           assert(returnAlerts.includes("if(!hasTrigger)return"), 'Contact edits alone must not email immediately');
           const visitAlerts=fs.readFileSync('functions/api/page-tracking/_notifications.js','utf8');
           assert(!visitAlerts.includes('ALERT_COOLDOWN_MS'), 'Do not throttle genuine new sessions by browser or IP');
