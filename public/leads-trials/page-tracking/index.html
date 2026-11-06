@@ -15,7 +15,7 @@ body{font:15px Inter,Arial,sans-serif;background:#f4f5f7;color:#1c1c2e;margin:0;
 .visit-table th,.visit-table td{vertical-align:top;overflow-wrap:anywhere;padding:11px 9px}
 /* Size columns from their headers and cell contents, not fixed percentages. */
 .visit-table th,.visit-table td{width:auto}
-.visit-table .visit-date{max-width:155px}
+.visit-table .visit-date{max-width:190px}
 .visit-table .visit-page{max-width:145px}
 .visit-table .visit-source{max-width:310px}
 .visit-table .visit-outcome{max-width:150px}
@@ -191,7 +191,7 @@ el('pageInfo').textContent=shown.length?'Showing '+((currentPage-1)*pageSize+1)+
   const actions=v.visit_source==='landing'
    ?'<button type="button" class="view-activity-btn" data-id="'+esc(v.id)+'" aria-label="View activity for '+esc(v.page)+' visit">View Activity</button>'
    :'—';
-  return '<tr>'+(canDelete?'<td class="visit-select"><input type="checkbox" class="selectVisit" data-id="'+esc(v.id)+'" data-source="'+esc(v.visit_source)+'" aria-label="Select '+esc(v.page)+' tracking row" '+(selectedVisits.has(v.visit_source+':'+v.id)?'checked':'')+'></td>':'')+'<td class="visit-date"><strong>'+esc(new Date(v.visited_at).toLocaleDateString('en-US',{timeZone:'America/New_York',dateStyle:'medium'}))+'</strong><small>'+esc(new Date(v.visited_at).toLocaleTimeString('en-US',{timeZone:'America/New_York',timeStyle:'short'}))+' ET</small></td>'+
+  return '<tr>'+(canDelete?'<td class="visit-select"><input type="checkbox" class="selectVisit" data-id="'+esc(v.id)+'" data-source="'+esc(v.visit_source)+'" aria-label="Select '+esc(v.page)+' tracking row" '+(selectedVisits.has(v.visit_source+':'+v.id)?'checked':'')+'></td>':'')+'<td class="visit-date"><strong>'+esc(new Date(v.visited_at).toLocaleDateString('en-US',{timeZone:'America/New_York',dateStyle:'medium'}))+'</strong><small>'+esc(new Date(v.visited_at).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit',second:'2-digit'}))+'.'+esc(String(v.visited_at).match(/\.(\d{3})/)?.[1]||'000')+' ET</small><small>Session: '+esc(String(v.session_id||'').slice(0,12))+'</small></td>'+
    '<td class="visit-page"><strong>'+esc(v.page)+'</strong></td>'+
    '<td class="visit-source"><strong>'+esc(sourceOf(v))+'</strong>'+
      (v.utm_campaign?'<small>Campaign: '+esc(v.utm_campaign)+'</small>':'')+
