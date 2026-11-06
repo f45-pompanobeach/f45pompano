@@ -663,7 +663,7 @@ function addLandingRuntime(html) {
   html=html.replace(/<script>\s*\/\* First-party, non-blocking page and attribution tracking\. \*\/[\s\S]*?<\/script>/g,'');
   html=html.replace("</head>", '<link rel="stylesheet" href="/mobile-viewport-fixes.css?v=1">\\n</head>');
   html=html.replace("</body>", '<div class="activity-disclosure" style="padding:12px 18px;text-align:center;font:12px/1.5 Arial,sans-serif;color:#4b5563;background:#f7f7f8;overflow-wrap:anywhere">Form activity, including contact details entered before submission, may be saved for up to 30 days to improve our trial inquiry process and match later inquiries. Unfinished entries do not trigger outreach. <a href="/privacy/">Privacy Policy</a></div>\\n</body>');
-  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=9"></script><script defer src="/page-visit-tracker.js?v=5"></script><script defer src="/visitor-activity.js?v=10"></script>\\n</body>');
+  return html.replace("</body>", '<script defer src="/landing-runtime.js?v=9"></script><script defer src="/page-visit-tracker.js?v=5"></script><script defer src="/visitor-activity.js?v=11"></script>\\n</body>');
 }
 
 function addSiteVersion(html) {
