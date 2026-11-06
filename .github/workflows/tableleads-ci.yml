@@ -270,6 +270,9 @@ jobs:
           assert(visitAlerts.includes("BOT_UA.test(ua)"), 'Automated preview filtering missing');
           assert(visitAlerts.includes("status='suppressed'"), 'Suppressed email status must be saved');
           assert(visitAlerts.includes("crypto.subtle.sign('HMAC'"), 'Network fingerprints must not store raw IPs');
+          const activityAlerts=fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8');
+          assert(activityAlerts.includes("initialAlertSuppressed"), 'Meaningful actions after suppressed page-view alerts must still notify');
+          assert(activityAlerts.includes("notified_period=-1"), 'Only one activity alert per initially suppressed visit');
           const visitPost=fs.readFileSync('functions/api/page-tracking/index.js','utf8');
           assert(visitPost.includes('visitor_id:visitor'), 'Main visit endpoint must pass visitor identity to alert guard');
           assert(returnAlerts.includes('page_tracking_activity_periods'), 'Must track leave-and-return periods');
