@@ -267,6 +267,9 @@ jobs:
           const visitAlerts=fs.readFileSync('functions/api/page-tracking/_notifications.js','utf8');
           assert(visitAlerts.includes('ALERT_COOLDOWN_MS=20*60*1000'), 'Visit email burst suppression window missing');
           assert(visitAlerts.includes('page_tracking_alert_burst_guard'), 'Visit alert fingerprint guard missing');
+          assert(visitAlerts.includes('SURGE_WINDOW_MS=90*1000'), 'Social-trial burst window missing');
+          assert(visitAlerts.includes('SURGE_EMAIL_LIMIT=4'), 'Social-trial new-visit alert cap missing');
+          assert(visitAlerts.includes('page_tracking_alert_surge'), 'Distributed preview burst backstop missing');
           assert(visitAlerts.includes("BOT_UA.test(ua)"), 'Automated preview filtering missing');
           assert(visitAlerts.includes("status='suppressed'"), 'Suppressed email status must be saved');
           assert(visitAlerts.includes("crypto.subtle.sign('HMAC'"), 'Network fingerprints must not store raw IPs');
