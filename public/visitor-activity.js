@@ -125,8 +125,13 @@
     var a=e.target.closest&&e.target.closest('a[href]');
     if(a){
       try{var u=new URL(a.href,location.href);
-        if(u.hostname==='clients.mindbodyonline.com'||u.hostname.endsWith('.mindbodyonline.com'))
-          record('checkout_clicked',a);
+        if(u.hostname==='clients.mindbodyonline.com'||u.hostname.endsWith('.mindbodyonline.com')){
+          // The social-trial eligibility gate can prevent the first click.
+          // Never report that blocked attempt as a checkout navigation.
+          if(page==='social-trial'&&a.matches('a.meta-direct-cta')&&!document.getElementById('meta-eligibility-confirm')?.checked)
+            record('checkout_blocked',a,'eligibility_not_confirmed');
+          else record('checkout_clicked',a);
+        }
         else if(u.host===location.host&&u.pathname===location.pathname&&u.hash==='#claim-form')
           record('trial_cta_clicked',a);
         else if(['https:','http:'].includes(u.protocol))
