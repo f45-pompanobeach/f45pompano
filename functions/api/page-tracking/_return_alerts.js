@@ -1,91 +1,83 @@
 import {sendGatewayEmail} from '../leads/_email_gateway.js';
 import {trackingNotificationConfig} from './admin/notifications.js';
 
-// One new-visit email is handled separately. Send at most one activity email
-// for the first genuine action in the initial session and one for new actions
-// in each later leave-and-return period. Reloads and checkbox changes never
-// send an activity email; they are still logged.
-const meaningful=e=>
- e.event_name==='checkout_clicked'||
- e.event_name==='checkout_blocked'||
- e.event_name==='trial_cta_clicked'||
- e.event_name==='button_clicked'||
- e.event_name==='form_submit_attempt'||
- e.event_name==='form_submitted'||
- e.event_name==='trial_unlocked'||
- (e.event_name==='field_edited'&&!!String(e.field_value||'').trim());
-const describe=e=>{
- if(e.event_name==='checkout_clicked')return 'Clicked Mindbody checkout';
- if(e.event_name==='checkout_blocked')return 'Tried checkout without confirming eligibility';
- if(e.event_name==='trial_cta_clicked')return 'Clicked trial offer button';
- if(e.event_name==='form_submit_attempt')return 'Attempted trial form submission';
- if(e.event_name==='form_submitted')return 'Submitted trial form';
- if(e.event_name==='trial_unlocked')return 'Unlocked trial after submitting lead details';
- if(e.event_name==='button_clicked')return 'Clicked button: '+String(e.target||'button').slice(0,65);
- return 'Entered or changed '+String(e.field_name||'contact field').replace(/_/g,' ');
-};
+// A visit earns at most ONE consolidated activity notification for its entire
+// browser-tab session. Field changes are recorded immediately, but the email
+// waits until a meaningful CTA/form button is clicked or the page is left.
+// Checkbox changes, reloads, and page resume alone are never email-worthy.
+const actualAction=e=>[
+ 'checkout_clicked','checkout_blocked','trial_cta_clicked','button_clicked',
+ 'form_submit_attempt','form_submitted','trial_unlocked'
+].includes(e.event_name);
+const eventHasContact=e=>e.event_name==='field_edited'&&!!String(e.field_value||'').trim();
+const activityEvent=e=>actualAction(e)||eventHasContact(e);
 const eastern=iso=>new Date(iso).toLocaleString('en-US',{
  timeZone:'America/New_York',dateStyle:'medium',timeStyle:'medium'
 });
+const describe=e=>{
+ if(e.event_name==='checkout_clicked')return 'Clicked Mindbody checkout link';
+ if(e.event_name==='checkout_blocked')return 'Tried checkout before confirming eligibility';
+ if(e.event_name==='trial_unlocked')return 'Unlocked trial after submitting lead details';
+ if(e.event_name==='form_submitted')return 'Submitted lead form';
+ if(e.event_name==='form_submit_attempt')return 'Clicked lead form submission button';
+ if(e.event_name==='trial_cta_clicked')return 'Clicked trial offer button';
+ return 'Clicked button: '+String(e.target||'button').slice(0,65);
+};
 
 export async function notifyReturningActivity(context,db,{visitId,page,events}){
- if(!events.length)return;
+ if(!events?.length)return;
  try{
-  await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_activity_periods (visit_id TEXT PRIMARY KEY,period INTEGER NOT NULL DEFAULT 0,away INTEGER NOT NULL DEFAULT 0,notified_period INTEGER NOT NULL DEFAULT 0)").run();
-  // Create the state once. A previously active row may first report a
-  // page_resumed event after an older script version; that is a return.
-  const created=await db.prepare("INSERT OR IGNORE INTO page_tracking_activity_periods(visit_id,period,away,notified_period) VALUES(?,0,0,0)")
-   .bind(visitId).run();
-  const firstState=Number(created.meta?.changes||0)===1;
-  let state=await db.prepare('SELECT period,away,notified_period FROM page_tracking_activity_periods WHERE visit_id=?')
-   .bind(visitId).first();
-  if(!state)return;
-  let period=Number(state.period),away=Number(state.away),notified=Number(state.notified_period);
-  let action=null,actionPeriod=0;
-  // Events are stored in chronological browser order. An exit snapshot should
-  // never qualify as activity from the NEXT visit just because it shares a batch.
-  for(const event of events){
-   if(event.event_name==='page_hidden'){
-    away=1;
-   }else if(event.event_name==='page_resumed'||event.event_name==='page_view'){
-    if(away||(firstState&&event.event_name==='page_resumed')){
-     period+=1;away=0;
-    }
-   }else if(meaningful(event)&&(period===0?notified===0:notified<period)&&!away&&!action){
-    action=event;actionPeriod=period;
-   }
-  }
-  // Store state before claiming an email. Same-tab activity remains linked to
-  // its original tracking record, regardless of how long the tab was inactive.
-  await db.prepare('UPDATE page_tracking_activity_periods SET period=?,away=? WHERE visit_id=?')
-   .bind(period,away,visitId).run();
-  if(!action)return;
+  // The legacy table identifies sessions that already received an activity
+  // email under the previous per-return rules. Never email them again.
+  const prior=await db.prepare('SELECT notified_period FROM page_tracking_activity_periods WHERE visit_id=?')
+   .bind(visitId).first().catch(()=>null);
+  if(prior&&Number(prior.notified_period)!==0)return;
+
+  const hasTrigger=events.some(e=>actualAction(e)||e.event_name==='page_hidden');
+  if(!hasTrigger)return;
+  // Look across saved batches so one email can describe all progress,
+  // rather than a single first-name edit or isolated button click.
+  const summary=await db.prepare(`SELECT
+   SUM(CASE WHEN event_name='field_edited' AND COALESCE(field_value,'')<>'' THEN 1 ELSE 0 END) AS field_changes,
+   SUM(CASE WHEN event_name IN ('checkout_clicked','checkout_blocked','trial_cta_clicked','button_clicked','form_submit_attempt','form_submitted','trial_unlocked') THEN 1 ELSE 0 END) AS button_actions,
+   MAX(CASE WHEN event_name IN ('checkout_clicked','checkout_blocked','trial_cta_clicked','button_clicked','form_submit_attempt','form_submitted','trial_unlocked') THEN created_at ELSE NULL END) AS last_action_at
+   FROM landing_page_activity WHERE visit_id=?`).bind(visitId).first();
+  const fields=Number(summary?.field_changes||0),buttons=Number(summary?.button_actions||0);
+  // An empty page visit, checkbox-only visit or browser reload never emails.
+  if(fields+buttons===0)return;
+  // If only text was entered, wait until the page is hidden/navigated away.
+  if(!buttons&&!events.some(e=>e.event_name==='page_hidden'))return;
+  // If there is an action, send when a button event is saved, not on an
+  // earlier typing event. If action preceded this request, the saved state
+  // still allows one consolidated email on the next trigger.
+  const trigger=events.find(e=>actualAction(e))||events.find(e=>e.event_name==='page_hidden');
+  if(!trigger)return;
   const settings=await trackingNotificationConfig(db);
   if(!settings.enabled)return;
-  // Claim once for the first meaningful action in this session/period.
-  // -1 records that the initial period (0) already sent its action email.
-  const claim=actionPeriod===0
-   ?await db.prepare('UPDATE page_tracking_activity_periods SET notified_period=-1 WHERE visit_id=? AND period=0 AND notified_period=0')
-     .bind(visitId).run()
-   :await db.prepare('UPDATE page_tracking_activity_periods SET notified_period=? WHERE visit_id=? AND notified_period<? AND period>=?')
-     .bind(actionPeriod,visitId,actionPeriod,actionPeriod).run();
+  await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_activity_alerts (visit_id TEXT PRIMARY KEY,created_at TEXT NOT NULL,trigger TEXT NOT NULL)").run();
+  const claim=await db.prepare('INSERT OR IGNORE INTO page_tracking_activity_alerts(visit_id,created_at,trigger) VALUES(?,?,?)')
+   .bind(visitId,new Date().toISOString(),trigger.event_name).run();
   if(Number(claim.meta?.changes||0)!==1)return;
+  // Email contains a summary and direct activity link, not partial contact
+  // fields. The timeline is already persisted when this function runs.
+  const action=events.filter(actualAction).at(-1);
   const task=(async()=>{
    try{
     const result=await sendGatewayEmail(context.env,{
-     idempotencyKey:'tracking-activity-period-'+visitId+'-'+actionPeriod,
+     idempotencyKey:'tracking-activity-session-'+visitId,
      to:settings.recipient,
      subject:'F45 Page Tracking: New activity on previous visit - '+page,
      fields:{
       'Landing / Partner Page':page,
-      'New Activity':describe(action),
-      'Activity Date / Time (Eastern)':eastern(action.at),
-      'Tracking Record':'https://f45pompano.com/leads-trials/page-tracking/?visit='+encodeURIComponent(visitId)
+      'Activity Summary':fields+' contact-field change(s), '+buttons+' button/form action(s)',
+      'Notification Trigger':action?describe(action):'Visitor left the page after entering information',
+      'Activity Date / Time (Eastern)':eastern(trigger.at),
+      'View Complete Activity':'https://f45pompano.com/leads-trials/page-tracking/?visit='+encodeURIComponent(visitId)
      }
     });
     if(!result.accepted)throw Error('gateway_not_configured');
-   }catch(error){console.error('Returning activity email failed:',error?.message||error)}
+   }catch(error){console.error('Consolidated activity email failed:',error?.message||error)}
   })();
   if(typeof context.waitUntil==='function')context.waitUntil(task);else await task;
- }catch(error){console.error('Returning activity tracking failed:',error?.message||error)}
+ }catch(error){console.error('Activity notification check failed:',error?.message||error)}
 }
