@@ -294,6 +294,7 @@ jobs:
           assert(returnAlerts.includes('tracking-return-period-'), 'Return period must use stable idempotency key');
           assert(browser.includes("record('trial_cta_clicked',a)"), 'Trial call-to-action link clicks must be captured');
           assert(browser.includes("record('checkout_blocked',a,'eligibility_not_confirmed')"), 'Ineligible checkout attempts must not be recorded as successful clicks');
+          assert(fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8').includes("e.event_name==='checkout_blocked'"), 'Later blocked CTA attempts should be treated as meaningful attempts, not successful checkouts');
           const trackingEvents=fs.readFileSync('functions/api/page-tracking/_activity.js','utf8');
           assert(trackingEvents.includes("'checkout_blocked'"), 'Blocked checkout event must be accepted');
           const checkoutAPI=fs.readFileSync('functions/api/page-tracking/mindbody-click/index.js','utf8');
