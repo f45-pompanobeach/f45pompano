@@ -203,7 +203,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=11'])
+            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=12'])
               assert(html.includes(asset),file+' missing '+asset);
             assert(html.includes('/mobile-viewport-fixes.css?v=1'),file+' missing mobile viewport CSS');
             assert(html.includes('class="activity-disclosure"'),file+' missing bottom-of-page activity notice');
@@ -220,12 +220,16 @@ jobs:
           assert(page.includes('id="trackingAlertsEnabled"'));
           assert(page.includes('id="trackingAlertRecipient"'));
           assert(page.includes('id="engagement"'), 'Activity classification filter missing');
+          assert(page.includes('<option value="unlocked">Trial unlocked</option>'), 'Trial unlocked filter missing');
+          assert(page.includes("trial_unlock_count"), 'Trial unlock counts must display');
+          assert(page.includes("trial_unlocked:'Trial unlocked"), 'Unlock event timeline must be descriptive');
           assert(page.includes('Page view only'), 'Page-only visits must be labeled clearly');
           assert(page.includes('Eligible Mindbody click'), 'Eligible Mindbody clicks must be distinguished');
           assert(page.includes('Blocked checkout attempts: '), 'Blocked checkout attempts should be visible');
           const pageTrackingAPI=fs.readFileSync('functions/api/page-tracking/admin/index.js','utf8');
           assert(pageTrackingAPI.includes('AS engagement_count'), 'Visit summary must return engagement totals');
           assert(pageTrackingAPI.includes('AS blocked_checkout_count'), 'Visit summary must count blocked checkout attempts');
+          assert(pageTrackingAPI.includes('AS trial_unlock_count'), 'Visit summary must count successful unlocks');
 
           assert(page.includes('id="summaryRange"'), 'Summary date-range heading missing');
           assert(page.includes('class="summary-date-range"'), 'Date range must appear in summary');
@@ -274,19 +278,17 @@ jobs:
           assert(returnAlerts.includes("e.event_name==='field_edited'"), 'Return contact edits must be detected');
           assert(returnAlerts.includes("e.event_name==='button_clicked'"), 'Return trial actions must be detected');
           const visitAlerts=fs.readFileSync('functions/api/page-tracking/_notifications.js','utf8');
-          assert(visitAlerts.includes('ALERT_COOLDOWN_MS=20*60*1000'), 'Visit email burst suppression window missing');
-          assert(visitAlerts.includes('page_tracking_alert_burst_guard'), 'Visit alert fingerprint guard missing');
-          assert(visitAlerts.includes('SURGE_WINDOW_MS=90*1000'), 'Social-trial burst window missing');
-          assert(visitAlerts.includes('SURGE_EMAIL_LIMIT=4'), 'Social-trial new-visit alert cap missing');
-          assert(visitAlerts.includes('page_tracking_alert_surge'), 'Distributed preview burst backstop missing');
-          assert(visitAlerts.includes("BOT_UA.test(ua)"), 'Automated preview filtering missing');
-          assert(visitAlerts.includes("status='suppressed'"), 'Suppressed email status must be saved');
-          assert(visitAlerts.includes("crypto.subtle.sign('HMAC'"), 'Network fingerprints must not store raw IPs');
+          assert(!visitAlerts.includes('ALERT_COOLDOWN_MS'), 'Do not throttle genuine new sessions by browser or IP');
+          assert(!visitAlerts.includes('SURGE_EMAIL_LIMIT'), 'Do not suppress genuine sessions under a global burst cap');
+          assert(visitAlerts.includes('page_tracking_session_alerts'), 'Initial email must be claimed by page and session');
+          assert(visitAlerts.includes('same_browser_session'), 'Duplicate session alerts must be suppressed');
+          assert(visitAlerts.includes("BOT_UA.test(ua)"), 'Known automated previews should not email');
           const activityAlerts=fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8');
-          assert(activityAlerts.includes("initialAlertSuppressed"), 'Meaningful actions after suppressed page-view alerts must still notify');
-          assert(activityAlerts.includes("notified_period=-1"), 'Only one activity alert per initially suppressed visit');
+          assert(activityAlerts.includes('period===0?notified===0:notified<period'), 'First meaningful action in initial session must email once');
+          assert(activityAlerts.includes('notified_period=-1'), 'Only one action email per initial session');
+          assert(activityAlerts.includes("e.event_name==='trial_unlocked'"), 'Trial unlock should generate a meaningful activity alert');
           const visitPost=fs.readFileSync('functions/api/page-tracking/index.js','utf8');
-          assert(visitPost.includes('visitor_id:visitor'), 'Main visit endpoint must pass visitor identity to alert guard');
+          assert(visitPost.includes('session_id:session'), 'Initial visit alerts must use the browser session ID');
           assert(returnAlerts.includes('page_tracking_activity_periods'), 'Must track leave-and-return periods');
           assert(returnAlerts.includes("event.event_name==='page_hidden'"), 'Leaving page must disarm current period');
           assert(returnAlerts.includes("event.event_name==='page_resumed'"), 'Returning must begin a new period');
@@ -294,6 +296,7 @@ jobs:
           assert(returnAlerts.includes('tracking-return-period-'), 'Return period must use stable idempotency key');
           assert(browser.includes("record('trial_cta_clicked',a)"), 'Trial call-to-action link clicks must be captured');
           assert(browser.includes("record('checkout_blocked',a,'eligibility_not_confirmed')"), 'Ineligible checkout attempts must not be recorded as successful clicks');
+          assert(browser.includes("record('trial_unlocked',success)"), 'Successful lead form must log a trial unlock');
           assert(fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8').includes("e.event_name==='checkout_blocked'"), 'Later blocked CTA attempts should be treated as meaningful attempts, not successful checkouts');
           const trackingEvents=fs.readFileSync('functions/api/page-tracking/_activity.js','utf8');
           assert(trackingEvents.includes("'checkout_blocked'"), 'Blocked checkout event must be accepted');
