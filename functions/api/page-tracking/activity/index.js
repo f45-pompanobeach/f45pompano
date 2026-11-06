@@ -72,7 +72,7 @@ export async function onRequestPost(context){
     'INSERT OR IGNORE INTO landing_page_activity(id,visit_id,page,session_id,visitor_id,created_at,event_name,target,field_name,field_value,consented,detail) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
    ).bind(e.id,row.id,page,session,visitor||null,e.at,e.event_name,e.target,e.field_name,e.field_value,e.consented,e.detail)));
    const fresh=changed.filter((e,i)=>Number(saved[i]?.meta?.changes||0)>0);
-   if(fresh.length)await notifyReturningActivity(context,db,{visitId:row.id,page,events:fresh});
+   if(fresh.length)await notifyReturningActivity(context,db,{visitId:row.id,page,session,events:fresh});
   }
   // Minimize retention of abandoned contact data; retain anonymous aggregate activity.
   await db.prepare("UPDATE landing_page_activity SET field_value=NULL WHERE field_value IS NOT NULL AND created_at<?").bind(new Date(Date.now()-30*86400000).toISOString()).run();
