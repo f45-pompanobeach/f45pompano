@@ -203,7 +203,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=12'])
+            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=13'])
               assert(html.includes(asset),file+' missing '+asset);
             assert(html.includes('/mobile-viewport-fixes.css?v=1'),file+' missing mobile viewport CSS');
             assert(html.includes('class="activity-disclosure"'),file+' missing bottom-of-page activity notice');
@@ -274,29 +274,28 @@ jobs:
           assert(browser.includes('foreground:true,events'), 'Visible activity must be marked as foreground');
           assert(browser.includes("record('page_resumed',null)"), 'Reopened tabs must log resumed activity');
           const returnAlerts=fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8');
-          assert(!returnAlerts.includes('RETURN_GAP_MS'), 'Activity email must never require a minimum inactivity window');
-          assert(returnAlerts.includes("e.event_name==='field_edited'"), 'Return contact edits must be detected');
-          assert(returnAlerts.includes("e.event_name==='button_clicked'"), 'Return trial actions must be detected');
+          assert(returnAlerts.includes('page_tracking_activity_alerts'), 'Activity email requires a session-level claim');
+          assert(returnAlerts.includes('PRIMARY KEY(page,session_id)'), 'Only one activity email per browser session');
+          assert(returnAlerts.includes("event_name==='page_hidden'"), 'Leaving after contact edits can send consolidated email');
+          assert(returnAlerts.includes("e.event_name!=='form_submit_attempt'"), 'Form submission should wait for its result before sending');
+          assert(returnAlerts.includes('tracking-activity-session-'), 'Activity email idempotency key must be stable');
+          assert(returnAlerts.includes("if(!hasTrigger)return"), 'Contact edits alone must not email immediately');
           const visitAlerts=fs.readFileSync('functions/api/page-tracking/_notifications.js','utf8');
           assert(!visitAlerts.includes('ALERT_COOLDOWN_MS'), 'Do not throttle genuine new sessions by browser or IP');
           assert(!visitAlerts.includes('SURGE_EMAIL_LIMIT'), 'Do not suppress genuine sessions under a global burst cap');
           assert(visitAlerts.includes('page_tracking_session_alerts'), 'Initial email must be claimed by page and session');
           assert(visitAlerts.includes('same_browser_session'), 'Duplicate session alerts must be suppressed');
           assert(visitAlerts.includes("BOT_UA.test(ua)"), 'Known automated previews should not email');
-          const activityAlerts=fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8');
-          assert(activityAlerts.includes('period===0?notified===0:notified<period'), 'First meaningful action in initial session must email once');
-          assert(activityAlerts.includes('notified_period=-1'), 'Only one action email per initial session');
-          assert(activityAlerts.includes("e.event_name==='trial_unlocked'"), 'Trial unlock should generate a meaningful activity alert');
+          assert(returnAlerts.includes("e.event_name==='trial_unlocked'"), 'Successful unlock is a meaningful action');
           const visitPost=fs.readFileSync('functions/api/page-tracking/index.js','utf8');
           assert(visitPost.includes('session_id:session'), 'Initial visit alerts must use the browser session ID');
-          assert(returnAlerts.includes('page_tracking_activity_periods'), 'Must track leave-and-return periods');
-          assert(returnAlerts.includes("event.event_name==='page_hidden'"), 'Leaving page must disarm current period');
-          assert(returnAlerts.includes("event.event_name==='page_resumed'"), 'Returning must begin a new period');
-          assert(returnAlerts.includes('notified_period<?'), 'Must send at most one email per return period');
-          assert(returnAlerts.includes('tracking-activity-period-'), 'Activity period must use stable idempotency key');
+          assert(returnAlerts.includes('page_tracking_activity_periods'), 'Previously notified visits must not be emailed again');
+          assert(returnAlerts.includes('page_tracking_activity_alerts'), 'Activity notification claim must be persisted');
           assert(browser.includes("record('trial_cta_clicked',a)"), 'Trial call-to-action link clicks must be captured');
           assert(browser.includes("record('checkout_blocked',a,'eligibility_not_confirmed')"), 'Ineligible checkout attempts must not be recorded as successful clicks');
           assert(browser.includes("record('trial_unlocked',success)"), 'Successful lead form must log a trial unlock');
+          assert(browser.includes("flushPending();"), 'Pending form input must be captured before CTA email');
+          assert(browser.includes("while(queue.length)"), 'Unsent events must not be discarded on page departure');
           assert(fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8').includes("e.event_name==='checkout_blocked'"), 'Later blocked CTA attempts should be treated as meaningful attempts, not successful checkouts');
           const trackingEvents=fs.readFileSync('functions/api/page-tracking/_activity.js','utf8');
           assert(trackingEvents.includes("'checkout_blocked'"), 'Blocked checkout event must be accepted');
