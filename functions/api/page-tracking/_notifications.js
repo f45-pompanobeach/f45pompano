@@ -39,7 +39,9 @@ export async function notifyNewTrackingVisit(context,db,visit){
   if(Number(claim.meta?.changes||0)!==1)return;
   // This guard applies only to new-visit emails, not tracking rows, activity
   // timelines, or the separate new-lead notification workflow.
-  const suppressed=await suppressRapidRepeat(context,db,visit);
+  let suppressed='';
+  try{suppressed=await suppressRapidRepeat(context,db,visit)}
+  catch(error){console.error('Page Tracking repeat-alert guard unavailable:',error?.message||error)}
   if(suppressed){
    await db.prepare("UPDATE page_tracking_alert_deliveries SET status='suppressed',error=? WHERE visit_id=?")
     .bind(suppressed,visit.id).run();
