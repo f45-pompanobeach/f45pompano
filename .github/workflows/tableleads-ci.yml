@@ -293,7 +293,7 @@ jobs:
           assert(returnAlerts.includes("event.event_name==='page_hidden'"), 'Leaving page must disarm current period');
           assert(returnAlerts.includes("event.event_name==='page_resumed'"), 'Returning must begin a new period');
           assert(returnAlerts.includes('notified_period<?'), 'Must send at most one email per return period');
-          assert(returnAlerts.includes('tracking-return-period-'), 'Return period must use stable idempotency key');
+          assert(returnAlerts.includes('tracking-activity-period-'), 'Activity period must use stable idempotency key');
           assert(browser.includes("record('trial_cta_clicked',a)"), 'Trial call-to-action link clicks must be captured');
           assert(browser.includes("record('checkout_blocked',a,'eligibility_not_confirmed')"), 'Ineligible checkout attempts must not be recorded as successful clicks');
           assert(browser.includes("record('trial_unlocked',success)"), 'Successful lead form must log a trial unlock');
