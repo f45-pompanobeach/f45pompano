@@ -12,6 +12,7 @@ const meaningful=e=>
  e.event_name==='button_clicked'||
  e.event_name==='form_submit_attempt'||
  e.event_name==='form_submitted'||
+ e.event_name==='trial_unlocked'||
  (e.event_name==='field_edited'&&!!String(e.field_value||'').trim());
 const describe=e=>{
  if(e.event_name==='checkout_clicked')return 'Clicked Mindbody checkout';
@@ -19,6 +20,7 @@ const describe=e=>{
  if(e.event_name==='trial_cta_clicked')return 'Clicked trial offer button';
  if(e.event_name==='form_submit_attempt')return 'Attempted trial form submission';
  if(e.event_name==='form_submitted')return 'Submitted trial form';
+ if(e.event_name==='trial_unlocked')return 'Unlocked trial after submitting lead details';
  if(e.event_name==='button_clicked')return 'Clicked button: '+String(e.target||'button').slice(0,65);
  return 'Entered or changed '+String(e.field_name||'contact field').replace(/_/g,' ');
 };
