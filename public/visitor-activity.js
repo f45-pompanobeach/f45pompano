@@ -53,12 +53,15 @@
   }
   function send(useBeacon){
    clearTimeout(timer);
-   if(!queue.length)return;
-   var events=queue.splice(0,12),body=JSON.stringify({page,session,visitor,foreground:true,events});
-   if(useBeacon&&navigator.sendBeacon){
-     try{if(navigator.sendBeacon('/api/page-tracking/activity/',new Blob([body],{type:'application/json'})))return}catch(e){}
+   // Flush all pending events before navigation. Each server request remains
+   // within its 12-event limit; no final form edits are silently discarded.
+   while(queue.length){
+    var events=queue.splice(0,12),body=JSON.stringify({page,session,visitor,foreground:true,events});
+    if(useBeacon&&navigator.sendBeacon){
+     try{if(navigator.sendBeacon('/api/page-tracking/activity/',new Blob([body],{type:'application/json'})))continue}catch(e){}
+    }
+    fetch('/api/page-tracking/activity/',{method:'POST',headers:{'content-type':'application/json'},body,credentials:'same-origin',keepalive:true}).catch(function(){});
    }
-   fetch('/api/page-tracking/activity/',{method:'POST',headers:{'content-type':'application/json'},body,credentials:'same-origin',keepalive:true}).catch(function(){});
   }
   function snapshotContactFields(form,reason){
    if(!form||!form.matches?.('form#partnerLeadForm'))return;
@@ -117,11 +120,15 @@
    },true);
    document.addEventListener('submit',function(e){
     if(e.target?.matches?.('form')){
+      flushPending();
       snapshotContactFields(e.target,'submit_snapshot');
       record('form_submit_attempt',e.target);
+      send();
     }
    },true);
    document.addEventListener('click',function(e){
+    // Capture the last typed characters before a checkout or form button
+    // initiates the consolidated activity notification.
     var a=e.target.closest&&e.target.closest('a[href]');
     if(a){
       try{var u=new URL(a.href,location.href);
@@ -139,7 +146,19 @@
       }catch(ex){}
     }else{
       var b=e.target.closest&&e.target.closest('button');
-      if(b)record('button_clicked',b);
+      if(b&&!b.closest('form#partnerLeadForm')){
+       flushPending();
+       snapshotContactFields(document.getElementById('partnerLeadForm'),'button_snapshot');
+       record('button_clicked',b);
+       send();
+      }
+    }
+    // Keep button and preceding text events in the same batch whenever
+    // possible. Submit buttons are handled by the submit event above.
+    if(a?.matches('a.meta-direct-cta')||a?.hash==='#claim-form'){
+      flushPending();
+      snapshotContactFields(document.getElementById('partnerLeadForm'),'button_snapshot');
+      send();
     }
    },true);
    var success=document.querySelector('[data-activity-success],#claimSuccess,#rootClaimSuccess,.claim-success');
