@@ -1,5 +1,35 @@
 import {sendGatewayEmail} from '../leads/_email_gateway.js';
 import {trackingNotificationConfig} from './admin/notifications.js';
+// Meta/social link previews can start independent JS contexts with fresh
+// sessionStorage IDs. Preserve those visits, but avoid emailing every rapid
+// repeat from the same page and network/browser. Raw IPs are never stored.
+const ALERT_COOLDOWN_MS=20*60*1000;
+const BOT_UA=/(?:facebookexternalhit|facebot|meta-externalagent|meta-externalfetcher|googlebot|bingbot|headlesschrome|lighthouse|pagespeed)/i;
+async function notificationSignature(context,visit){
+ const request=context.request;
+ if(!request)return null;
+ const ua=String(request.headers.get('user-agent')||'').slice(0,320);
+ const ip=String(request.headers.get('cf-connecting-ip')||'').trim();
+ const visitor=String(visit.visitor_id||'');
+ const identity=ip&&ua?'network:'+ip+'|'+ua:/^[a-f0-9]{32}$/.test(visitor)?'browser:'+visitor:null;
+ const secret=String(context.env?.EMAIL_GATEWAY_APP_KEY||'');
+ if(!identity||!secret)return null;
+ const bytes=new TextEncoder();
+ const key=await crypto.subtle.importKey('raw',bytes.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+ const signature=await crypto.subtle.sign('HMAC',key,bytes.encode(visit.page+'|'+identity));
+ return Array.from(new Uint8Array(signature),v=>v.toString(16).padStart(2,'0')).join('');
+}
+async function suppressRapidRepeat(context,db,visit){
+ const ua=String(context.request?.headers.get('user-agent')||'');
+ if(BOT_UA.test(ua))return 'automated_preview';
+ const signature=await notificationSignature(context,visit);
+ if(!signature)return '';
+ await db.prepare('CREATE TABLE IF NOT EXISTS page_tracking_alert_burst_guard (signature TEXT PRIMARY KEY,last_alert_at INTEGER NOT NULL)').run();
+ const now=Date.now();
+ const claim=await db.prepare('INSERT INTO page_tracking_alert_burst_guard(signature,last_alert_at) VALUES(?,?) ON CONFLICT(signature) DO UPDATE SET last_alert_at=excluded.last_alert_at WHERE last_alert_at<?')
+  .bind(signature,now,now-ALERT_COOLDOWN_MS).run();
+ return Number(claim.meta?.changes||0)===1?'':'rapid_repeat';
+}
 export async function notifyNewTrackingVisit(context,db,visit){
  try{
   const settings=await trackingNotificationConfig(db);
@@ -7,6 +37,14 @@ export async function notifyNewTrackingVisit(context,db,visit){
   await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_alert_deliveries (visit_id TEXT PRIMARY KEY, created_at TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'queued', gateway_id TEXT, error TEXT)").run();
   const claim=await db.prepare("INSERT OR IGNORE INTO page_tracking_alert_deliveries(visit_id,created_at,status) VALUES(?,?,'queued')").bind(visit.id,new Date().toISOString()).run();
   if(Number(claim.meta?.changes||0)!==1)return;
+  // This guard applies only to new-visit emails, not tracking rows, activity
+  // timelines, or the separate new-lead notification workflow.
+  const suppressed=await suppressRapidRepeat(context,db,visit);
+  if(suppressed){
+   await db.prepare("UPDATE page_tracking_alert_deliveries SET status='suppressed',error=? WHERE visit_id=?")
+    .bind(suppressed,visit.id).run();
+   return;
+  }
   const task=(async()=>{
    try{
     const result=await sendGatewayEmail(context.env,{
