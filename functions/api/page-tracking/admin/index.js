@@ -33,4 +33,32 @@ export async function onRequestDelete({request,env}){
   return deleted===1?json({ok:true,deleted:1}):json({ok:false,error:'visit_not_found'},404);
  }catch{return json({ok:false,error:'delete_failed'},503)}
 }
+// Bulk deletion is deliberately Super Admin-only, bounded and keyed by exact rows.
+export async function onRequestPatch({request,env}){
+ if(!await adminAuthorized(request,env))return json({ok:false,error:'super_admin_required'},403);
+ const db=eventDb(env);if(!db)return json({ok:false,error:'db_unavailable'},503);
+ let body;try{body=await request.json()}catch{return json({ok:false,error:'invalid_json'},400)}
+ const selected=body?.selected;
+ if(!Array.isArray(selected)||!selected.length||selected.length>100)return json({ok:false,error:'invalid_selection'},400);
+ const ids=new Set();
+ for(const row of selected){
+  const id=String(row?.id||''),source=row?.visit_source;
+  if(!/^[a-f0-9-]{36}$/i.test(id)||!['landing','meta'].includes(source)||ids.has(source+':'+id))
+   return json({ok:false,error:'invalid_selection'},400);
+  ids.add(source+':'+id);
+ }
+ try{
+  // Apply the selected deletes together; do not touch nonselected visit rows.
+  const queries=[];
+  for(const {id,visit_source:source} of selected){
+   if(source==='landing')queries.push(db.prepare('DELETE FROM landing_page_activity WHERE visit_id=?').bind(id));
+   queries.push(db.prepare('DELETE FROM '+(source==='meta'?'meta_landing_visits':'landing_page_visits')+' WHERE id=?').bind(id));
+  }
+  const results=await db.batch(queries);
+  // Count only the visit deletion statements (not related activity events).
+  let n=0,k=0;
+  for(const row of selected){if(row.visit_source==='landing')k++;n+=Number(results[k]?.meta?.changes||0);k++}
+  return json({ok:true,deleted:n,requested:selected.length});
+ }catch{return json({ok:false,error:'bulk_delete_failed'},503)}
+}
 export function onRequest(){return json({ok:false},405)}
