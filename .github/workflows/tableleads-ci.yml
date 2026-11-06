@@ -67,6 +67,7 @@ jobs:
           node --check functions/api/page-tracking/index.js
           node --check functions/api/page-tracking/_activity.js
           node --check functions/api/page-tracking/activity/index.js
+          node --check functions/api/page-tracking/mindbody-click/index.js
           node --check functions/api/page-tracking/_notifications.js
           node --check functions/api/page-tracking/_return_alerts.js
           node --check functions/api/page-tracking/admin/notifications.js
@@ -202,7 +203,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=10'])
+            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=11'])
               assert(html.includes(asset),file+' missing '+asset);
             assert(html.includes('/mobile-viewport-fixes.css?v=1'),file+' missing mobile viewport CSS');
             assert(html.includes('class="activity-disclosure"'),file+' missing bottom-of-page activity notice');
@@ -218,6 +219,14 @@ jobs:
           assert(page.includes('id="trackingNotificationSettings"'));
           assert(page.includes('id="trackingAlertsEnabled"'));
           assert(page.includes('id="trackingAlertRecipient"'));
+          assert(page.includes('id="engagement"'), 'Activity classification filter missing');
+          assert(page.includes('Page view only'), 'Page-only visits must be labeled clearly');
+          assert(page.includes('Eligible Mindbody click'), 'Eligible Mindbody clicks must be distinguished');
+          assert(page.includes('Blocked checkout attempts: '), 'Blocked checkout attempts should be visible');
+          const pageTrackingAPI=fs.readFileSync('functions/api/page-tracking/admin/index.js','utf8');
+          assert(pageTrackingAPI.includes('AS engagement_count'), 'Visit summary must return engagement totals');
+          assert(pageTrackingAPI.includes('AS blocked_checkout_count'), 'Visit summary must count blocked checkout attempts');
+
           assert(page.includes('id="summaryRange"'), 'Summary date-range heading missing');
           assert(page.includes('class="summary-date-range"'), 'Date range must appear in summary');
           assert(page.includes('id="from" type="date"')&&page.includes('id="to" type="date"'), 'Date picker fields missing');
@@ -284,6 +293,12 @@ jobs:
           assert(returnAlerts.includes('notified_period<?'), 'Must send at most one email per return period');
           assert(returnAlerts.includes('tracking-return-period-'), 'Return period must use stable idempotency key');
           assert(browser.includes("record('trial_cta_clicked',a)"), 'Trial call-to-action link clicks must be captured');
+          assert(browser.includes("record('checkout_blocked',a,'eligibility_not_confirmed')"), 'Ineligible checkout attempts must not be recorded as successful clicks');
+          const trackingEvents=fs.readFileSync('functions/api/page-tracking/_activity.js','utf8');
+          assert(trackingEvents.includes("'checkout_blocked'"), 'Blocked checkout event must be accepted');
+          const checkoutAPI=fs.readFileSync('functions/api/page-tracking/mindbody-click/index.js','utf8');
+          assert(!checkoutAPI.includes('visited_at>=?'), 'Eligible click should reuse original tracking session');
+
           assert(browser.includes("dirtyFields.has(key)"), 'Untouched restored fields must not be re-snapshotted');
           assert(!browser.includes("record('field_started'"), 'Focusing fields must not be tracked');
           assert(!browser.includes("record('field_left'"), 'Leaving fields must not be tracked');
