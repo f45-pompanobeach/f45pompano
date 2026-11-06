@@ -24,7 +24,7 @@ const describe=e=>{
  return 'Clicked button: '+String(e.target||'button').slice(0,65);
 };
 
-export async function notifyReturningActivity(context,db,{visitId,page,events}){
+export async function notifyReturningActivity(context,db,{visitId,page,session,events}){
  if(!events?.length)return;
  try{
   // The legacy table identifies sessions that already received an activity
@@ -33,7 +33,10 @@ export async function notifyReturningActivity(context,db,{visitId,page,events}){
    .bind(visitId).first().catch(()=>null);
   if(prior&&Number(prior.notified_period)!==0)return;
 
-  const hasTrigger=events.some(e=>actualAction(e)||e.event_name==='page_hidden');
+  // Form submission is asynchronous. Wait for the success/unlock event (or
+  // departure), so the notification links to the completed form flow.
+  const notifyAction=e=>actualAction(e)&&e.event_name!=='form_submit_attempt';
+  const hasTrigger=events.some(e=>notifyAction(e)||e.event_name==='page_hidden');
   if(!hasTrigger)return;
   // Look across saved batches so one email can describe all progress,
   // rather than a single first-name edit or isolated button click.
@@ -50,17 +53,17 @@ export async function notifyReturningActivity(context,db,{visitId,page,events}){
   // If there is an action, send when a button event is saved, not on an
   // earlier typing event. If action preceded this request, the saved state
   // still allows one consolidated email on the next trigger.
-  const trigger=events.find(e=>actualAction(e))||events.find(e=>e.event_name==='page_hidden');
+  const trigger=events.find(e=>notifyAction(e))||events.find(e=>e.event_name==='page_hidden');
   if(!trigger)return;
   const settings=await trackingNotificationConfig(db);
   if(!settings.enabled)return;
-  await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_activity_alerts (visit_id TEXT PRIMARY KEY,created_at TEXT NOT NULL,trigger TEXT NOT NULL)").run();
-  const claim=await db.prepare('INSERT OR IGNORE INTO page_tracking_activity_alerts(visit_id,created_at,trigger) VALUES(?,?,?)')
-   .bind(visitId,new Date().toISOString(),trigger.event_name).run();
+  await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_activity_alerts (page TEXT NOT NULL,session_id TEXT NOT NULL,visit_id TEXT NOT NULL,created_at TEXT NOT NULL,trigger TEXT NOT NULL,PRIMARY KEY(page,session_id))").run();
+  const claim=await db.prepare('INSERT OR IGNORE INTO page_tracking_activity_alerts(page,session_id,visit_id,created_at,trigger) VALUES(?,?,?,?,?)')
+   .bind(page,session,visitId,new Date().toISOString(),trigger.event_name).run();
   if(Number(claim.meta?.changes||0)!==1)return;
   // Email contains a summary and direct activity link, not partial contact
   // fields. The timeline is already persisted when this function runs.
-  const action=events.filter(actualAction).at(-1);
+  const action=events.filter(notifyAction).at(-1);
   const task=(async()=>{
    try{
     const result=await sendGatewayEmail(context.env,{
