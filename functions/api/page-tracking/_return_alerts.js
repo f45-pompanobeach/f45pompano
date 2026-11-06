@@ -32,6 +32,15 @@ export async function notifyReturningActivity(context,db,{visitId,page,events}){
   const created=await db.prepare("INSERT OR IGNORE INTO page_tracking_activity_periods(visit_id,period,away,notified_period) VALUES(?,0,0,0)")
    .bind(visitId).run();
   const firstState=Number(created.meta?.changes||0)===1;
+  // If an initial page-view alert was suppressed as a repeat/preview, a later
+  // real trial action must still be able to notify the studio once.
+  let initialAlertSuppressed=false;
+  if(events.some(meaningful)){
+   try{
+    const row=await db.prepare("SELECT 1 AS suppressed FROM page_tracking_alert_deliveries WHERE visit_id=? AND status='suppressed' LIMIT 1").bind(visitId).first();
+    initialAlertSuppressed=!!row;
+   }catch{}
+  }
   let state=await db.prepare('SELECT period,away,notified_period FROM page_tracking_activity_periods WHERE visit_id=?')
    .bind(visitId).first();
   if(!state)return;
@@ -46,7 +55,7 @@ export async function notifyReturningActivity(context,db,{visitId,page,events}){
     if(away||(firstState&&event.event_name==='page_resumed')){
      period+=1;away=0;
     }
-   }else if(meaningful(event)&&period>0&&notified<period&&!away&&!action){
+   }else if(meaningful(event)&&(period>0||initialAlertSuppressed)&&(notified<period||(period===0&&initialAlertSuppressed&&notified===0))&&!away&&!action){
     action=event;actionPeriod=period;
    }
   }
@@ -58,8 +67,11 @@ export async function notifyReturningActivity(context,db,{visitId,page,events}){
   const settings=await trackingNotificationConfig(db);
   if(!settings.enabled)return;
   // Only the first qualifying event in a return period can claim its email.
-  const claim=await db.prepare('UPDATE page_tracking_activity_periods SET notified_period=? WHERE visit_id=? AND notified_period<? AND period>=?')
-   .bind(actionPeriod,visitId,actionPeriod,actionPeriod).run();
+  const claim=actionPeriod===0
+   ?await db.prepare('UPDATE page_tracking_activity_periods SET notified_period=-1 WHERE visit_id=? AND period=0 AND notified_period=0')
+     .bind(visitId).run()
+   :await db.prepare('UPDATE page_tracking_activity_periods SET notified_period=? WHERE visit_id=? AND notified_period<? AND period>=?')
+     .bind(actionPeriod,visitId,actionPeriod,actionPeriod).run();
   if(Number(claim.meta?.changes||0)!==1)return;
   const task=(async()=>{
    try{
