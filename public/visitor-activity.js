@@ -147,7 +147,7 @@
     var sent=false;
     function changed(){
       var shown=success.classList.contains('is-visible')||(!success.hidden&&getComputedStyle(success).display!=='none');
-      if(shown&&!sent){sent=true;record('form_submitted',success);send();}
+      if(shown&&!sent){sent=true;record('form_submitted',success);record('trial_unlocked',success);send();}
     }
     var observer=new MutationObserver(changed);
     observer.observe(success,{attributes:true,attributeFilter:['class','style','hidden']});
