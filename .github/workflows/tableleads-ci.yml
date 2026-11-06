@@ -264,6 +264,14 @@ jobs:
           assert(!returnAlerts.includes('RETURN_GAP_MS'), 'Activity email must never require a minimum inactivity window');
           assert(returnAlerts.includes("e.event_name==='field_edited'"), 'Return contact edits must be detected');
           assert(returnAlerts.includes("e.event_name==='button_clicked'"), 'Return trial actions must be detected');
+          const visitAlerts=fs.readFileSync('functions/api/page-tracking/_notifications.js','utf8');
+          assert(visitAlerts.includes('ALERT_COOLDOWN_MS=20*60*1000'), 'Visit email burst suppression window missing');
+          assert(visitAlerts.includes('page_tracking_alert_burst_guard'), 'Visit alert fingerprint guard missing');
+          assert(visitAlerts.includes("BOT_UA.test(ua)"), 'Automated preview filtering missing');
+          assert(visitAlerts.includes("status='suppressed'"), 'Suppressed email status must be saved');
+          assert(visitAlerts.includes("crypto.subtle.sign('HMAC'"), 'Network fingerprints must not store raw IPs');
+          const visitPost=fs.readFileSync('functions/api/page-tracking/index.js','utf8');
+          assert(visitPost.includes('visitor_id:visitor'), 'Main visit endpoint must pass visitor identity to alert guard');
           assert(returnAlerts.includes('page_tracking_activity_periods'), 'Must track leave-and-return periods');
           assert(returnAlerts.includes("event.event_name==='page_hidden'"), 'Leaving page must disarm current period');
           assert(returnAlerts.includes("event.event_name==='page_resumed'"), 'Returning must begin a new period');
