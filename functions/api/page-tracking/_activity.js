@@ -2,7 +2,7 @@
 // No passwords, card details, free-text areas or form submissions are stored.
 export const EVENT_NAMES=new Set([
  'page_view','field_started','field_edited','field_left','checkbox_changed',
- 'form_submit_attempt','form_submitted','checkout_clicked','button_clicked','trial_cta_clicked',
+ 'form_submit_attempt','form_submitted','checkout_clicked','checkout_blocked','button_clicked','trial_cta_clicked',
  'details_toggled','link_clicked','validation_blocked','progress_opt_in','progress_opt_out','page_hidden','page_resumed'
 ]);
 export const CONTACT_FIELDS=new Set(['first_name','last_name','email','phone','zip']);
