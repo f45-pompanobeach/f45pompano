@@ -9,8 +9,6 @@ const actualAction=e=>[
  'checkout_clicked','checkout_blocked','trial_cta_clicked','button_clicked',
  'form_submit_attempt','form_submitted','trial_unlocked'
 ].includes(e.event_name);
-const eventHasContact=e=>e.event_name==='field_edited'&&!!String(e.field_value||'').trim();
-const activityEvent=e=>actualAction(e)||eventHasContact(e);
 const eastern=iso=>new Date(iso).toLocaleString('en-US',{
  timeZone:'America/New_York',dateStyle:'medium',timeStyle:'medium'
 });
@@ -36,7 +34,17 @@ export async function notifyReturningActivity(context,db,{visitId,page,session,e
   // Form submission is asynchronous. Wait for the success/unlock event (or
   // departure), so the notification links to the completed form flow.
   const notifyAction=e=>actualAction(e)&&e.event_name!=='form_submit_attempt';
-  const hasTrigger=events.some(e=>notifyAction(e)||e.event_name==='page_hidden');
+  // Beacon and fetch requests can reach D1 out of order when a tab closes.
+  // If a delayed field edit is saved after its already-recorded page_hidden,
+  // send the one departure email now, not an email on ordinary typing.
+  let delayedDeparture=null;
+  if(events.some(e=>e.event_name==='field_edited')&&!events.some(e=>notifyAction(e)||e.event_name==='page_hidden')){
+   const lastExit=await db.prepare("SELECT created_at FROM landing_page_activity WHERE page=? AND session_id=? AND event_name='page_hidden' ORDER BY created_at DESC LIMIT 1")
+    .bind(page,session).first();
+   if(lastExit?.created_at&&events.some(e=>e.event_name==='field_edited'&&e.at<=lastExit.created_at))
+    delayedDeparture={event_name:'page_hidden',at:lastExit.created_at};
+  }
+  const hasTrigger=events.some(e=>notifyAction(e)||e.event_name==='page_hidden')||!!delayedDeparture;
   if(!hasTrigger)return;
   // Look across saved batches so one email can describe all progress,
   // rather than a single first-name edit or isolated button click.
@@ -49,11 +57,11 @@ export async function notifyReturningActivity(context,db,{visitId,page,session,e
   // An empty page visit, checkbox-only visit or browser reload never emails.
   if(fields+buttons===0)return;
   // If only text was entered, wait until the page is hidden/navigated away.
-  if(!buttons&&!events.some(e=>e.event_name==='page_hidden'))return;
+  if(!buttons&&!events.some(e=>e.event_name==='page_hidden')&&!delayedDeparture)return;
   // If there is an action, send when a button event is saved, not on an
   // earlier typing event. If action preceded this request, the saved state
   // still allows one consolidated email on the next trigger.
-  const trigger=events.find(e=>notifyAction(e))||events.find(e=>e.event_name==='page_hidden');
+  const trigger=events.find(e=>notifyAction(e))||events.find(e=>e.event_name==='page_hidden')||delayedDeparture;
   if(!trigger)return;
   const settings=await trackingNotificationConfig(db);
   if(!settings.enabled)return;
