@@ -39,7 +39,7 @@ export async function onRequestPost(context){
    const id=crypto.randomUUID();
    await db.prepare('INSERT INTO landing_page_visits(id,visited_at,page,session_id,visitor_id) VALUES(?,?,?,?,?)').bind(id,now,page,session,visitor||null).run();
    row={id};
-   await notifyNewTrackingVisit(context,db,{id,page,visitor_id:visitor||null,visited_at:now});
+   await notifyNewTrackingVisit(context,db,{id,page,session_id:session,visitor_id:visitor||null,visited_at:now});
   }
   if(visitor)await db.prepare('UPDATE landing_page_visits SET visitor_id=COALESCE(visitor_id,?) WHERE id=?').bind(visitor,row.id).run();
   const total=await db.prepare('SELECT COUNT(*) AS n FROM landing_page_activity WHERE visit_id=?').bind(row.id).first();
