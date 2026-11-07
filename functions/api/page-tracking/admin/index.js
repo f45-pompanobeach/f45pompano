@@ -40,7 +40,10 @@ export async function onRequestDelete({request,env}){
    return json({ok:false,error:'invalid_visit'},400);
  const table=source==='meta'?'meta_landing_visits':'landing_page_visits';
  try{
-  if(source==='landing')await db.prepare('DELETE FROM landing_page_activity WHERE visit_id=?').bind(id).run();
+  if(source==='landing'){
+   await db.prepare('DELETE FROM landing_page_activity WHERE visit_id=?').bind(id).run();
+   await db.prepare('DELETE FROM page_tracking_diagnostics WHERE visit_id=?').bind(id).run();
+  }
   const result=await db.prepare('DELETE FROM '+table+' WHERE id=?').bind(id).run();
   const deleted=Number(result?.meta?.changes||0);
   return deleted===1?json({ok:true,deleted:1}):json({ok:false,error:'visit_not_found'},404);
@@ -64,13 +67,16 @@ export async function onRequestPatch({request,env}){
   // Apply the selected deletes together; do not touch nonselected visit rows.
   const queries=[];
   for(const {id,visit_source:source} of selected){
-   if(source==='landing')queries.push(db.prepare('DELETE FROM landing_page_activity WHERE visit_id=?').bind(id));
+   if(source==='landing'){
+    queries.push(db.prepare('DELETE FROM landing_page_activity WHERE visit_id=?').bind(id));
+    queries.push(db.prepare('DELETE FROM page_tracking_diagnostics WHERE visit_id=?').bind(id));
+   }
    queries.push(db.prepare('DELETE FROM '+(source==='meta'?'meta_landing_visits':'landing_page_visits')+' WHERE id=?').bind(id));
   }
   const results=await db.batch(queries);
   // Count only the visit deletion statements (not related activity events).
   let n=0,k=0;
-  for(const row of selected){if(row.visit_source==='landing')k++;n+=Number(results[k]?.meta?.changes||0);k++}
+  for(const row of selected){if(row.visit_source==='landing')k+=2;n+=Number(results[k]?.meta?.changes||0);k++}
   return json({ok:true,deleted:n,requested:selected.length});
  }catch{return json({ok:false,error:'bulk_delete_failed'},503)}
 }
