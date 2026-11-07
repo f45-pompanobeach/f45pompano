@@ -1,6 +1,7 @@
 import {eventDb,json} from '../leads/_shared.js';
 import {getPage} from '../landing/_shared.js';
 import {notifyNewTrackingVisit} from './_notifications.js';
+import {captureDiagnostics} from './_diagnostics.js';
 const fields=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id','referrer'];
 function clean(v,max=160){return String(v||'').trim().slice(0,max).replace(/[\u0000-\u001f]/g,'')}
 async function schema(db){
@@ -42,6 +43,9 @@ export async function onRequestPost(context){
   await db.prepare('UPDATE landing_page_visits SET '+missing+' WHERE page=? AND session_id=?')
     .bind(...vals,page,session).run();
   if(visitor)await db.prepare('UPDATE landing_page_visits SET visitor_id=COALESCE(visitor_id,?) WHERE page=? AND session_id=?').bind(visitor,page,session).run();
+  // Always attach first-party diagnostics to the original tracking session;
+  // a concurrent activity request can create that row before the visit POST.
+  await captureDiagnostics(db,request,env,{visitId,page,session,payload:d});
   if(Number(result.meta?.changes||0)>0)await notifyNewTrackingVisit(context,db,{id:visitId,page,session_id:session,visitor_id:visitor,visited_at:now.toISOString(),...Object.fromEntries(fields.map((name,i)=>[name,vals[i]]))});
   return json({ok:true,tracked:(result.meta?.changes||0)>0});
  }catch{return json({ok:false,error:'storage_unavailable'},503)}
