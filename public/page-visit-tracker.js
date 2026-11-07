@@ -33,6 +33,32 @@
     }
     var q=new URLSearchParams(location.search);
     var data={page:page,session:sid,visitor:visitor,referrer:document.referrer||'',foreground:true};
+    // Deliberately allowlist attribution fields. Never transmit whole query
+    // strings, raw click IDs, full user agent, or arbitrary URL parameters.
+    try{
+      var nav=performance.getEntriesByType?.('navigation')?.[0];
+      data.navigation_type=nav?.type||'unknown';
+    }catch(e){data.navigation_type='unknown'}
+    data.entry_path=location.pathname.slice(0,150);
+    data.screen_bucket=window.innerWidth<600?'small':window.innerWidth<1100?'medium':'large';
+    var allowedKeys=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id','fbclid','gclid','gbraid','wbraid','msclkid','ttclid','qr_visit','qr_id'];
+    data.query_keys=[...q.keys()].filter(k=>allowedKeys.includes(k)).slice(0,16).join(',');
+    data.click_id_type=['fbclid','gclid','gbraid','wbraid','msclkid','ttclid'].filter(k=>q.has(k)).join(',');
+    // First-touch attribution belongs to this random first-party browser ID.
+    // Keep only campaign fields and a referrer domain, not personal details.
+    try{
+      var first=JSON.parse(localStorage.getItem('f45_first_touch')||'null');
+      if(!first||typeof first!=='object'){
+        var domain='';try{domain=document.referrer?new URL(document.referrer).hostname:''}catch(e){}
+        first={source:(q.get('utm_source')||domain||'Direct / Unknown').slice(0,100),
+          medium:(q.get('utm_medium')||'').slice(0,100),
+          campaign:(q.get('utm_campaign')||'').slice(0,120)};
+        localStorage.setItem('f45_first_touch',JSON.stringify(first));
+      }
+      data.first_touch_source=String(first.source||'').slice(0,100);
+      data.first_touch_medium=String(first.medium||'').slice(0,100);
+      data.first_touch_campaign=String(first.campaign||'').slice(0,120);
+    }catch(e){}
     ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id'].forEach(function(k){data[k]=(q.get(k)||'').slice(0,160)});
     window.__f45PageVisitSent=true;
     fetch('/api/page-tracking/',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data),credentials:'same-origin',keepalive:true}).catch(function(){});
