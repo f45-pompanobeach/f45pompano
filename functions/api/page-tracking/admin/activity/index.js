@@ -30,8 +30,22 @@ export async function onRequestGet({request,env}){
   // Network hashes help correlate anonymous visits for a short time.
   // Never expose them to non-admin staff or the public.
   const safeDiagnostics=diagnostics?{...diagnostics,network_hash:isAdmin?diagnostics.network_hash:null}:null;
+  // Cohesive engagement metrics only; no recordings or additional contact data.
+  const scroll=events.filter(e=>/^scroll_(25|50|75|100)$/.test(e.event_name))
+   .map(e=>Number(e.event_name.split('_')[1]));
+  const summary={
+   max_scroll_percent:scroll.length?Math.max(...scroll):0,
+   visible_seconds:events.filter(e=>e.event_name==='visible_duration')
+    .reduce((sum,e)=>sum+Math.min(3600,Math.max(0,Number(e.detail)||0)),0),
+   video_plays:events.filter(e=>e.event_name==='video_play').length,
+   video_completions:events.filter(e=>e.event_name==='video_complete').length,
+   form_edits:events.filter(e=>e.event_name==='field_edited').length,
+   unlocks:events.filter(e=>e.event_name==='trial_unlocked').length,
+   mindbody_clicks:events.filter(e=>e.event_name==='checkout_clicked').length,
+   client_errors:events.filter(e=>e.event_name==='client_error').length
+  };
   // A browser's other landing pages form a journey, not proof of identity.
-  return json({ok:true,visit,events,return_visits:visits,diagnostics:safeDiagnostics,can_view_saved_contact:isAdmin});
+  return json({ok:true,visit,events,return_visits:visits,diagnostics:safeDiagnostics,summary,can_view_saved_contact:isAdmin});
  }catch(e){console.error('Activity detail error',e?.message||e);return json({ok:false,error:'history_unavailable'},503)}
 }
 export function onRequest(){return json({ok:false},405)}
