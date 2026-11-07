@@ -70,6 +70,24 @@ export async function captureDiagnostics(db,request,env,{visitId,page,session,pa
   const columns=['visit_id',...metaFields,'captured_at'];
   await db.prepare('INSERT OR IGNORE INTO page_tracking_diagnostics('+columns.join(',')+') VALUES('+columns.map(()=>'?').join(',')+')')
    .bind(id,...metaFields.map(k=>data[k]||''),data.captured_at).run();
+  // Flag unusually clustered requests for *review*, never assert they
+  // are bots or suppress emails based on a shared IP (e.g. a cellular carrier).
+  // Correlation is short-lived and uses only a keyed, non-reversible token.
+  if(data.network_hash){
+   const recent=await db.prepare(`SELECT COUNT(*) AS n
+      FROM page_tracking_diagnostics d
+      WHERE d.network_hash=? AND d.captured_at>=?`)
+     .bind(data.network_hash,new Date(Date.now()-60*1000).toISOString()).first();
+   if(Number(recent?.n||0)>=4){
+    await db.prepare(`UPDATE page_tracking_diagnostics
+     SET traffic_review='review',
+         review_reasons=CASE WHEN review_reasons='' THEN 'rapid_network_burst'
+           WHEN instr(review_reasons,'rapid_network_burst')>0 THEN review_reasons
+           ELSE review_reasons||',rapid_network_burst' END
+     WHERE network_hash=? AND captured_at>=? AND traffic_review<>'known_automated'`)
+      .bind(data.network_hash,new Date(Date.now()-60*1000).toISOString()).run();
+   }
+  }
   // Purge network correlation tokens after seven days; other coarse metadata stays.
   await db.prepare("UPDATE page_tracking_diagnostics SET network_hash='' WHERE network_hash<>'' AND captured_at<?")
    .bind(new Date(Date.now()-7*86400000).toISOString()).run();
