@@ -1,5 +1,6 @@
 import {adminAuthorized,namedUserFromRequest,eventDb,json} from '../../leads/_shared.js';
 import {ensureActivitySchema} from '../_activity.js';
+import {ensureDiagnosticSchema} from '../_diagnostics.js';
 const fields=['mindbody_clicked_at','utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id','referrer'];
 export async function onRequestGet({request,env}){
  const user=await namedUserFromRequest(request,env);
@@ -7,10 +8,22 @@ export async function onRequestGet({request,env}){
  const db=eventDb(env);if(!db)return json({ok:false,error:'db_unavailable'},503);
  try{
   await ensureActivitySchema(db);
+  await ensureDiagnosticSchema(db);
   const cols=await db.prepare('PRAGMA table_info(landing_page_visits)').all();
   for(const field of fields)if(!(cols.results||[]).some(c=>c.name===field))await db.prepare('ALTER TABLE landing_page_visits ADD COLUMN '+field+' TEXT').run().catch(e=>{if(!String(e).includes('duplicate column'))throw e});
   const [newRows,legacyRows]=await Promise.all([
-   db.prepare('SELECT id,visited_at,page,session_id,visitor_id,'+fields.join(',')+`, (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id) AS activity_count, (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id AND a.event_name IN ('field_edited','trial_cta_clicked','checkout_clicked','checkout_blocked','button_clicked','form_submit_attempt','form_submitted','trial_unlocked')) AS engagement_count, (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id AND a.event_name='checkout_blocked') AS blocked_checkout_count, (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id AND a.event_name='trial_unlocked') AS trial_unlock_count, (SELECT event_name FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id ORDER BY created_at DESC, rowid DESC LIMIT 1) AS last_activity FROM landing_page_visits ORDER BY visited_at DESC LIMIT 1500`).all(),
+   db.prepare('SELECT id,visited_at,page,session_id,visitor_id,'+fields.join(',')+`, (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id) AS activity_count, (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id AND a.event_name IN ('field_edited','trial_cta_clicked','checkout_clicked','checkout_blocked','button_clicked','form_submit_attempt','form_submitted','trial_unlocked')) AS engagement_count, (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id AND a.event_name='checkout_blocked') AS blocked_checkout_count, (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id AND a.event_name='trial_unlocked') AS trial_unlock_count, (SELECT event_name FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id ORDER BY created_at DESC, rowid DESC LIMIT 1) AS last_activity,
+   (SELECT browser FROM page_tracking_diagnostics d WHERE d.visit_id=landing_page_visits.id) AS browser,
+   (SELECT operating_system FROM page_tracking_diagnostics d WHERE d.visit_id=landing_page_visits.id) AS operating_system,
+   (SELECT device_type FROM page_tracking_diagnostics d WHERE d.visit_id=landing_page_visits.id) AS device_type,
+   (SELECT network_org FROM page_tracking_diagnostics d WHERE d.visit_id=landing_page_visits.id) AS network_org,
+   (SELECT traffic_review FROM page_tracking_diagnostics d WHERE d.visit_id=landing_page_visits.id) AS traffic_review,
+   (SELECT navigation_type FROM page_tracking_diagnostics d WHERE d.visit_id=landing_page_visits.id) AS navigation_type,
+   (SELECT first_touch_source FROM page_tracking_diagnostics d WHERE d.visit_id=landing_page_visits.id) AS first_touch_source,
+   (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id AND a.event_name LIKE 'scroll_%') AS scroll_events,
+   (SELECT COUNT(*) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id AND a.event_name IN ('video_play','video_pause','video_complete')) AS video_events,
+   (SELECT MAX(CAST(a.detail AS INTEGER)) FROM landing_page_activity a WHERE a.visit_id=landing_page_visits.id AND a.event_name='visible_duration') AS visible_seconds
+   FROM landing_page_visits ORDER BY visited_at DESC LIMIT 1500`).all(),
    db.prepare('SELECT id,visited_at,page,session_id FROM meta_landing_visits ORDER BY visited_at DESC LIMIT 300').all().catch(()=>({results:[]}))
   ]);
   const visits=[...(newRows.results||[]).map(row=>({...row,visit_source:'landing'})),...(legacyRows.results||[]).map(row=>({...row,visit_source:'meta'}))].sort((a,b)=>b.visited_at.localeCompare(a.visited_at)).slice(0,1500);
