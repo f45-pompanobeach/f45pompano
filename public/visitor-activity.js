@@ -77,6 +77,44 @@
   }
   function init(){
    record('page_view',null);
+   // Diagnostic engagement events are passive and never qualify for email.
+   // Only coarse milestones are retained; no cursor movements or recordings.
+   var seenScroll=new Set(),scrollScheduled=false,visibleFrom=Date.now(),lastDurationAt=0;
+   function scrollMilestone(){
+     scrollScheduled=false;
+     var total=Math.max(document.documentElement?.scrollHeight||0,document.body?.scrollHeight||0)-window.innerHeight;
+     if(total<=0)return;
+     var pct=Math.min(100,Math.max(0,100*(window.scrollY||0)/total));
+     [25,50,75,100].forEach(function(n){
+       if(pct>=n&&!seenScroll.has(n)){seenScroll.add(n);record('scroll_'+n,null);}
+     });
+   }
+   window.addEventListener('scroll',function(){
+     if(scrollScheduled)return;
+     scrollScheduled=true;
+     if(typeof requestAnimationFrame==='function')requestAnimationFrame(scrollMilestone);
+     else setTimeout(scrollMilestone,100);
+   },{passive:true});
+   document.addEventListener('play',function(e){
+     if(e.target?.matches?.('video'))record('video_play',e.target);
+   },true);
+   document.addEventListener('pause',function(e){
+     if(e.target?.matches?.('video')&&!e.target.ended)record('video_pause',e.target);
+   },true);
+   document.addEventListener('ended',function(e){
+     if(e.target?.matches?.('video'))record('video_complete',e.target);
+   },true);
+   function recordVisibleTime(){
+     if(!visibleFrom)return;
+     var now=Date.now(),seconds=Math.round((now-visibleFrom)/1000);
+     visibleFrom=0;
+     if(seconds>=1&&now-lastDurationAt>=500){
+       lastDurationAt=now;record('visible_duration',null,String(Math.min(seconds,3600)));
+     }
+   }
+   // Only a generic failure marker; never capture messages, URLs or stacks.
+   window.addEventListener('error',function(){record('client_error',null,'javascript_error');});
+   window.addEventListener('unhandledrejection',function(){record('client_error',null,'unhandled_rejection');});
    function flushPending(){
      pendingFields.forEach(function(el){
        if(!el.isConnected)return;
@@ -174,14 +212,17 @@
    }
    document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible'){
+      visibleFrom=Date.now();
       record('page_resumed',null);send();
     }
     if(document.visibilityState==='hidden'){
+      recordVisibleTime();
       flushPending();snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot');
       record('page_hidden',null);send(true);
     }
    });
    window.addEventListener('pagehide',function(){
+     recordVisibleTime();
      flushPending();snapshotContactFields(document.getElementById('partnerLeadForm'),'exit_snapshot');
      // Navigation away also ends this visit period, even on browsers that
      // skip the visibilitychange hidden event.
