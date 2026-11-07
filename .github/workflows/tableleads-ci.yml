@@ -203,7 +203,7 @@ jobs:
           for(const file of ['dist/index.html','dist/social-trial/index.html',
             'dist/sarpinos/index.html','dist/_landing-template/index.html']){
             const html=fs.readFileSync(file,'utf8');
-            for(const asset of ['/page-visit-tracker.js?v=5','/visitor-activity.js?v=13'])
+            for(const asset of ['/page-visit-tracker.js?v=6','/visitor-activity.js?v=14'])
               assert(html.includes(asset),file+' missing '+asset);
             assert(html.includes('/mobile-viewport-fixes.css?v=1'),file+' missing mobile viewport CSS');
             assert(html.includes('class="activity-disclosure"'),file+' missing bottom-of-page activity notice');
@@ -215,6 +215,10 @@ jobs:
           assert(!page.includes('class="visit-action-select"'), 'Actions dropdown should be removed');
           assert(!page.includes('value="delete">Delete Visit'), 'Per-row delete should be removed');
           assert(page.includes('id="activityContext"'));
+          assert(page.includes('id="activityDiagnostics"'), 'Technical diagnostics belong inside View Activity');
+          assert(page.includes('id="activityEngagement"'), 'Engagement details belong inside View Activity');
+          assert(page.includes('id="trafficReview"'), 'Suspicious-traffic assessment needs a filter');
+          assert(page.includes('No diagnostic snapshot was saved'), 'Old visits must show why data is unavailable');
           assert(page.includes('id="activityContactStatus"'));
           assert(page.includes('id="trackingNotificationSettings"'));
           assert(page.includes('id="trackingAlertsEnabled"'));
@@ -227,7 +231,7 @@ jobs:
           assert(page.includes("trial_unlock_count"), 'Trial unlock counts must display');
           assert(page.includes("trial_unlocked:'Trial unlocked"), 'Unlock event timeline must be descriptive');
           assert(page.includes('Page view only'), 'Page-only visits must be labeled clearly');
-          assert(page.includes('Eligible Mindbody click'), 'Eligible Mindbody clicks must be distinguished');
+          assert(page.includes('Mindbody link clicked'), 'Actual Mindbody link clicks must be distinguished');
           assert(page.includes('Blocked checkout attempts: '), 'Blocked checkout attempts should be visible');
           const pageTrackingAPI=fs.readFileSync('functions/api/page-tracking/admin/index.js','utf8');
           assert(pageTrackingAPI.includes('AS engagement_count'), 'Visit summary must return engagement totals');
@@ -299,6 +303,22 @@ jobs:
           assert(browser.includes("record('trial_cta_clicked',a)"), 'Trial call-to-action link clicks must be captured');
           assert(browser.includes("record('checkout_blocked',a,'eligibility_not_confirmed')"), 'Ineligible checkout attempts must not be recorded as successful clicks');
           assert(browser.includes("record('trial_unlocked',success)"), 'Successful lead form must log a trial unlock');
+          for(const ev of ['scroll_25','scroll_50','scroll_75','scroll_100','video_play','video_pause','video_complete','visible_duration','client_error']){
+            assert(browser.includes("'"+ev+"'")||browser.includes("scroll_'+n"),'Browser engagement event missing: '+ev);
+          }
+          const diagnostic=fs.readFileSync('functions/api/page-tracking/_diagnostics.js','utf8');
+          assert(diagnostic.includes('ensureDiagnosticSchema'), 'Diagnostics must use independent schema');
+          assert(diagnostic.includes("request.cf"), 'Network metadata must come from Cloudflare request');
+          assert(diagnostic.includes('networkToken'), 'Network correlation must be keyed');
+          assert(!diagnostic.includes('ip_address TEXT'), 'Raw IP addresses must not be stored');
+          assert(diagnostic.includes("rapid_network_burst"), 'Suspicious bursts should be flagged only for review');
+          const visitHandler=fs.readFileSync('functions/api/page-tracking/index.js','utf8');
+          assert(visitHandler.includes('captureDiagnostics'), 'Visit handler must store diagnostics');
+          const activityDetail=fs.readFileSync('functions/api/page-tracking/admin/activity/index.js','utf8');
+          assert(activityDetail.includes('safeDiagnostics'), 'Diagnostics must require activity authorization');
+          assert(activityDetail.includes('max_scroll_percent'), 'View Activity must expose engagement summary');
+          const privacy=fs.readFileSync('public/privacy/index.html','utf8');
+          assert(privacy.includes('short-lived keyed network token'), 'Privacy policy must disclose network diagnostics');
           assert(browser.includes("flushPending();"), 'Pending form input must be captured before CTA email');
           assert(browser.includes("while(queue.length)"), 'Unsent events must not be discarded on page departure');
           assert(fs.readFileSync('functions/api/page-tracking/_return_alerts.js','utf8').includes("e.event_name==='checkout_blocked'"), 'Later blocked CTA attempts should be treated as meaningful attempts, not successful checkouts');
