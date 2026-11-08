@@ -1,6 +1,7 @@
 import {adminAuthorized,namedUserFromRequest,eventDb,json} from '../../leads/_shared.js';
 import {ensureActivitySchema} from '../_activity.js';
 import {ensureDiagnosticSchema} from '../_diagnostics.js';
+import {ensureRequestAuditSchema} from '../_request_audit.js';
 const fields=['mindbody_clicked_at','utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','ad_id','referrer'];
 export async function onRequestGet({request,env}){
  const user=await namedUserFromRequest(request,env);
@@ -41,6 +42,8 @@ export async function onRequestDelete({request,env}){
  const table=source==='meta'?'meta_landing_visits':'landing_page_visits';
  try{
   if(source==='landing'){
+   await ensureRequestAuditSchema(db);
+   await db.prepare('DELETE FROM page_tracking_request_audit WHERE id=(SELECT request_id FROM landing_page_visits WHERE id=?)').bind(id).run();
    await db.prepare('DELETE FROM landing_page_activity WHERE visit_id=?').bind(id).run();
    await db.prepare('DELETE FROM page_tracking_diagnostics WHERE visit_id=?').bind(id).run();
   }
@@ -65,9 +68,11 @@ export async function onRequestPatch({request,env}){
  }
  try{
   // Apply the selected deletes together; do not touch nonselected visit rows.
+  await ensureRequestAuditSchema(db);
   const queries=[];
   for(const {id,visit_source:source} of selected){
    if(source==='landing'){
+    queries.push(db.prepare('DELETE FROM page_tracking_request_audit WHERE id=(SELECT request_id FROM landing_page_visits WHERE id=?)').bind(id));
     queries.push(db.prepare('DELETE FROM landing_page_activity WHERE visit_id=?').bind(id));
     queries.push(db.prepare('DELETE FROM page_tracking_diagnostics WHERE visit_id=?').bind(id));
    }
@@ -76,7 +81,7 @@ export async function onRequestPatch({request,env}){
   const results=await db.batch(queries);
   // Count only the visit deletion statements (not related activity events).
   let n=0,k=0;
-  for(const row of selected){if(row.visit_source==='landing')k+=2;n+=Number(results[k]?.meta?.changes||0);k++}
+  for(const row of selected){if(row.visit_source==='landing')k+=3;n+=Number(results[k]?.meta?.changes||0);k++}
   return json({ok:true,deleted:n,requested:selected.length});
  }catch{return json({ok:false,error:'bulk_delete_failed'},503)}
 }
