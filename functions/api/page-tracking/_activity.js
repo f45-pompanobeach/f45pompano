@@ -18,6 +18,9 @@ export async function ensureActivitySchema(db){
  if(!(cols.results||[]).some(c=>c.name==='visitor_id'))
   await db.prepare('ALTER TABLE landing_page_visits ADD COLUMN visitor_id TEXT').run()
    .catch(e=>{if(!String(e).includes('duplicate column'))throw e});
+ if(!(cols.results||[]).some(c=>c.name==='request_id'))
+  await db.prepare('ALTER TABLE landing_page_visits ADD COLUMN request_id TEXT').run()
+   .catch(e=>{if(!String(e).includes('duplicate column'))throw e});
  await db.prepare(`CREATE TABLE IF NOT EXISTS landing_page_activity (
   id TEXT PRIMARY KEY, visit_id TEXT NOT NULL, page TEXT NOT NULL,
   session_id TEXT NOT NULL, visitor_id TEXT, created_at TEXT NOT NULL,
