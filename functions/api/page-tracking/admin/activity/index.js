@@ -19,7 +19,7 @@ export async function onRequestGet({request,env}){
   const visit=await db.prepare('SELECT id,visited_at,page,session_id,visitor_id,request_id FROM landing_page_visits WHERE id=? LIMIT 1').bind(id).first();
   if(!visit)return json({ok:false,error:'visit_not_found'},404);
   const result=await db.prepare('SELECT id,created_at,event_name,target,field_name,field_value,detail,consented FROM landing_page_activity WHERE visit_id=? ORDER BY created_at ASC,rowid ASC LIMIT 250').bind(id).all();
-  const events=(result.results||[]).map(e=>({
+  const events=(result.results||[]).filter(e=>!['video_play','video_pause','video_complete'].includes(e.event_name)).map(e=>({
    ...e,field_value:isAdmin?e.field_value:null,consented:e.consented===1
   }));
   let visits=[];
@@ -39,8 +39,6 @@ export async function onRequestGet({request,env}){
    max_scroll_percent:scroll.length?Math.max(...scroll):0,
    visible_seconds:events.filter(e=>e.event_name==='visible_duration')
     .reduce((sum,e)=>sum+Math.min(3600,Math.max(0,Number(e.detail)||0)),0),
-   video_plays:events.filter(e=>e.event_name==='video_play').length,
-   video_completions:events.filter(e=>e.event_name==='video_complete').length,
    form_edits:events.filter(e=>e.event_name==='field_edited').length,
    unlocks:events.filter(e=>e.event_name==='trial_unlocked').length,
    mindbody_clicks:events.filter(e=>e.event_name==='checkout_clicked').length,
