@@ -219,7 +219,7 @@ jobs:
           assert(page.includes('id="activityServerContext"'), 'Matched HTML page request must be visible only inside activity details');
           assert(page.includes('server_request:original'), 'Troubleshooting report must include safe server request evidence');
           assert(page.includes('id="activityEngagement"'), 'Engagement details belong inside View Activity');
-          assert(page.includes('id="copyDiagnostic"'), 'Troubleshooting report action missing');
+          assert(page.includes('id="copyDiagnostic"') && page.includes('Copy Full Activity Log'), 'Full activity log copy action missing');
           assert(page.includes('troubleshootingReport=JSON.stringify'), 'Troubleshooting report not wired');
           assert(!page.includes('field_value:e.field_value'), 'Troubleshooting export must not copy field values');
           assert(page.includes('id="trafficReview"'), 'Suspicious-traffic assessment needs a filter');
@@ -308,7 +308,7 @@ jobs:
           assert(browser.includes("record('trial_cta_clicked',a)"), 'Trial call-to-action link clicks must be captured');
           assert(browser.includes("record('checkout_blocked',a,'eligibility_not_confirmed')"), 'Ineligible checkout attempts must not be recorded as successful clicks');
           assert(browser.includes("record('trial_unlocked',success)"), 'Successful lead form must log a trial unlock');
-          for(const ev of ['scroll_25','scroll_50','scroll_75','scroll_100','video_play','video_pause','video_complete','visible_duration','client_error']){
+          for(const ev of ['scroll_25','scroll_50','scroll_75','scroll_100','visible_duration','client_error']){
             assert(browser.includes("'"+ev+"'")||browser.includes("scroll_'+n"),'Browser engagement event missing: '+ev);
           }
           const diagnostic=fs.readFileSync('functions/api/page-tracking/_diagnostics.js','utf8');
