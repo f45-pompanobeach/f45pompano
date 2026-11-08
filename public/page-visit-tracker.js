@@ -33,6 +33,10 @@
     }
     var q=new URLSearchParams(location.search);
     var data={page:page,session:sid,visitor:visitor,referrer:document.referrer||'',foreground:true};
+    // This short-lived server-generated trace links an actual HTML GET to
+    // its JS visit POST. It isn't a visitor fingerprint or campaign ID.
+    var trace=document.querySelector('meta[name="f45-request-id"]')?.content||'';
+    if(/^[a-f0-9-]{36}$/i.test(trace))data.request_id=trace;
     // Deliberately allowlist attribution fields. Never transmit whole query
     // strings, raw click IDs, full user agent, or arbitrary URL parameters.
     try{
