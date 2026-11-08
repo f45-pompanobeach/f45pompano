@@ -18,9 +18,33 @@
   var page=parts[0]==='landing'?(parts[1]||'landing'):(parts[0]||'root');
   if(!/^[a-z0-9][a-z0-9-]{0,63}$/.test(page))return;
   function id(){return Array.from(crypto.getRandomValues(new Uint8Array(16)),n=>n.toString(16).padStart(2,'0')).join('')}
-  var session='';
-  try{session=sessionStorage.getItem('f45_page_tracking_session')||''}catch(e){}
-  if(!/^[a-f0-9]{32}$/.test(session)){session=id();try{sessionStorage.setItem('f45_page_tracking_session',session)}catch(e){}}
+  // Safari can discard sessionStorage during tab suspension or history restoration.
+  // Recover the ID from this history entry or the same tab's window.name before
+  // minting a new one. Neither fallback is a shared localStorage browser session.
+  function trackingSession(){
+    var key='f45_page_tracking_session',sid='';
+    var valid=function(v){return /^[a-f0-9]{32}$/.test(v||'');};
+    try{sid=sessionStorage.getItem(key)||'';}catch(e){}
+    if(!valid(sid)){
+      try{var state=history.state;sid=(state&&typeof state==='object'&&state.__f45TrackingSession)||'';}catch(e){}
+    }
+    if(!valid(sid)){
+      try{var match=/^f45track:([a-f0-9]{32})$/.exec(window.name||'');sid=match?match[1]:'';}catch(e){}
+    }
+    if(!valid(sid))sid=Array.from(crypto.getRandomValues(new Uint8Array(16)),function(x){return x.toString(16).padStart(2,'0')}).join('');
+    try{sessionStorage.setItem(key,sid);}catch(e){}
+    try{
+      var current=history.state;
+      if(!current||typeof current==='object'&&!Array.isArray(current)){
+        if(current?.__f45TrackingSession!==sid)
+          history.replaceState(Object.assign({},current||{},{__f45TrackingSession:sid}),'',location.href);
+      }
+    }catch(e){}
+    try{if(!window.name||/^f45track:[a-f0-9]{32}$/.test(window.name))window.name='f45track:'+sid;}catch(e){}
+    return sid;
+  }
+
+  var session=trackingSession();
   var visitor='';
   try{visitor=localStorage.getItem('f45_visitor_id')||''}catch(e){}
   if(!/^[a-f0-9]{32}$/.test(visitor)){visitor=id();try{localStorage.setItem('f45_visitor_id',visitor)}catch(e){}}
