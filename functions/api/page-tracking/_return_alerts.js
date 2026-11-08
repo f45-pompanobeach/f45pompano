@@ -22,9 +22,44 @@ const describe=e=>{
  return 'Clicked button: '+String(e.target||'button').slice(0,65);
 };
 
+// A genuine new Mindbody navigation after an earlier activity notification
+// deserves a separate alert. Claim at most one follow-up checkout alert per
+// session to prevent repeated taps, retries, or beacon replays from spamming.
+async function notifyLaterCheckout(context,db,{visitId,page,session,events}){
+ const checkout=events.find(e=>e.event_name==='checkout_clicked');
+ if(!checkout)return;
+ const previous=await db.prepare('SELECT created_at FROM page_tracking_activity_alerts WHERE page=? AND session_id=?')
+  .bind(page,session).first().catch(()=>null);
+ if(!previous)return; // The normal first-activity alert handles new sessions.
+ const settings=await trackingNotificationConfig(db);
+ if(!settings.enabled)return;
+ await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_checkout_followups (page TEXT NOT NULL,session_id TEXT NOT NULL,visit_id TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(page,session_id))").run();
+ const claim=await db.prepare("INSERT OR IGNORE INTO page_tracking_checkout_followups(page,session_id,visit_id,created_at) VALUES(?,?,?,?)")
+  .bind(page,session,visitId,new Date().toISOString()).run();
+ if(Number(claim.meta?.changes||0)!==1)return;
+ const task=(async()=>{
+  try{
+   const result=await sendGatewayEmail(context.env,{
+    idempotencyKey:'tracking-checkout-followup-'+visitId,
+    to:settings.recipient,
+    subject:'F45 Page Tracking: Mindbody clicked on previous visit - '+page,
+    fields:{
+     'Landing / Partner Page':page,
+     'New Activity':'Clicked Mindbody checkout link',
+     'Activity Date / Time (Eastern)':eastern(checkout.at),
+     'View Complete Activity':'https://f45pompano.com/leads-trials/page-tracking/?visit='+encodeURIComponent(visitId)
+    }
+   });
+   if(!result.accepted)throw Error('gateway_not_configured');
+  }catch(error){console.error('Follow-up checkout email failed:',error?.message||error)}
+ })();
+ if(typeof context.waitUntil==='function')context.waitUntil(task);else await task;
+}
+
 export async function notifyReturningActivity(context,db,{visitId,page,session,events}){
  if(!events?.length)return;
  try{
+  await notifyLaterCheckout(context,db,{visitId,page,session,events});
   // The legacy table identifies sessions that already received an activity
   // email under the previous per-return rules. Never email them again.
   const prior=await db.prepare('SELECT notified_period FROM page_tracking_activity_periods WHERE visit_id=?')
