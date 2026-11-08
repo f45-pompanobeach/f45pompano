@@ -23,7 +23,7 @@ function deviceFromUA(raw){
  const device=/iPad|Tablet/i.test(ua)?'tablet':/Mobi|iPhone|Android/i.test(ua)?'mobile':'desktop / unknown';
  return {browser,operating_system:os,device_type:device};
 }
-async function networkToken(request,env){
+export async function networkToken(request,env){
  const ip=request.headers.get('cf-connecting-ip');
  // Never persist or return an unencrypted network identifier.
  const secret=String(env?.PAGE_TRACKING_HASH_KEY||env?.EMAIL_GATEWAY_APP_KEY||'');
