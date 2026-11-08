@@ -40,12 +40,21 @@ export async function notifyNewTrackingVisit(context,db,visit){
     .bind('confirmed_automation',visit.id).run();
    return;
   }
+  // These Meta-network, unattributed social-trial requests resemble preview
+  // traffic, but are not confirmed bots. Keep the email, label it cautiously.
+  const cfAsn=String(context.request?.cf?.asn||'');
+  const metaUnattributed=visit.page==='social-trial'&&cfAsn==='32934'&&
+   ![visit.utm_source,visit.utm_medium,visit.utm_campaign,visit.utm_content,
+     visit.utm_term,visit.utm_id,visit.ad_id,visit.referrer].some(v=>String(v||'').trim());
+  const subject=metaUnattributed
+   ?'F45 Page Tracking: Suspected Automated Visit - social-trial'
+   :'F45 Page Tracking: New visit - '+visit.page;
   const task=(async()=>{
    try{
     const result=await sendGatewayEmail(context.env,{
      idempotencyKey:'tracking-visit-'+visit.id,
      to:settings.recipient,
-     subject:'F45 Page Tracking: New visit - '+visit.page,
+     subject,
      fields:{
       'Landing / Partner Page':visit.page,
       'Date / Time (UTC)':visit.visited_at,
