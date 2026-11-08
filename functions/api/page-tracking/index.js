@@ -7,7 +7,7 @@ function clean(v,max=160){return String(v||'').trim().slice(0,max).replace(/[\u0
 async function schema(db){
  await db.prepare('CREATE TABLE IF NOT EXISTS landing_page_visits (id TEXT PRIMARY KEY,visited_at TEXT NOT NULL,page TEXT NOT NULL,session_id TEXT NOT NULL)').run();
  const cols=await db.prepare('PRAGMA table_info(landing_page_visits)').all();
- for(const field of [...fields,'visitor_id'])if(!(cols.results||[]).some(c=>c.name===field))await db.prepare('ALTER TABLE landing_page_visits ADD COLUMN '+field+' TEXT').run().catch(e=>{if(!String(e).includes('duplicate column'))throw e});
+ for(const field of [...fields,'visitor_id','request_id'])if(!(cols.results||[]).some(c=>c.name===field))await db.prepare('ALTER TABLE landing_page_visits ADD COLUMN '+field+' TEXT').run().catch(e=>{if(!String(e).includes('duplicate column'))throw e});
 }
 export async function onRequestPost(context){
  const {request,env}=context;
@@ -43,6 +43,9 @@ export async function onRequestPost(context){
   await db.prepare('UPDATE landing_page_visits SET '+missing+' WHERE page=? AND session_id=?')
     .bind(...vals,page,session).run();
   if(visitor)await db.prepare('UPDATE landing_page_visits SET visitor_id=COALESCE(visitor_id,?) WHERE page=? AND session_id=?').bind(visitor,page,session).run();
+  const trace=/^[a-f0-9-]{36}$/i.test(String(d?.request_id||''))?String(d.request_id):'';
+  if(trace)await db.prepare("UPDATE landing_page_visits SET request_id=CASE WHEN COALESCE(request_id,'')='' THEN ? ELSE request_id END WHERE page=? AND session_id=?")
+   .bind(trace,page,session).run();
   // Always attach first-party diagnostics to the original tracking session;
   // a concurrent activity request can create that row before the visit POST.
   await captureDiagnostics(db,request,env,{visitId,page,session,payload:d});
