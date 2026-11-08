@@ -73,7 +73,7 @@ async function notifyLaterMeaningfulActivity(context,db,{visitId,page,session,ev
  // may initiate another alert. Use event timestamps rather than row insertion
  // times because Safari beacon requests can arrive out of order.
  const baseline=latestLead?.at&&latestLead.at>first.created_at?latestLead.at:first.created_at;
- await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_repeat_activity_alerts (page TEXT NOT NULL,session_id TEXT NOT NULL,first_event_id TEXT NOT NULL,visit_id TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(page,session_id,first_event_id))").run();
+ await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_repeat_activity_alerts (page TEXT NOT NULL,session_id TEXT NOT NULL,first_event_id TEXT NOT NULL,visit_id TEXT NOT NULL,created_at TEXT NOT NULL,last_event_at TEXT NOT NULL,PRIMARY KEY(page,session_id,first_event_id))").run();
  const recent=await db.prepare(`SELECT id,created_at,event_name FROM landing_page_activity
   WHERE page=? AND session_id=? AND created_at>?
     AND event_name IN ('field_edited','trial_cta_clicked','button_clicked','checkout_blocked')
@@ -82,16 +82,7 @@ async function notifyLaterMeaningfulActivity(context,db,{visitId,page,session,ev
  if(!actions.length)return; // Hiding, reopening, or checking boxes is passive.
  // Distinguish each meaningful burst by its first previously unnotified event.
  // Claiming the earliest event is stable across duplicate visibility beacons.
- const sent=await db.prepare("SELECT first_event_id FROM page_tracking_repeat_activity_alerts WHERE page=? AND session_id=?")
-  .bind(page,session).all();
- const already=new Set((sent.results||[]).map(x=>x.first_event_id));
- // The most recent claimed burst marks the beginning of an already notified
- // interval. Do not re-email its actions after a later page_hidden event.
- const last=await db.prepare("SELECT created_at FROM page_tracking_repeat_activity_alerts WHERE page=? AND session_id=? ORDER BY created_at DESC LIMIT 1")
-  .bind(page,session).first();
- // Use the latest original event timestamp as a boundary, rather than server
- // receipt time, so delayed event batches do not repeat earlier activity.
- const prior=await db.prepare("SELECT MAX(a.created_at) AS at FROM landing_page_activity a JOIN page_tracking_repeat_activity_alerts n ON n.first_event_id=a.id WHERE n.page=? AND n.session_id=?")
+ const prior=await db.prepare("SELECT MAX(last_event_at) AS at FROM page_tracking_repeat_activity_alerts WHERE page=? AND session_id=?")
   .bind(page,session).first();
  const newActions=actions.filter(e=>!prior?.at||e.created_at>prior.at);
  if(!newActions.length)return;
@@ -103,8 +94,8 @@ async function notifyLaterMeaningfulActivity(context,db,{visitId,page,session,ev
  // A later click alerts immediately; a text-only return alerts on page hide.
  const settings=await trackingNotificationConfig(db);
  if(!settings.enabled)return;
- const claim=await db.prepare("INSERT OR IGNORE INTO page_tracking_repeat_activity_alerts(page,session_id,first_event_id,visit_id,created_at) VALUES(?,?,?,?,?)")
-  .bind(page,session,firstNew.id,visitId,new Date().toISOString()).run();
+ const claim=await db.prepare("INSERT OR IGNORE INTO page_tracking_repeat_activity_alerts(page,session_id,first_event_id,visit_id,created_at,last_event_at) VALUES(?,?,?,?,?,?)")
+  .bind(page,session,firstNew.id,visitId,new Date().toISOString(),newActions.at(-1).created_at).run();
  if(Number(claim.meta?.changes||0)!==1)return;
  const lastAction=newActions.filter(e=>actionEvents.has(e.event_name)).at(-1);
  const newest=newActions.at(-1);
