@@ -19,9 +19,19 @@ export async function onRequestGet({request,env}){
   const visit=await db.prepare('SELECT id,visited_at,page,session_id,visitor_id,request_id FROM landing_page_visits WHERE id=? LIMIT 1').bind(id).first();
   if(!visit)return json({ok:false,error:'visit_not_found'},404);
   const result=await db.prepare('SELECT id,created_at,event_name,target,field_name,field_value,detail,consented FROM landing_page_activity WHERE visit_id=? ORDER BY created_at ASC,rowid ASC LIMIT 250').bind(id).all();
-  const events=(result.results||[]).filter(e=>!['video_play','video_pause','video_complete'].includes(e.event_name)).map(e=>({
+  // Keep passive lifecycle events in storage for session diagnostics and
+  // notification batching, but exclude them from the visible/copyable activity
+  // timeline. Summaries below still use the underlying engagement data.
+  const passiveEvents=new Set(['video_play','video_pause','video_complete','page_hidden','page_resumed','visible_duration']);
+  const allEvents=(result.results||[]).filter(e=>!['video_play','video_pause','video_complete'].includes(e.event_name)).map(e=>({
    ...e,field_value:isAdmin?e.field_value:null,consented:e.consented===1
   }));
+  const events=allEvents.filter((e,i)=>{
+   if(passiveEvents.has(e.event_name))return false;
+   // Preserve the initial visit marker only, not a row for every refresh.
+   if(e.event_name==='page_view')return !allEvents.slice(0,i).some(prior=>prior.event_name==='page_view');
+   return true;
+  });
   let visits=[];
   if(visit.visitor_id){
    const rows=await db.prepare('SELECT id,visited_at,page FROM landing_page_visits WHERE visitor_id=? ORDER BY visited_at DESC LIMIT 25').bind(visit.visitor_id).all();
@@ -33,11 +43,11 @@ export async function onRequestGet({request,env}){
   // Never expose them to non-admin staff or the public.
   const safeDiagnostics=diagnostics?{...diagnostics,network_hash:isAdmin?diagnostics.network_hash:null}:null;
   // Cohesive engagement metrics only; no recordings or additional contact data.
-  const scroll=events.filter(e=>/^scroll_(25|50|75|100)$/.test(e.event_name))
+  const scroll=allEvents.filter(e=>/^scroll_(25|50|75|100)$/.test(e.event_name))
    .map(e=>Number(e.event_name.split('_')[1]));
   const summary={
    max_scroll_percent:scroll.length?Math.max(...scroll):0,
-   visible_seconds:events.filter(e=>e.event_name==='visible_duration')
+   visible_seconds:allEvents.filter(e=>e.event_name==='visible_duration')
     .reduce((sum,e)=>sum+Math.min(3600,Math.max(0,Number(e.detail)||0)),0),
    form_edits:events.filter(e=>e.event_name==='field_edited').length,
    unlocks:events.filter(e=>e.event_name==='trial_unlocked').length,
