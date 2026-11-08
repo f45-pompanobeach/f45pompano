@@ -56,10 +56,83 @@ async function notifyLaterCheckout(context,db,{visitId,page,session,events}){
  if(typeof context.waitUntil==='function')context.waitUntil(task);else await task;
 }
 
+// Follow-up activity alerts are independent of the first-activity and Mindbody
+// alerts. Only NEW edits after the first email qualify, and only on departure.
+// A form submission is covered by the New Lead email, not another activity email.
+async function notifyLaterMeaningfulActivity(context,db,{visitId,page,session,events}){
+ const departing=events.some(e=>e.event_name==='page_hidden');
+ const actionEvents=new Set(['trial_cta_clicked','button_clicked','checkout_blocked']);
+ const actionable=events.find(e=>actionEvents.has(e.event_name));
+ if(!departing&&!actionable)return;
+ const first=await db.prepare('SELECT created_at FROM page_tracking_activity_alerts WHERE page=? AND session_id=?')
+  .bind(page,session).first().catch(()=>null);
+ if(!first?.created_at)return; // Initial activity notification remains unchanged.
+ const latestLead=await db.prepare("SELECT MAX(created_at) AS at FROM landing_page_activity WHERE page=? AND session_id=? AND event_name IN ('form_submitted','trial_unlocked')")
+  .bind(page,session).first();
+ // Only saved events AFTER the first activity email (and any completed form)
+ // may initiate another alert. Use event timestamps rather than row insertion
+ // times because Safari beacon requests can arrive out of order.
+ const baseline=latestLead?.at&&latestLead.at>first.created_at?latestLead.at:first.created_at;
+ await db.prepare("CREATE TABLE IF NOT EXISTS page_tracking_repeat_activity_alerts (page TEXT NOT NULL,session_id TEXT NOT NULL,first_event_id TEXT NOT NULL,visit_id TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(page,session_id,first_event_id))").run();
+ const recent=await db.prepare(`SELECT id,created_at,event_name FROM landing_page_activity
+  WHERE page=? AND session_id=? AND created_at>?
+    AND event_name IN ('field_edited','trial_cta_clicked','button_clicked','checkout_blocked')
+  ORDER BY created_at ASC,rowid ASC LIMIT 200`).bind(page,session,baseline).all();
+ const actions=recent.results||[];
+ if(!actions.length)return; // Hiding, reopening, or checking boxes is passive.
+ // Distinguish each meaningful burst by its first previously unnotified event.
+ // Claiming the earliest event is stable across duplicate visibility beacons.
+ const sent=await db.prepare("SELECT first_event_id FROM page_tracking_repeat_activity_alerts WHERE page=? AND session_id=?")
+  .bind(page,session).all();
+ const already=new Set((sent.results||[]).map(x=>x.first_event_id));
+ // The most recent claimed burst marks the beginning of an already notified
+ // interval. Do not re-email its actions after a later page_hidden event.
+ const last=await db.prepare("SELECT created_at FROM page_tracking_repeat_activity_alerts WHERE page=? AND session_id=? ORDER BY created_at DESC LIMIT 1")
+  .bind(page,session).first();
+ // Use the latest original event timestamp as a boundary, rather than server
+ // receipt time, so delayed event batches do not repeat earlier activity.
+ const prior=await db.prepare("SELECT MAX(a.created_at) AS at FROM landing_page_activity a JOIN page_tracking_repeat_activity_alerts n ON n.first_event_id=a.id WHERE n.page=? AND n.session_id=?")
+  .bind(page,session).first();
+ const newActions=actions.filter(e=>!prior?.at||e.created_at>prior.at);
+ if(!newActions.length)return;
+ const firstNew=newActions[0];
+ // Never email separately for form-entry activity that culminated in a lead.
+ const hasNewText=newActions.some(e=>e.event_name==='field_edited');
+ const hasNewAction=newActions.some(e=>actionEvents.has(e.event_name));
+ if(!hasNewAction&&!departing)return;
+ // A later click alerts immediately; a text-only return alerts on page hide.
+ const settings=await trackingNotificationConfig(db);
+ if(!settings.enabled)return;
+ const claim=await db.prepare("INSERT OR IGNORE INTO page_tracking_repeat_activity_alerts(page,session_id,first_event_id,visit_id,created_at) VALUES(?,?,?,?,?)")
+  .bind(page,session,firstNew.id,visitId,new Date().toISOString()).run();
+ if(Number(claim.meta?.changes||0)!==1)return;
+ const lastAction=newActions.filter(e=>actionEvents.has(e.event_name)).at(-1);
+ const newest=newActions.at(-1);
+ const task=(async()=>{
+  try{
+   const result=await sendGatewayEmail(context.env,{
+    idempotencyKey:'tracking-repeat-activity-'+firstNew.id,
+    to:settings.recipient,
+    subject:'F45 Page Tracking: Additional activity on previous visit - '+page,
+    fields:{
+     'Landing / Partner Page':page,
+     'New Activity':newActions.filter(e=>e.event_name==='field_edited').length+' form edit(s), '+newActions.filter(e=>actionEvents.has(e.event_name)).length+' button action(s)',
+     'Notification Trigger':lastAction?describe(lastAction):'Visitor left the page after entering more information',
+     'Activity Date / Time (Eastern)':eastern(newest.created_at),
+     'View Complete Activity':'https://f45pompano.com/leads-trials/page-tracking/?visit='+encodeURIComponent(visitId)
+    }
+   });
+   if(!result.accepted)throw Error('gateway_not_configured');
+  }catch(error){console.error('Repeat activity notification failed:',error?.message||error)}
+ })();
+ if(typeof context.waitUntil==='function')context.waitUntil(task);else await task;
+}
+
 export async function notifyReturningActivity(context,db,{visitId,page,session,events}){
  if(!events?.length)return;
  try{
   await notifyLaterCheckout(context,db,{visitId,page,session,events});
+  await notifyLaterMeaningfulActivity(context,db,{visitId,page,session,events});
   // The legacy table identifies sessions that already received an activity
   // email under the previous per-return rules. Never email them again.
   const prior=await db.prepare('SELECT notified_period FROM page_tracking_activity_periods WHERE visit_id=?')
