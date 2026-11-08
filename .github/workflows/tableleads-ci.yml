@@ -217,6 +217,9 @@ jobs:
           assert(page.includes('id="activityContext"'));
           assert(page.includes('id="activityDiagnostics"'), 'Technical diagnostics belong inside View Activity');
           assert(page.includes('id="activityEngagement"'), 'Engagement details belong inside View Activity');
+          assert(page.includes('id="copyDiagnostic"'), 'Troubleshooting report action missing');
+          assert(page.includes('troubleshootingReport=JSON.stringify'), 'Troubleshooting report not wired');
+          assert(!page.includes('field_value:e.field_value'), 'Troubleshooting export must not copy field values');
           assert(page.includes('id="trafficReview"'), 'Suspicious-traffic assessment needs a filter');
           assert(page.includes('No diagnostic snapshot was saved'), 'Old visits must show why data is unavailable');
           assert(page.includes('id="activityContactStatus"'));
