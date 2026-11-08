@@ -4,7 +4,7 @@ export const EVENT_NAMES=new Set([
  'page_view','field_started','field_edited','field_left','checkbox_changed',
  'form_submit_attempt','form_submitted','trial_unlocked','checkout_clicked','checkout_blocked','button_clicked','trial_cta_clicked',
  'details_toggled','link_clicked','validation_blocked','progress_opt_in','progress_opt_out','page_hidden','page_resumed',
- 'scroll_25','scroll_50','scroll_75','scroll_100','video_play','video_pause','video_complete','visible_duration','client_error'
+ 'scroll_25','scroll_50','scroll_75','scroll_100','visible_duration','client_error'
 ]);
 export const CONTACT_FIELDS=new Set(['first_name','last_name','email','phone','zip']);
 const clean=(v,n=80)=>String(v??'').replace(/[\u0000-\u001f]/g,'').trim().slice(0,n);
