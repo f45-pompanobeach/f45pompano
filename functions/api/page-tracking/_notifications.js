@@ -25,9 +25,19 @@ export async function notifyNewTrackingVisit(context,db,visit){
   // The database session claim is exact-once. No global throttling:
   // different browser sessions must be permitted their own visit alerts.
   const ua=String(context.request?.headers.get('user-agent')||'');
-  if(BOT_UA.test(ua)){
+  const verifiedBot=context.request?.cf?.botManagement?.verifiedBot===true;
+  // The HTML navigation can carry a known automation user-agent even when
+  // the later JavaScript POST has a different request context. Correlate by
+  // the short-lived request ID only; never block by Google's or Meta's ASN.
+  let htmlAutomation=false;
+  if(visit.request_id){
+   const audit=await db.prepare('SELECT bot_signal FROM page_tracking_request_audit WHERE id=? LIMIT 1')
+    .bind(visit.request_id).first().catch(()=>null);
+   htmlAutomation=['automation_user_agent','verified_bot'].includes(audit?.bot_signal);
+  }
+  if(BOT_UA.test(ua)||verifiedBot||htmlAutomation){
    await db.prepare("UPDATE page_tracking_alert_deliveries SET status='suppressed',error=? WHERE visit_id=?")
-    .bind('automated_preview',visit.id).run();
+    .bind('confirmed_automation',visit.id).run();
    return;
   }
   const task=(async()=>{
