@@ -49,7 +49,7 @@ export async function onRequestPost(context){
   // Always attach first-party diagnostics to the original tracking session;
   // a concurrent activity request can create that row before the visit POST.
   await captureDiagnostics(db,request,env,{visitId,page,session,payload:d});
-  if(Number(result.meta?.changes||0)>0)await notifyNewTrackingVisit(context,db,{id:visitId,page,session_id:session,visitor_id:visitor,visited_at:now.toISOString(),...Object.fromEntries(fields.map((name,i)=>[name,vals[i]]))});
+  if(Number(result.meta?.changes||0)>0)await notifyNewTrackingVisit(context,db,{id:visitId,page,session_id:session,visitor_id:visitor,visited_at:now.toISOString(),request_id:trace,...Object.fromEntries(fields.map((name,i)=>[name,vals[i]]))});
   return json({ok:true,tracked:(result.meta?.changes||0)>0});
  }catch{return json({ok:false,error:'storage_unavailable'},503)}
 }
