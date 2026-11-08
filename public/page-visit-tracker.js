@@ -30,7 +30,14 @@
     if(!valid(sid)){
       try{var match=/^f45track:([a-f0-9]{32})$/.exec(window.name||'');sid=match?match[1]:'';}catch(e){}
     }
+    // A first-party session cookie stays in the isolated Safari Private tab,
+    // even when its JavaScript page session has been discarded and restored.
+    // Unlike localStorage, this cookie has no persistent expiry.
+    if(!valid(sid)){
+      try{var cookie=document.cookie.match(/(?:^|;\s*)f45_tab_visit_session=([a-f0-9]{32})(?:;|$)/);sid=cookie?cookie[1]:'';}catch(e){}
+    }
     if(!valid(sid))sid=Array.from(crypto.getRandomValues(new Uint8Array(16)),function(x){return x.toString(16).padStart(2,'0')}).join('');
+    try{document.cookie='f45_tab_visit_session='+sid+'; Path=/; SameSite=Lax; Secure';}catch(e){}
     try{sessionStorage.setItem(key,sid);}catch(e){}
     try{
       var current=history.state;
