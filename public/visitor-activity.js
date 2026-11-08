@@ -95,15 +95,6 @@
      if(typeof requestAnimationFrame==='function')requestAnimationFrame(scrollMilestone);
      else setTimeout(scrollMilestone,100);
    },{passive:true});
-   document.addEventListener('play',function(e){
-     if(e.target?.matches?.('video'))record('video_play',e.target);
-   },true);
-   document.addEventListener('pause',function(e){
-     if(e.target?.matches?.('video')&&!e.target.ended)record('video_pause',e.target);
-   },true);
-   document.addEventListener('ended',function(e){
-     if(e.target?.matches?.('video'))record('video_complete',e.target);
-   },true);
    function recordVisibleTime(){
      if(!visibleFrom)return;
      var now=Date.now(),seconds=Math.round((now-visibleFrom)/1000);
