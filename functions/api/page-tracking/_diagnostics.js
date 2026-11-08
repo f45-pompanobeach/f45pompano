@@ -53,7 +53,14 @@ export async function captureDiagnostics(db,request,env,{visitId,page,session,pa
   if(verified||uaBot)reasons.push('known_automation');
   if(Number.isFinite(botScore)&&botScore>0&&botScore<20)reasons.push('low_bot_score');
   if(nav==='prerender')reasons.push('prerender');
-  // Never classify zero engagement or missing UTM as bot evidence.
+  // Meta-owned infrastructure with missing attribution is a review clue only.
+  // Do not assume a bot or suppress the notification on this basis alone.
+  if(page==='social-trial'&&asn==='32934'&&
+     ![payload?.first_touch_medium,payload?.first_touch_campaign,payload?.click_id_type,
+       payload?.query_keys].some(v=>String(v||'').trim())&&
+     (!payload?.first_touch_source||payload.first_touch_source==='Direct / Unknown'))
+   reasons.push('unattributed_meta_network');
+  // Never classify zero engagement or missing UTM ALONE as bot evidence.
   const review=reasons.includes('known_automation')?'known_automated':reasons.length?'review':'unassessed';
   const data={browser,operating_system:os,device_type:device,navigation_type:nav,entry_path:entry,query_keys:queryKeys,
    first_touch_source:txt(payload?.first_touch_source,100),first_touch_medium:txt(payload?.first_touch_medium,100),
