@@ -1,6 +1,7 @@
 import {adminAuthorized,namedUserFromRequest,eventDb,json} from '../../../leads/_shared.js';
 import {ensureActivitySchema} from '../../_activity.js';
 import {ensureDiagnosticSchema} from '../../_diagnostics.js';
+import {ensureRequestAuditSchema} from '../../_request_audit.js';
 export async function onRequestGet({request,env}){
  const isAdmin=await adminAuthorized(request,env);
  const staff=isAdmin?null:await namedUserFromRequest(request,env);
@@ -12,9 +13,10 @@ export async function onRequestGet({request,env}){
  try{
   await ensureActivitySchema(db);
   await ensureDiagnosticSchema(db);
+  await ensureRequestAuditSchema(db);
   const expiry=new Date(Date.now()-30*86400000).toISOString();
   await db.prepare('UPDATE landing_page_activity SET field_value=NULL WHERE field_value IS NOT NULL AND created_at<?').bind(expiry).run();
-  const visit=await db.prepare('SELECT id,visited_at,page,session_id,visitor_id FROM landing_page_visits WHERE id=? LIMIT 1').bind(id).first();
+  const visit=await db.prepare('SELECT id,visited_at,page,session_id,visitor_id,request_id FROM landing_page_visits WHERE id=? LIMIT 1').bind(id).first();
   if(!visit)return json({ok:false,error:'visit_not_found'},404);
   const result=await db.prepare('SELECT id,created_at,event_name,target,field_name,field_value,detail,consented FROM landing_page_activity WHERE visit_id=? ORDER BY created_at ASC,rowid ASC LIMIT 250').bind(id).all();
   const events=(result.results||[]).map(e=>({
@@ -44,8 +46,12 @@ export async function onRequestGet({request,env}){
    mindbody_clicks:events.filter(e=>e.event_name==='checkout_clicked').length,
    client_errors:events.filter(e=>e.event_name==='client_error').length
   };
+  const requestAudit=visit.request_id
+   ?await db.prepare('SELECT requested_at,page,referrer_domain,fetch_site,fetch_mode,fetch_dest,network_hash,asn,network_org,country,bot_signal FROM page_tracking_request_audit WHERE id=? LIMIT 1')
+    .bind(visit.request_id).first():null;
+  const safeRequest=requestAudit?{...requestAudit,network_hash:isAdmin?requestAudit.network_hash:null}:null;
   // A browser's other landing pages form a journey, not proof of identity.
-  return json({ok:true,visit,events,return_visits:visits,diagnostics:safeDiagnostics,summary,can_view_saved_contact:isAdmin});
+  return json({ok:true,visit,events,return_visits:visits,diagnostics:safeDiagnostics,server_request:safeRequest,summary,can_view_saved_contact:isAdmin});
  }catch(e){console.error('Activity detail error',e?.message||e);return json({ok:false,error:'history_unavailable'},503)}
 }
 export function onRequest(){return json({ok:false},405)}
