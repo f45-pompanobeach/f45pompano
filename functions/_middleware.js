@@ -1,6 +1,7 @@
 // Social link previews only: render current landing offer into crawler-visible HTML.
 // Keep forms, client runtime, tracking and API responses unchanged.
 import { getGlobal, getPage } from './api/landing/_shared.js';
+import {recordHtmlRequest} from './api/page-tracking/_request_audit.js';
 
 const SHARE_IMAGE = 'https://f45pompano.com/f45-pompano-share-v2.jpg';
 function escapeAttr(value) {
@@ -57,6 +58,14 @@ export async function onRequest(context) {
   const description = 'First-time local residents: try ' + trialType + ' for ' +
     trialCost + ' at F45 Training Pompano Beach.';
   let html = htmlSource;
+  // A randomized request ID links this successful HTML navigation to the
+  // later browser-side visit, without using a personal fingerprint.
+  const requestId=crypto.randomUUID();
+  if(context.request.method==='GET'){
+    const audit=recordHtmlRequest(context,{id:requestId,page:slug});
+    if(typeof context.waitUntil==='function')context.waitUntil(audit);else await audit;
+  }
+  html=html.replace('</head>','<meta name="f45-request-id" content="'+requestId+'">\\n</head>');
   // The server already has the exact saved settings. Give them to the page
   // before its deferred runtime runs, so it never paints a different offer.
   // Hide the offer-specific region only until the runtime applies those settings.
