@@ -58,6 +58,8 @@ export async function notifyNewTrackingVisit(context,db,visit){
      fields:{
       'Landing / Partner Page':visit.page,
       'Date / Time (UTC)':visit.visited_at,
+      'Tracking Session ID':visit.session_id||'',
+      'Tracking Visit ID':visit.id,
       'Source':visit.utm_source||'Direct / unknown',
       'Medium':visit.utm_medium||'',
       'Campaign':visit.utm_campaign||'',
