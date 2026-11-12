@@ -46,8 +46,19 @@ export async function notifyNewTrackingVisit(context,db,visit){
   const metaUnattributed=visit.page==='social-trial'&&cfAsn==='32934'&&
    ![visit.utm_source,visit.utm_medium,visit.utm_campaign,visit.utm_content,
      visit.utm_term,visit.utm_id,visit.ad_id,visit.referrer].some(v=>String(v||'').trim());
-  const subject=metaUnattributed
-   ?'F45 Page Tracking: Suspected Automated Visit - social-trial'
+  // Hosting-origin root visits with no referrer or attribution may be
+  // automated but are NOT confirmed bots (even at a high Cloudflare score).
+  // Narrow known hosting ASNs only; never generalize by a shared IP or
+  // generic corporate/backbone networks such as AS3356.
+  const hostingAsns=new Set(['14618','394474','64286','51430']);
+  const unattributed=![
+    visit.utm_source,visit.utm_medium,visit.utm_campaign,visit.utm_content,
+    visit.utm_term,visit.utm_id,visit.ad_id,visit.referrer
+  ].some(v=>String(v||'').trim());
+  const hostingReview=visit.page==='root'&&unattributed&&hostingAsns.has(cfAsn);
+  const suspected=metaUnattributed||hostingReview;
+  const subject=suspected
+   ?'F45 Page Tracking: Suspected Automated Visit - '+visit.page
    :'F45 Page Tracking: New visit - '+visit.page;
   const task=(async()=>{
    try{
