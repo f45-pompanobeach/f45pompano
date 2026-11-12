@@ -60,6 +60,14 @@ export async function captureDiagnostics(db,request,env,{visitId,page,session,pa
        payload?.query_keys].some(v=>String(v||'').trim())&&
      (!payload?.first_touch_source||payload.first_touch_source==='Direct / Unknown'))
    reasons.push('unattributed_meta_network');
+  // Hosting/proxy infrastructure plus unattributed root traffic merits
+  // review, not a confirmed-bot label; high bot scores remain respected.
+  const hostingAsns=new Set(['14618','394474','64286','51430']);
+  if(page==='root'&&hostingAsns.has(asn)&&
+     ![payload?.first_touch_medium,payload?.first_touch_campaign,
+       payload?.click_id_type,payload?.query_keys].some(v=>String(v||'').trim())&&
+     (!payload?.first_touch_source||payload.first_touch_source==='Direct / Unknown'))
+   reasons.push('unattributed_hosting_network');
   // Never classify zero engagement or missing UTM ALONE as bot evidence.
   const review=reasons.includes('known_automation')?'known_automated':reasons.length?'review':'unassessed';
   const data={browser,operating_system:os,device_type:device,navigation_type:nav,entry_path:entry,query_keys:queryKeys,
