@@ -35,10 +35,29 @@ export async function onRequestPost({request,env}){
   await db.prepare('INSERT INTO candidate_evaluations(id,candidate,interview_date,interviewer,total_score,recommendation,evaluation_json,pdf_base64,email_state) VALUES(?,?,?,?,?,?,?,?,?)')
     .bind(ref,candidate,date,trim(body.interviewer,80)||'Andrea',total,trim(body.recommendation),JSON.stringify(body),pdf,'pending').run();
  }catch(error){console.error('Evaluation database save failed',error);return j(503,{ok:false,message:'Could not save evaluation. No email sent; please retry.'})}
- const safeName=candidate.replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,65)||'Candidate';
- const fields={Candidate:candidate,'Interview date':date,'Total score':total+'/100',Recommendation:trim(body.recommendation),'Record ID':ref,'Report':'Complete scores and interview notes are attached as a PDF.'};
+
+ // Email is a concise, readable summary; complete source data and PDF remain in D1.
+ const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const sectionRows=body.sections.map(section=>{
+  const score=section.ratings.reduce((sum,r)=>sum+r.score,0);
+  return '<tr><td style="padding:10px 12px;border-bottom:1px solid #e8eaf0;color:#303744">'+escapeHtml(section.name)+'</td><td style="padding:10px 12px;border-bottom:1px solid #e8eaf0;text-align:right;font-weight:700;color:#18283e">'+score+' / '+section.max+'</td></tr>';
+ }).join('');
+ const info=(label,value)=>'<tr><td style="padding:7px 0;color:#657084;width:150px;vertical-align:top">'+escapeHtml(label)+'</td><td style="padding:7px 0;color:#202b3c">'+escapeHtml(value||'—')+'</td></tr>';
+ const html='<div style="margin:0;background:#f5f6f9;padding:28px 12px;font-family:Arial,Helvetica,sans-serif;color:#202b3c"><div style="max-width:610px;margin:auto;background:#fff;border:1px solid #e4e7ed;border-radius:10px;overflow:hidden">'
+  +'<div style="padding:23px 28px;background:#17263a;color:#fff"><div style="font-size:12px;letter-spacing:1.5px;font-weight:700;color:#d6e1ef">F45 POMPANO BEACH</div><div style="font-size:22px;font-weight:700;margin-top:9px">Candidate Evaluation</div></div>'
+  +'<div style="padding:24px 28px"><div style="font-size:22px;font-weight:700">'+escapeHtml(candidate)+'</div><div style="font-size:13px;color:#657084;margin-top:5px">Interviewed '+escapeHtml(date)+' · '+escapeHtml(body.interviewer||'Andrea')+'</div>'
+  +'<div style="margin-top:22px;padding:18px;background:#f0f3f7;border-radius:8px;text-align:center"><div style="font-size:12px;font-weight:700;letter-spacing:1px;color:#657084">OVERALL SCORE</div><div style="font-size:36px;font-weight:700;color:#17263a;margin-top:5px">'+total+'<span style="font-size:17px;color:#657084"> / 100</span></div><div style="margin-top:7px;font-size:14px;font-weight:700">'+escapeHtml(body.recommendation)+'</div></div>'
+  +'<h3 style="font-size:15px;margin:26px 0 8px">Score breakdown</h3><table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:13px">'+sectionRows+'</table>'
+  +'<h3 style="font-size:15px;margin:25px 0 8px">Interview summary</h3><table role="presentation" style="width:100%;font-size:13px;border-collapse:collapse">'
+  +info('English',body.english)+info('Spanish',body.spanish)+info('Availability',body.preference+' · '+body.schedule)+info('Weekend support',body.weekend)+info('Independent work',body.trust)+'</table>'
+  +'<h3 style="font-size:15px;margin:24px 0 8px">Strengths</h3><p style="font-size:13px;line-height:1.6;white-space:pre-wrap;margin:0">'+escapeHtml(body.strengths||'Not specified')+'</p>'
+  +'<h3 style="font-size:15px;margin:20px 0 8px">Concerns</h3><p style="font-size:13px;line-height:1.6;white-space:pre-wrap;margin:0">'+escapeHtml(body.concerns||'Not specified')+'</p>'
+  +'<h3 style="font-size:15px;margin:20px 0 8px">Recommendation notes</h3><p style="font-size:13px;line-height:1.6;white-space:pre-wrap;margin:0">'+escapeHtml(body.reason)+'</p>'
+  +'<div style="margin-top:25px;border-top:1px solid #e4e7ed;padding-top:15px;font-size:12px;color:#657084">Full evaluation, individual criterion scores, all notes, and a PDF copy are saved in the candidate evaluation database.<br>Reference: '+escapeHtml(ref)+'</div></div></div></div>';
+ const text=['F45 Pompano Beach | Candidate Evaluation',candidate+' | '+date,'Overall: '+total+'/100 | '+body.recommendation,'',...body.sections.map(section=>section.name+': '+section.ratings.reduce((sum,r)=>sum+r.score,0)+'/'+section.max),'','English: '+body.english,'Spanish: '+body.spanish,'Strengths: '+(body.strengths||'-'),'Concerns: '+(body.concerns||'-'),'Recommendation: '+body.reason,'','Full evaluation and PDF are saved in D1.','Reference: '+ref].join('\\n');
+ const fields={Candidate:candidate,Score:total+'/100',Recommendation:body.recommendation};
  try{
-  const receipt=await sendGatewayEmail(env,{idempotencyKey:'candidate-eval-'+ref,to:trim(env.CANDIDATE_EVAL_NOTIFY_TO,200)||'joe.karakunnel@gmail.com',subject:'F45 Candidate Evaluation: '+candidate+' - '+total+'/100',fields,priority:'standard',attachments:[{filename:'F45_Evaluation_'+safeName+'.pdf',contentType:'application/pdf',content:pdf}]});
+  const receipt=await sendGatewayEmail(env,{idempotencyKey:'candidate-eval-'+ref,to:trim(env.CANDIDATE_EVAL_NOTIFY_TO,200)||'joe.karakunnel@gmail.com',subject:'F45 Candidate Evaluation: '+candidate+' - '+total+'/100',fields,priority:'standard',htmlOverride:html,textOverride:text});
   if(!receipt.accepted)throw Error('gateway did not accept');
   await db.prepare("UPDATE candidate_evaluations SET email_state='accepted',email_gateway_id=? WHERE id=?").bind(receipt.id||null,ref).run().catch(error=>console.error('Email status update failed',error));
   return j(200,{ok:true,saved:true,emailed:true,reference:ref});
