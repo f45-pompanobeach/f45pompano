@@ -4,7 +4,7 @@ const ascii=s=>String(s??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').re
 const esc=s=>ascii(s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
 function wrap(value,width=94){
  const out=[];for(const paragraph of String(value??'').split(/\r?\n/)){
-  let line='';for(const word of ascii(paragraph).split(/\s+/)){
+  let line='';for(let word of ascii(paragraph).split(/\s+/)){
    if(!word)continue;
    if((line+' '+word).length>width&&line){out.push(line);line='';}
    while(word.length>width){out.push(word.slice(0,width));word=word.slice(width)}
