@@ -1,4 +1,5 @@
 import { sendGatewayEmail } from '../leads/_email_gateway.js';
+import { candidatePdf } from './_pdf.js';
 
 const allowed=[
  ['English & Spanish Communication',4,20],['Sales Skills',6,30],
@@ -23,12 +24,28 @@ export async function onRequestPost({request,env}){
   total+=sectionScore;entries.push([name,sectionScore+'/'+max]);
  }
  if(!trim(body.reason,3000)||!trim(body.recommendation)||!trim(body.trust)||!trim(body.english)||!trim(body.spanish)||!trim(body.preference)||!trim(body.schedule)||!trim(body.weekend))return j(400,{ok:false,message:'Complete all required qualifications and your recommendation.'});
- const fields={Candidate:candidate,'Interview Date':date,Interviewer:trim(body.interviewer,80)||'Andrea','Interview Duration (min)':trim(body.duration,10),...Object.fromEntries(entries),'TOTAL SCORE':total+'/100','English fluency':trim(body.english),'Spanish fluency':trim(body.spanish),'Work preference':trim(body.preference),'Flexible blocks':trim(body.schedule),'Weekend support':trim(body.weekend),'Schedule notes':trim(body.schedule_notes),'Best sales example':trim(body.best,3000),'Sales weakness':trim(body.weakness,3000),'Language observations':trim(body.language_notes,3000),'Organization observations':trim(body.organization_notes,3000),'Strengths':trim(body.strengths,3000),'Concerns':trim(body.concerns,3000),'Recommendation':trim(body.recommendation),'Trust to work independently':trim(body.trust),'Reason for recommendation':trim(body.reason,3000)};
+
+ // Save the full evaluation and PDF BEFORE attempting email; email failures must not lose data.
+ const db=env.CANDIDATE_EVAL_DB;
+ if(!db?.prepare)return j(503,{ok:false,message:'Evaluation storage is not configured. Nothing submitted; please contact the studio owner.'});
+ const ref=crypto.randomUUID();
+ let pdf;
+ try{pdf=candidatePdf(body,total)}catch(error){console.error('PDF creation failed',error);return j(500,{ok:false,message:'Could not generate PDF; evaluation not submitted.'})}
  try{
-  const ref=crypto.randomUUID();
-  const receipt=await sendGatewayEmail(env,{idempotencyKey:'candidate-eval-'+ref,to:trim(env.CANDIDATE_EVAL_NOTIFY_TO,200)||'joe.karakunnel@gmail.com',subject:'F45 Candidate Evaluation: '+candidate+' — '+total+'/100',fields,priority:'standard'});
-  if(!receipt.accepted)return j(503,{ok:false,message:'Email delivery is not configured. No confirmation was issued.'});
-  return j(200,{ok:true,reference:ref});
- }catch(error){console.error('Candidate evaluation submission failed',String(error?.message||error));return j(502,{ok:false,message:'Email service unavailable. Please try again.'})}
+  await db.prepare('INSERT INTO candidate_evaluations(id,candidate,interview_date,interviewer,total_score,recommendation,evaluation_json,pdf_base64,email_state) VALUES(?,?,?,?,?,?,?,?,?)')
+    .bind(ref,candidate,date,trim(body.interviewer,80)||'Andrea',total,trim(body.recommendation),JSON.stringify(body),pdf,'pending').run();
+ }catch(error){console.error('Evaluation database save failed',error);return j(503,{ok:false,message:'Could not save evaluation. No email sent; please retry.'})}
+ const safeName=candidate.replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,65)||'Candidate';
+ const fields={Candidate:candidate,'Interview date':date,'Total score':total+'/100',Recommendation:trim(body.recommendation),'Record ID':ref,'Report':'Complete scores and interview notes are attached as a PDF.'};
+ try{
+  const receipt=await sendGatewayEmail(env,{idempotencyKey:'candidate-eval-'+ref,to:trim(env.CANDIDATE_EVAL_NOTIFY_TO,200)||'joe.karakunnel@gmail.com',subject:'F45 Candidate Evaluation: '+candidate+' - '+total+'/100',fields,priority:'standard',attachments:[{filename:'F45_Evaluation_'+safeName+'.pdf',contentType:'application/pdf',content:pdf}]});
+  if(!receipt.accepted)throw Error('gateway did not accept');
+  await db.prepare("UPDATE candidate_evaluations SET email_state='accepted',email_gateway_id=? WHERE id=?").bind(receipt.id||null,ref).run().catch(error=>console.error('Email status update failed',error));
+  return j(200,{ok:true,saved:true,emailed:true,reference:ref});
+ }catch(error){
+  console.error('Candidate evaluation email failed after database save',String(error?.message||error));
+  await db.prepare("UPDATE candidate_evaluations SET email_state='failed' WHERE id=?").bind(ref).run().catch(()=>{});
+  return j(200,{ok:true,saved:true,emailed:false,reference:ref,message:'Evaluation and PDF saved securely, but email was not accepted. Contact the studio owner with the reference number.'});
+ }
 }
 export function onRequest(){return j(405,{ok:false,message:'Method not allowed.'})}
