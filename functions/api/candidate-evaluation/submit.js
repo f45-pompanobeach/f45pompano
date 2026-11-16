@@ -9,10 +9,8 @@ const j=(status,data)=>new Response(JSON.stringify(data),{status,headers:{'conte
 const trim=(v,max=2000)=>String(v??'').trim().slice(0,max);
 
 export async function onRequestPost({request,env}){
- if(!env.CANDIDATE_EVAL_ACCESS_CODE||String(env.CANDIDATE_EVAL_ACCESS_CODE).length<6)return j(503,{ok:false,message:'Form access is not configured. Contact the studio owner.'});
  if(Number(request.headers.get('content-length')||0)>45000)return j(413,{ok:false,message:'Submission too large.'});
  let body;try{body=await request.json()}catch{return j(400,{ok:false,message:'Invalid submission.'})}
- if(typeof body?.code!=='string'||body.code!==env.CANDIDATE_EVAL_ACCESS_CODE)return j(403,{ok:false,message:'Incorrect interviewer access code.'});
  if(!Array.isArray(body.sections)||body.sections.length!==allowed.length)return j(400,{ok:false,message:'Missing score sections.'});
  const candidate=trim(body.candidate,120),date=trim(body.date,16);
  if(candidate.length<2||!/^\d{4}-\d{2}-\d{2}$/.test(date))return j(400,{ok:false,message:'Candidate name and interview date are required.'});
