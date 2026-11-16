@@ -1,5 +1,5 @@
 /* Server-side shared gateway client; never expose credentials to browsers. */
-export async function sendGatewayEmail(env,{idempotencyKey,to,subject,fields,priority='standard'}){
+export async function sendGatewayEmail(env,{idempotencyKey,to,subject,fields,priority='standard',attachments=[]}){
  const url=String(env.EMAIL_GATEWAY_URL||'').replace(/\/+$/,'');
  const app=String(env.EMAIL_GATEWAY_APP_ID||'');
  const key=String(env.EMAIL_GATEWAY_APP_KEY||'');
@@ -10,7 +10,7 @@ export async function sendGatewayEmail(env,{idempotencyKey,to,subject,fields,pri
  const entries=Object.entries(fields||{}).map(([k,v])=>[String(k),String(v??'')]);
  const html='<table>'+entries.map(([k,v])=>'<tr><th style="text-align:left;padding:5px">'+escape(k)+'</th><td style="padding:5px">'+escape(v)+'</td></tr>').join('')+'</table>';
  const text=entries.map(([k,v])=>k+': '+v).join('\n');
- const response=await fetch(url+'/send',{method:'POST',headers:{'content-type':'application/json','x-email-app':app,authorization:'Bearer '+key,'idempotency-key':idempotencyKey},body:JSON.stringify({from,to,subject,html,text,priority})});
+ const response=await fetch(url+'/send',{method:'POST',headers:{'content-type':'application/json','x-email-app':app,authorization:'Bearer '+key,'idempotency-key':idempotencyKey},body:JSON.stringify({from,to,subject,html,text,priority,...(attachments.length?{attachments}:{})})});
  const result=await response.json().catch(()=>({}));
  if(response.status!==202||result.ok!==true||!result.id){const reason=typeof result.error==='string'?result.error.slice(0,120):'unspecified';const safeReason=reason.replace(/[^a-zA-Z0-9 _.-]/g,'').replace(/\s+/g,'_').toLowerCase();throw Error('gateway_rejected_'+response.status+'_'+safeReason);}
  return {configured:true,accepted:true,id:String(result.id),state:String(result.state||'pending')};
