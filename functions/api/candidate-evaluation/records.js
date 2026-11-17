@@ -12,6 +12,11 @@ export async function onRequest({request,env}){
   if(id){const r=await db.prepare('SELECT id,candidate,interview_date,interviewer,total_score,recommendation,evaluation_json,created_at FROM candidate_evaluations WHERE id=?').bind(id).first();if(!r)return j(404,{ok:false,message:'Candidate not found.'});return j(200,{ok:true,record:{...r,evaluation:JSON.parse(r.evaluation_json)}})}
   const rows=await db.prepare('SELECT id,candidate,interview_date,interviewer,total_score,recommendation,created_at FROM candidate_evaluations ORDER BY created_at DESC LIMIT 250').all();return j(200,{ok:true,records:rows.results||[]});
  }
+ if(method==='DELETE'){
+  if(!id)return j(400,{ok:false,message:'Missing record ID.'});
+  const result=await db.prepare('DELETE FROM candidate_evaluations WHERE id=?').bind(id).run();
+  return result.meta?.changes?j(200,{ok:true,deleted:id}):j(404,{ok:false,message:'Record not found.'});
+ }
  if(method==='POST'||method==='PUT'){
   if(Number(request.headers.get('content-length')||0)>65000)return j(413,{ok:false,message:'Too much data.'});
   const b=await request.json();const final=b.status==='final';const total=validate(b,final);if(total===null)return j(400,{ok:false,message:'Please provide candidate, date, and valid scoring fields.'});
