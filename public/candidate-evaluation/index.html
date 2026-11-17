@@ -47,7 +47,7 @@ document.querySelector('#downloadPdf').addEventListener('click',()=>{
  const page4='<div class="pdf-page">'+title('RECOMMENDATION FOR JOE')+'<div class="pdf-label">Recommendation</div><div class="pdf-notes">'+safe(v('recommendation'))+'</div><div class="pdf-label">Would you trust this person to handle F45 leads and members without constant supervision?</div><div class="pdf-notes">'+safe(v('trust'))+'</div><div class="pdf-label">Reason for recommendation</div><div class="pdf-notes">'+safe(v('reason'))+'</div>'+footer+'</div>';
  document.querySelector('#printReport').innerHTML=page1+page2+page3+page4;
  const originalTitle=document.title;
- const candidateName=String(f.elements.candidate.value||'Unnamed Candidate').trim().replace(/[\\/:*?"<>|\\x00-\\x1f]/g,'').replace(/\\s+/g,' ').slice(0,100)||'Unnamed Candidate';
+ const candidateName=String(f.elements.candidate.value||'Unnamed Candidate').trim().replace(/[^a-zA-Z0-9 .'-]/g,'').replace(/\s+/g,' ').slice(0,100)||'Unnamed Candidate';
  document.title='F45 - Candidate Evaluation - '+candidateName;
  const restoreTitle=()=>{document.title=originalTitle;window.removeEventListener('afterprint',restoreTitle)};
  window.addEventListener('afterprint',restoreTitle,{once:true});
