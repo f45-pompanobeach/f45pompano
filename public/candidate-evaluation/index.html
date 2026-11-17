@@ -80,21 +80,20 @@ document.querySelector('#saveDraft').addEventListener('click',async()=>{const bt
 async function refreshRecords(){const data=await recordFetch(recordsApi);recordsCache=data.records;renderRecords()}
 function renderRecords(){
  const q=document.querySelector('#recordSearch').value.trim().toLowerCase(),host=document.querySelector('#recordList');host.replaceChildren();
- const unique=new Map();for(const rec of recordsCache){const key=[rec.candidate.trim().toLowerCase(),rec.interview_date,rec.interviewer.trim().toLowerCase(),rec.total_score,rec.recommendation].join('|');if(!unique.has(key))unique.set(key,rec)}
- const visible=[...unique.values()].filter(x=>(x.candidate+' '+x.interviewer).toLowerCase().includes(q));
+ const visible=recordsCache.filter(x=>(x.candidate+' '+x.interviewer).toLowerCase().includes(q));
  const count=document.createElement('p');count.className='hint';count.textContent=visible.length+' saved candidate'+(visible.length===1?'':'s');host.append(count);
  if(!visible.length){const empty=document.createElement('p');empty.className='hint';empty.textContent=recordsCache.length?'No candidates match your search.':'No saved candidates found.';host.append(empty)}
  for(const rec of visible){
   const line=document.createElement('div');line.style='display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 4px;border-top:1px solid #e4e7eb';
   const info=document.createElement('div');const name=document.createElement('strong');name.textContent=rec.candidate;
-  const meta=document.createElement('div');meta.style='font-size:12px;color:#65717f;margin-top:4px';meta.textContent=rec.interview_date+' · '+rec.interviewer+' · '+rec.total_score+'/100 · '+rec.recommendation;
+  const meta=document.createElement('div');meta.style='font-size:12px;color:#65717f;margin-top:4px';meta.textContent=rec.interview_date+' · Submitted '+new Date(rec.created_at.replace(' ','T')+'Z').toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'})+' · '+rec.interviewer+' · '+rec.total_score+'/100 · '+rec.recommendation;
   info.append(name,meta);
   const btn=document.createElement('button');btn.type='button';btn.textContent='Open evaluation';btn.style='padding:9px 12px;background:#253749;white-space:nowrap';
   btn.addEventListener('click',async()=>{
    if(!confirm('Open '+rec.candidate+'’s saved evaluation? This will replace the current form'+(formDirty?' and discard unsaved changes':'')+'.'))return;
    btn.disabled=true;try{const d=await recordFetch(recordsApi+'?id='+encodeURIComponent(rec.id));loadIntoForm(d.record.evaluation);currentRecordId=rec.id;managerStatus.textContent='Viewing '+rec.candidate+' — edit below and select Save Draft / Changes to update';document.querySelector('#evaluation').scrollIntoView({behavior:'smooth'})}
    catch(e){managerStatus.textContent='Unable to open '+rec.candidate+': '+e.message}finally{btn.disabled=false}
-  });line.append(info,btn);host.append(line);
+  });const actions=document.createElement('div');actions.style='display:flex;gap:8px;align-items:center';actions.append(btn);const del=document.createElement('button');del.type='button';del.textContent='Delete';del.style='padding:9px 12px;background:#9f2431';del.addEventListener('click',async()=>{if(!confirm('Permanently delete '+rec.candidate+' submitted '+meta.textContent+'? This cannot be undone.'))return;try{del.disabled=true;await recordFetch(recordsApi+'?id='+encodeURIComponent(rec.id),{method:'DELETE'});if(currentRecordId===rec.id){currentRecordId=null;managerStatus.textContent='Deleted the open record. Start a new evaluation.'}await refreshRecords()}catch(e){alert('Delete failed: '+e.message)}finally{del.disabled=false}});actions.append(del);line.append(info,actions);host.append(line);
  }
 }
 document.querySelector('#recordSearch').addEventListener('input',renderRecords);
