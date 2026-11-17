@@ -14,7 +14,7 @@ export async function onRequest({request,env}){
  try{
  if(method==='GET'){
   if(id){const r=await db.prepare('SELECT id,candidate,interview_date,interviewer,total_score,recommendation,evaluation_json,created_at FROM candidate_evaluations WHERE id=?').bind(id).first();if(!r)return j(404,{ok:false,message:'Candidate not found.'});return j(200,{ok:true,record:{...r,evaluation:JSON.parse(r.evaluation_json)}})}
-  const rows=await db.prepare('SELECT id,candidate,interview_date,interviewer,total_score,recommendation,created_at FROM candidate_evaluations ORDER BY created_at DESC LIMIT 250').all();return j(200,{ok:true,records:rows.results||[]});
+  const rows=await db.prepare('SELECT id,candidate,interview_date,interviewer,total_score,recommendation,created_at,evaluation_json FROM candidate_evaluations ORDER BY created_at DESC LIMIT 250').all();return j(200,{ok:true,records:(rows.results||[]).map(r=>{let count=1;try{const e=JSON.parse(r.evaluation_json);count=Math.max(1,(e.history||[]).length)}catch{}const {evaluation_json,...publicRow}=r;return {...publicRow,version_count:count}})});
  }
  if(method==='DELETE'){
   if(!id)return j(400,{ok:false,message:'Missing record ID.'});
