@@ -69,7 +69,7 @@ let currentRecordId=null,recordsCache=[],formDirty=false,loadingForm=false;
 const recordsApi='/api/candidate-evaluation/records';
 const managerStatus=document.querySelector('#activeRecord');
 const managerList=document.querySelector('#recordList');
-managerList.textContent='Saved candidates will appear here once access is enabled.';
+managerList.textContent='Loading saved candidates…';
 const keyHeaders=()=>({'Content-Type':'application/json'});
 const payload=()=>{const f=document.querySelector('#evaluation');const o=Object.fromEntries(new FormData(f).entries());o.sections=sections.map((sec,si)=>({name:sec.title,max:sec.max,ratings:sec.items.map((label,i)=>({label,score:Number(o['r'+si+'_'+i])||null,notes:o['n'+si+'_'+i]||''}))}));for(const k of Object.keys(o))if(/^([rn])\d+_\d+$/.test(k))delete o[k];return o};
 const calculate=()=>document.querySelector('#evaluation').dispatchEvent(new Event('change',{bubbles:true}));
@@ -99,6 +99,7 @@ function renderRecords(){
 document.querySelector('#recordSearch').addEventListener('input',renderRecords);
 document.querySelector('#loadRecords').addEventListener('click',async()=>{try{managerStatus.textContent='Loading saved candidates…';await refreshRecords();managerStatus.textContent='Candidate list ready. Select a name to open the evaluation.'}catch(e){managerStatus.textContent='Could not load candidates: '+e.message;managerList.textContent='Saved candidate list unavailable. '+(e.message.includes('access key')?'Access must be enabled for authorized interviewers.':e.message)}});
 
+refreshRecords().then(()=>{managerStatus.textContent='Saved candidates loaded. Select a candidate to open.'}).catch(e=>{managerStatus.textContent='Candidate list could not load: '+e.message;managerList.textContent='Could not load candidates: '+e.message});
 document.querySelector('#evaluation').addEventListener('input',()=>{if(!loadingForm)formDirty=true});
 document.querySelector('#evaluation').addEventListener('change',()=>{if(!loadingForm)formDirty=true});
 
