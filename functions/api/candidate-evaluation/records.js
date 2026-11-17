@@ -16,6 +16,26 @@ export async function onRequest({request,env}){
   if(id){const r=await db.prepare('SELECT id,candidate,interview_date,interviewer,total_score,recommendation,evaluation_json,created_at FROM candidate_evaluations WHERE id=?').bind(id).first();if(!r)return j(404,{ok:false,message:'Candidate not found.'});return j(200,{ok:true,record:{...r,evaluation:JSON.parse(r.evaluation_json)}})}
   const rows=await db.prepare('SELECT id,candidate,interview_date,interviewer,total_score,recommendation,created_at,evaluation_json FROM candidate_evaluations ORDER BY created_at DESC LIMIT 250').all();return j(200,{ok:true,records:(rows.results||[]).map(r=>{let count=1;try{const e=JSON.parse(r.evaluation_json);count=Math.max(1,(e.history||[]).length)}catch{}const {evaluation_json,...publicRow}=r;return {...publicRow,version_count:count}})});
  }
+ if(method==='DELETE'&&url.searchParams.has('version')){
+  const version=Number(url.searchParams.get('version'));
+  if(!id||!Number.isInteger(version)||version<=1)return j(400,{ok:false,message:'Only later evaluation versions can be deleted.'});
+  const row=await db.prepare('SELECT evaluation_json FROM candidate_evaluations WHERE id=?').bind(id).first();
+  if(!row)return j(404,{ok:false,message:'Candidate not found.'});
+  const current=JSON.parse(row.evaluation_json),history=Array.isArray(current.history)?current.history:[];
+  const index=history.findIndex(v=>v.version===version);
+  if(index<0)return j(404,{ok:false,message:'Version not found.'});
+  if(history.length<2)return j(400,{ok:false,message:'Cannot delete the only version.'});
+  const nextHistory=history.filter(v=>v.version!==version).map((v,i)=>({...v,version:i+1}));
+  const latest=nextHistory[nextHistory.length-1];
+  const isLatest=index===history.length-1;
+  const restored=isLatest?{...latest.evaluation}:current;
+  const payload={...restored,history:nextHistory,updated_at:new Date().toISOString()};
+  const total=validate(payload,false);
+  if(total===null)return j(409,{ok:false,message:'Stored evaluation cannot be restored safely.'});
+  const result=await db.prepare('UPDATE candidate_evaluations SET candidate=?,interview_date=?,interviewer=?,total_score=?,recommendation=?,evaluation_json=? WHERE id=? AND evaluation_json=?').bind(safe(payload.candidate),payload.date,safe(payload.interviewer||'Andrea'),total,safe(payload.recommendation||'Draft'),JSON.stringify(payload),id,row.evaluation_json).run();
+  if(!result.meta?.changes)return j(409,{ok:false,message:'Evaluation changed. Refresh and try again.'});
+  return j(200,{ok:true,deleted_version:version,version_count:nextHistory.length});
+ }
  if(method==='DELETE'){
   if(!id)return j(400,{ok:false,message:'Missing record ID.'});
   const result=await db.prepare('DELETE FROM candidate_evaluations WHERE id=?').bind(id).run();
