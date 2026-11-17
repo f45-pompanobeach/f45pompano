@@ -46,6 +46,11 @@ document.querySelector('#downloadPdf').addEventListener('click',()=>{
  const page3='<div class="pdf-page">'+title('OVERALL SCORE & INTERVIEW NOTES')+table(['Section','Maximum','Candidate score'],rows,[65,17,18])+'<div class="pdf-desc" style="margin-top:8px">Interpretation (guideline only): 85–100 Strong | 70–84 Competitive | 60–69 Needs follow-up | Below 60 Not recommended.</div><div class="pdf-h2">Interview evidence — complete after the call</div>'+notes.map(([label,key])=>'<div class="pdf-label">'+safe(label)+':</div><div class="pdf-notes">'+safe(v(key))+'</div>').join('')+footer+'</div>';
  const page4='<div class="pdf-page">'+title('RECOMMENDATION FOR JOE')+'<div class="pdf-label">Recommendation</div><div class="pdf-notes">'+safe(v('recommendation'))+'</div><div class="pdf-label">Would you trust this person to handle F45 leads and members without constant supervision?</div><div class="pdf-notes">'+safe(v('trust'))+'</div><div class="pdf-label">Reason for recommendation</div><div class="pdf-notes">'+safe(v('reason'))+'</div>'+footer+'</div>';
  document.querySelector('#printReport').innerHTML=page1+page2+page3+page4;
+ const originalTitle=document.title;
+ const candidateName=String(f.elements.candidate.value||'Unnamed Candidate').trim().replace(/[\\/:*?"<>|\\x00-\\x1f]/g,'').replace(/\\s+/g,' ').slice(0,100)||'Unnamed Candidate';
+ document.title='F45 - Candidate Evaluation - '+candidateName;
+ const restoreTitle=()=>{document.title=originalTitle;window.removeEventListener('afterprint',restoreTitle)};
+ window.addEventListener('afterprint',restoreTitle,{once:true});
  window.print();
 });
 const sections=[
