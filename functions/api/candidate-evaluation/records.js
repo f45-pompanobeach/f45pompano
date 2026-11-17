@@ -2,10 +2,25 @@
 const j=(status,data)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff'}});
 const safe=s=>String(s??'').trim().slice(0,3000);
 const allowed=[['English & Spanish Communication',4,20],['Sales Skills',6,30],['Organization & Independence',4,20],['Customer Service & Member Retention',3,15],['Additional Skills & Role Fit',3,15]];
-function authorized(req,env){const secret=String(env.CANDIDATE_EVAL_ADMIN_KEY||'');const token=req.headers.get('authorization')||'';return secret.length>=20&&token==='Bearer '+secret}
+async function authorized(req,env){
+ // Cloudflare Access identity JWT is verified cryptographically; untrusted request headers alone are insufficient.
+ const team=String(env.CANDIDATE_EVAL_ACCESS_TEAM||'').trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
+ const audience=String(env.CANDIDATE_EVAL_ACCESS_AUD||'').trim();
+ const jwt=req.headers.get('Cf-Access-Jwt-Assertion');
+ if(!team||!audience||!jwt)return false;
+ try{
+  const [h,p,s]=jwt.split('.');if(!h||!p||!s)return false;
+  const decode=x=>Uint8Array.from(atob(x.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-x.length%4)%4)),c=>c.charCodeAt(0));
+  const header=JSON.parse(new TextDecoder().decode(decode(h))),payload=JSON.parse(new TextDecoder().decode(decode(p)));
+  if(header.alg!=='RS256'||!header.kid||payload.iss!=='https://'+team||!Array.isArray(payload.aud)||!payload.aud.includes(audience)||payload.exp*1000<=Date.now()||payload.nbf&&payload.nbf*1000>Date.now())return false;
+  const keys=await fetch('https://'+team+'/cdn-cgi/access/certs').then(r=>r.json());const jwk=keys.keys?.find(k=>k.kid===header.kid&&k.kty==='RSA');if(!jwk)return false;
+  const key=await crypto.subtle.importKey('jwk',jwk,{name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['verify']);
+  return await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,decode(s),new TextEncoder().encode(h+'.'+p));
+ }catch{return false}
+}
 function validate(b,final){if(!b||typeof b!=='object'||!Array.isArray(b.sections)||b.sections.length!==5||!safe(b.candidate)||!/^\d{4}-\d{2}-\d{2}$/.test(b.date||''))return null;let total=0;for(let i=0;i<5;i++){const [name,count,max]=allowed[i],s=b.sections[i];if(s?.name!==name||s?.max!==max||s.ratings?.length!==count)return null;for(const r of s.ratings){if(r.score===null||r.score===0||r.score===''){if(final)return null;continue}if(!Number.isInteger(r.score)||r.score<1||r.score>5)return null;total+=r.score}}if(final&&(!b.reason||!b.recommendation||!b.trust||!b.english||!b.spanish||!b.preference||!b.schedule||!b.weekend))return null;return total}
 export async function onRequest({request,env}){
- if(!authorized(request,env))return j(401,{ok:false,message:'Candidate records require an administrator access key.'});
+ if(!await authorized(request,env))return j(401,{ok:false,message:'Saved evaluations require Cloudflare Access. Configure CANDIDATE_EVAL_ACCESS_TEAM and CANDIDATE_EVAL_ACCESS_AUD and allow both interviewers.'});
  const db=env.CANDIDATE_EVAL_DB;if(!db?.prepare)return j(503,{ok:false,message:'Database not configured.'});
  const url=new URL(request.url),id=url.searchParams.get('id'),method=request.method;
  try{
