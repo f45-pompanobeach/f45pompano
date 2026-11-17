@@ -93,7 +93,7 @@ function renderRecords(){
    if(!confirm('Open '+rec.candidate+'’s saved evaluation? This will replace the current form'+(formDirty?' and discard unsaved changes':'')+'.'))return;
    btn.disabled=true;try{const d=await recordFetch(recordsApi+'?id='+encodeURIComponent(rec.id));loadIntoForm(d.record.evaluation);currentRecordId=rec.id;managerStatus.textContent='Viewing '+rec.candidate+' — edit below and select Save Draft / Changes to update';document.querySelector('#evaluation').scrollIntoView({behavior:'smooth'})}
    catch(e){managerStatus.textContent='Unable to open '+rec.candidate+': '+e.message}finally{btn.disabled=false}
-  });const actions=document.createElement('div');actions.style='display:flex;gap:8px;align-items:center';actions.append(btn);const del=document.createElement('button');del.type='button';del.textContent='Delete';del.style='padding:9px 12px;background:#9f2431';del.addEventListener('click',async()=>{if(!confirm('Permanently delete '+rec.candidate+' submitted '+meta.textContent+'? This cannot be undone.'))return;try{del.disabled=true;await recordFetch(recordsApi+'?id='+encodeURIComponent(rec.id),{method:'DELETE'});if(currentRecordId===rec.id){currentRecordId=null;managerStatus.textContent='Deleted the open record. Start a new evaluation.'}await refreshRecords()}catch(e){alert('Delete failed: '+e.message)}finally{del.disabled=false}});actions.append(del);line.append(info,actions);host.append(line);
+  });const actions=document.createElement('div');actions.style='display:flex;gap:8px;align-items:center';actions.append(btn);line.append(info,actions);host.append(line);
  }
 }
 document.querySelector('#recordSearch').addEventListener('input',renderRecords);
