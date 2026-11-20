@@ -2,15 +2,15 @@
 // but live in a separate table and are never exposed by Andrea's candidate endpoints.
 const json=(status,data)=>new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}});
 const predefined=new Set(["gema","oto","norlan"]);
-const sections=[["sales",[5,5,6,6,5,7,6]],["reliability",[5,5,5,5]],["initiative",[5,5,5]],["communication",[5,5]],["fit",[5,5,5]]];
+const sections=[["sales",[5,5,6,6,5,7,6]],["reliability",[8,7]],["initiative",[10]],["communication",[10]],["fit",[5,5,5,5,5]]];
 const personal={gema:[4,4,3,4],oto:[5,4,4,2],norlan:[5,5,4,3]};
 async function ensure(db){await db.prepare("CREATE TABLE IF NOT EXISTS owner_final_interviews (candidate_id TEXT PRIMARY KEY, candidate_name TEXT NOT NULL, total_score INTEGER NOT NULL DEFAULT 0, evaluation_json TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT (datetime('now')))").run()}
 function validate(candidate,payload){
  if(!candidate||candidate.length>90||!payload||typeof payload!=="object"||!payload.scores||typeof payload.scores!=="object"||!payload.notes||typeof payload.notes!=="object"||!payload.fields||typeof payload.fields!=="object")return null;
  const scores={},notes={},fields={};let total=0;
- for(const [sec,weights] of sections)for(let i=0;i<weights.length;i++){const id=sec+"-"+i,v=payload.scores[id];if(v===undefined||v===null||v==="")continue;const n=Number(v);if(!Number.isInteger(n)||n<0||n>weights[i])return null;scores[id]=n;total+=n}
+ for(const [sec,weights] of sections)for(let i=0;i<weights.length;i++){const id=(sec==="sales"?sec:"v2-"+sec)+"-"+i,v=payload.scores[id];if(v===undefined||v===null||v==="")continue;const n=Number(v);if(!Number.isInteger(n)||n<0||n>weights[i])return null;scores[id]=n;total+=n}
  (personal[candidate]||[]).forEach((weight,i)=>{const id="personal-"+i,v=payload.scores[id];if(v===undefined||v===null||v==="")return;const n=Number(v);if(!Number.isInteger(n)||n<0||n>weight)throw Error("Invalid personal score");scores[id]=n});
- for(const [k,v] of Object.entries(payload.notes)){if(typeof k!=="string"||!/^((sales|reliability|initiative|communication|fit)-\d+|personal-\d+)$/.test(k))continue;if(typeof v!=="string"||v.length>12000)return null;notes[k]=v}
+ for(const [k,v] of Object.entries(payload.notes)){if(typeof k!=="string"||!/^((sales|reliability|initiative|communication|fit)-\d+|v2-(reliability|initiative|communication|fit)-\d+|personal-\d+)$/.test(k))continue;if(typeof v!=="string"||v.length>12000)return null;notes[k]=v}
  const keys=["date","duration","decision","compensation","coverage","confidence","overall","next","candidateName","status"];for(const k of keys){const v=payload.fields[k];if(v!==undefined){if(typeof v!=="string"||v.length>12000)return null;fields[k]=v}}
  if(!predefined.has(candidate)&&(!fields.candidateName||fields.candidateName.trim().length<2))return null;return {scores,notes,fields,total};
 }
